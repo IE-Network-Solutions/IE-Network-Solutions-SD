@@ -29,7 +29,7 @@ exports.singleTest = async (req, res, next) => {
     // get test with the given id
     const test = await TestDAL.getTestById(id);
 
-    if (!test) return next(new AppError("Test with the given id not found"));
+    if (!test) return next(new AppError("Todo with the given id not found"));
 
     res.status(200).json({
       status: "Success",

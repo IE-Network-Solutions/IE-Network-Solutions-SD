@@ -94,7 +94,7 @@ exports.deleteClient = async (req, res, next) => {
     if (!clientData)
       return next(new AppError("client with the given id not found"));
 
-    await ClientDAL.deleteclient(id);
+    await ClientDAL.deleteClient(id);
 
     res.status(200).json({
       status: "Success",

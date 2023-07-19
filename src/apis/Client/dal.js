@@ -1,5 +1,6 @@
 const { getConnection } = require("typeorm");
 const User = require("../../models/User");
+const {v4: uuidv4} = require('uuid');
 
 class ClientDAL {
   static async getClient() {
@@ -42,8 +43,11 @@ class ClientDAL {
 
   static async createClient(data) {
     try {
+      const id = uuidv4();
+
         
-      const { first_name,
+      const {
+         first_name,
         last_name,
         email,
         role,
@@ -56,7 +60,7 @@ class ClientDAL {
       const clientRepository = connection.getRepository(User);
 
       // create client
-      const newClient = await clientRepository.create({ first_name,
+      const newClient = await clientRepository.create({ id,first_name,
         last_name,
         email,
         role,
@@ -87,7 +91,7 @@ class ClientDAL {
     return client;
   }
 
-  static async deleteTest(id) {
+  static async deleteClient(id) {
     // get connection from the pool
     const connection = getConnection();
 

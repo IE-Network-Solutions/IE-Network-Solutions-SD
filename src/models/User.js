@@ -1,4 +1,5 @@
 const { EntitySchema } = require("typeorm");
+const { v4: uuidv4 } = require("uuid"); // Import the uuid library
 
 /**
  * Entitiy model for user table
@@ -9,8 +10,7 @@ const User = new EntitySchema({
   columns: {
     id: {
       primary: true,
-      type: "int",
-      generated: true,
+      type: "uuid",
     },
     first_name: {
       type: "varchar",

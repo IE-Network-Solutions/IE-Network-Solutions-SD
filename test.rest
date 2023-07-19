@@ -1,12 +1,12 @@
-GET http://localhost:3001/api/v1/users/
+GET http://localhost:3001/api/v1/users/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdF9uYW1lIjoiRGFnbWF3aSIsImxhc3RfbmFtZSI6IkJhYmkiLCJlbWFpbCI6ImRhZ21hd2lAZ21haWwuY29tIiwicm9sZSI6InNvZnR3YXJlIGRldiIsImRlcGFydG1lbnQiOiJTQVNTIiwidXNlcl90eXBlIjoiZW1wbG95ZWUiLCJpYXQiOjE2ODk3NzA4MzIsImV4cCI6MTY5MDM3NTYzMn0.JtC09vGnkVfu9V7it0GqTnocMMtXMBzTrMjqpfyjkA4
 
 ###
 
-GET http://localhost:3001/api/v1/users/getAllUsers
+GET http://localhost:3001/api/v1/users/getAllUsers/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdF9uYW1lIjoiRGFnbWF3aSIsImxhc3RfbmFtZSI6IkJhYmkiLCJlbWFpbCI6ImRhZ21hd2lAZ21haWwuY29tIiwicm9sZSI6InNvZnR3YXJlIGRldiIsImRlcGFydG1lbnQiOiJTQVNTIiwidXNlcl90eXBlIjoiZW1wbG95ZWUiLCJpYXQiOjE2ODk3NzA4MzIsImV4cCI6MTY5MDM3NTYzMn0.JtC09vGnkVfu9V7it0GqTnocMMtXMBzTrMjqpfyjkA4
 
 ###
 
-GET http://localhost:3001/api/v1/users/getOneUser/6
+GET http://localhost:3001/api/v1/users/getOneUser/12/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdF9uYW1lIjoiRGFnbWF3aSIsImxhc3RfbmFtZSI6IkJhYmkiLCJlbWFpbCI6ImRhZ21hd2lAZ21haWwuY29tIiwicm9sZSI6InNvZnR3YXJlIGRldiIsImRlcGFydG1lbnQiOiJTQVNTIiwidXNlcl90eXBlIjoiZW1wbG95ZWUiLCJpYXQiOjE2ODk3NzA4MzIsImV4cCI6MTY5MDM3NTYzMn0.JtC09vGnkVfu9V7it0GqTnocMMtXMBzTrMjqpfyjkA4
 
 ###
 
@@ -14,13 +14,29 @@ POST http://localhost:3001/api/v1/users/createUser HTTP/1.1
 content-type: application/json
 
 {
-    "first_name": "Jane",
-    "last_name": "Doe",
-    "email": "Janis@gmail.com",
+    "first_name": "Dagmawi",
+    "last_name": "Babi",
+    "email": "dagmawi@gmail.com",
     "role": "software dev",
     "department": "SASS",
     "user_type": "employee"
 }
+
+###
+
+POST http://localhost:3001/api/v1/users/createUser HTTP/1.1
+content-type: application/json
+
+{
+    "first_name": "IE",
+    "last_name": "EI",
+    "email": "IE@gmail.com",
+    "role": "software comp",
+    "department": "SASS",
+    "user_type": "employee",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdF9uYW1lIjoiRGFnbWF3aSIsImxhc3RfbmFtZSI6IkJhYmkiLCJlbWFpbCI6ImRhZ21hd2lAZ21haWwuY29tIiwicm9sZSI6InNvZnR3YXJlIGRldiIsImRlcGFydG1lbnQiOiJTQVNTIiwidXNlcl90eXBlIjoiZW1wbG95ZWUiLCJpYXQiOjE2ODk3NzA4MzIsImV4cCI6MTY5MDM3NTYzMn0.JtC09vGnkVfu9V7it0GqTnocMMtXMBzTrMjqpfyjkA4"
+}
+
 
 ###
 
@@ -33,12 +49,13 @@ content-type: application/json
     "email": "JohnDoe@gmail.com",
     "role": "software dev",
     "department": "SASS",
-    "user_type": "employee"
+    "user_type": "employee",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdF9uYW1lIjoiRGFnbWF3aSIsImxhc3RfbmFtZSI6IkJhYmkiLCJlbWFpbCI6ImRhZ21hd2lAZ21haWwuY29tIiwicm9sZSI6InNvZnR3YXJlIGRldiIsImRlcGFydG1lbnQiOiJTQVNTIiwidXNlcl90eXBlIjoiZW1wbG95ZWUiLCJpYXQiOjE2ODk3NzA4MzIsImV4cCI6MTY5MDM3NTYzMn0.JtC09vGnkVfu9V7it0GqTnocMMtXMBzTrMjqpfyjkA4"
 }
 
 ###
 
-DELETE http://localhost:3001/api/v1/users/deleteAllUsers
+DELETE http://localhost:3001/api/v1/users/deleteAllUsers/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdF9uYW1lIjoiRGFnbWF3aSIsImxhc3RfbmFtZSI6IkJhYmkiLCJlbWFpbCI6ImRhZ21hd2lAZ21haWwuY29tIiwicm9sZSI6InNvZnR3YXJlIGRldiIsImRlcGFydG1lbnQiOiJTQVNTIiwidXNlcl90eXBlIjoiZW1wbG95ZWUiLCJpYXQiOjE2ODk3NzA4MzIsImV4cCI6MTY5MDM3NTYzMn0.JtC09vGnkVfu9V7it0GqTnocMMtXMBzTrMjqpfyjkA4
 
 
 ###
@@ -49,9 +66,28 @@ content-type: application/json
 {
     "id": 6,
     "first_name": "John",
-    "last_name": "Dagmawi",
+    "last_name": "Doe",
     "email": "JohnDoe@gmail.com",
+    "role": "software dev",
+    "department": "SASS",
+    "user_type": "employee",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdF9uYW1lIjoiRGFnbWF3aSIsImxhc3RfbmFtZSI6IkJhYmkiLCJlbWFpbCI6ImRhZ21hd2lAZ21haWwuY29tIiwicm9sZSI6InNvZnR3YXJlIGRldiIsImRlcGFydG1lbnQiOiJTQVNTIiwidXNlcl90eXBlIjoiZW1wbG95ZWUiLCJpYXQiOjE2ODk3NzA4MzIsImV4cCI6MTY5MDM3NTYzMn0.JtC09vGnkVfu9V7it0GqTnocMMtXMBzTrMjqpfyjkA4"
+}
+
+###
+
+POST http://localhost:3001/api/v1/users/loginUser HTTP/1.1
+content-type: application/json
+
+{   
+    "first_name": "Dagmawi",
+    "last_name": "Babi",
+    "email": "dagmawi@gmail.com",
     "role": "software dev",
     "department": "SASS",
     "user_type": "employee"
 }
+
+###
+    # "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdF9uYW1lIjoiRGFnbWF3aSIsImxhc3RfbmFtZSI6IkJhYmkiLCJlbWFpbCI6ImRhZ21hd2lAZ21haWwuY29tIiwicm9sZSI6InNvZnR3YXJlIGRldiIsImRlcGFydG1lbnQiOiJTQVNTIiwidXNlcl90eXBlIjoiZW1wbG95ZWUiLCJpYXQiOjE2ODk3NzA4MzIsImV4cCI6MTY5MDM3NTYzMn0.JtC09vGnkVfu9V7it0GqTnocMMtXMBzTrMjqpfyjkA4"
+

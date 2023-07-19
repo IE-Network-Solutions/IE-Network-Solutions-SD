@@ -35,6 +35,24 @@ class UserDAL {
         }
     }
 
+    // Get User by User Data
+    static async getUserByUserData(data) {
+        const userData = data;
+        try {
+            // Form Connection
+            const connection = getConnection();
+            const userRepository = connection.getRepository(User);
+
+            // Get Data
+            const foundUser = await userRepository.findOneBy(userData);
+            return foundUser;
+
+        } catch (error) {
+            throw error;
+        }
+
+    }
+
     // Create User
     static async createUser(data) {
         try {

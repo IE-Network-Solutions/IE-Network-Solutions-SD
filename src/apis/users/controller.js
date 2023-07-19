@@ -1,5 +1,6 @@
 const AppError = require("../../../utils/apperror");
 const UserDAL = require("./dal");
+const jwt = require("../../middlewares/auth");
 
 exports.introduction = async (req, res, next) => {
     // Respond
@@ -148,7 +149,35 @@ exports.editUser = async (req, res, next) => {
     }
 }
 
-exports.loginUser = async (req, res, next) => {}
+exports.loginUser = async (req, res, next) => {
+    // Get Req Body
+    let user = {
+        first_name: req.body.first_name,
+        last_name: req.body.last_name,
+        email: req.body.email,
+        role: req.body.role,
+        department: req.body.department,
+        user_type: req.body.user_type,
+    }
+
+    // Check User Existence
+    let result = await UserDAL.getUserByUserData(user);
+    if (!result) return next(new AppError("User Not Found!", 404));
+
+    // Sign JWT
+    let token = await jwt.signJWT(user);
+
+    // Respond
+    res.status(200).json({
+        status: "Success",
+        data: {
+            "user": user,
+            "token": token,
+        },
+    });
+
+
+}
 
 exports.logoutUser = async (req, res, next) => {}
 

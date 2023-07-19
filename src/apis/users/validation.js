@@ -7,6 +7,7 @@ const userSchema = joi.object({
     role: joi.string().required(),
     department: joi.string().required(),
     user_type: joi.string().required(),
+    token: joi.string(),
 });
 
 module.exports = userSchema;

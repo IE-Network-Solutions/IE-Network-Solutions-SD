@@ -6,8 +6,7 @@ const Ticket = new EntitySchema({
   columns: {
     id: {
       primary: true,
-      type: "int",
-      generated: true,
+      type: "uuid",
     },
     subject: {
       type: "varchar",

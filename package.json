@@ -18,7 +18,8 @@
     "nodemon": "^3.0.1",
     "pg": "^8.11.1",
     "reflect-metadata": "^0.1.13",
-    "save-dev": "^0.0.1-security",
-    "typeorm": "^0.3.17"
+    "typeorm": "^0.3.17",
+    "uuid": "^9.0.0",
+    "uuid-validate": "^0.0.3"
   }
 }

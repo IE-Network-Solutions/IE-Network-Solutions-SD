@@ -10,125 +10,142 @@ exports.introduction = async (req, res, next) => {
 }
 
 exports.getAllUsers = async (req, res, next) => {
-    // Get All Users
-    let users = await UserDAL.getAllUsers();
+    try {
+        // Get All Users
+        let users = await UserDAL.getAllUsers();
 
-    // Respond
-    res.status(200).json({
-        status: "Success",
-        data: users,
-    });
+        // Respond
+        res.status(200).json({
+            status: "Success",
+            data: users,
+        });
+    } catch (error) {
+        throw error;
+    }
 }
 
 exports.getOneUser = async (req, res, next) => {
-    // Get ID
-    let id = req.params.id;
-    let user = await UserDAL.getOneUser(id);
-
-    // Respond
-    res.status(200).json({
-        status: "Success",
-        data: user,
-    });
+    try {
+        // Get ID
+        let id = req.params.id;
+        let user = await UserDAL.getOneUser(id);
+    
+        // Respond
+        res.status(200).json({
+            status: "Success",
+            data: user,
+        });
+    } catch (error) {
+        throw error;
+    }    
 }
 
 
 exports.createUser = async (req, res, next) => {
-    // Get Req Body
-    let user = {
-        first_name: req.body.first_name,
-        last_name: req.body.last_name,
-        email: req.body.email,
-        role: req.body.role,
-        department: req.body.department,
-        user_type: req.body.user_type,
-    }
+    try {
+        // Get Req Body
+        let user = {
+            first_name: req.body.first_name,
+            last_name: req.body.last_name,
+            email: req.body.email,
+            role: req.body.role,
+            department: req.body.department,
+            user_type: req.body.user_type,
+        }
 
-    // Check Required Fields
-    if (!user.first_name || !user.last_name || !user.email || !user.role || !user.department || !user.user_type) {
-        return next(new AppError("Please fill all required fields", 400));
-    }
+        // Check Required Fields
+        if (!user.first_name || !user.last_name || !user.email || !user.role || !user.department || !user.user_type) {
+            return next(new AppError("Please fill all required fields", 400));
+        }
 
-    // Check For Duplication
-    // let userExist = await UserDAL.getOneUser(user);
-    // console.log(userExist);
-    // console.log(userExist == true);
-    // if(userExist ==  true || userExist == "true") {
-    //     return next(new AppError("User Already Exists!", 400));
-    // }
+        // Create New User
+        let newUser = await UserDAL.createUser(user);
 
-    // Create New User
-    let newUser = await UserDAL.createUser(user);
+        // Respond
+        res.status(200).json({
+            status: "Success",
+            data: newUser,
+        });
 
-    // Respond
-    res.status(200).json({
-        status: "Success",
-        data: newUser,
-    });
+    } catch (error) {
+        throw error;
+    }    
 }
 
 exports.deleteUser = async (req, res, next) => {
-    // Get Req Body
-    let user = {
-        first_name: req.body.first_name,
-        last_name: req.body.last_name,
-        email: req.body.email,
-        role: req.body.role,
-        department: req.body.department,
-        user_type: req.body.user_type,
+    try {
+        // Get Req Body
+        let user = {
+            first_name: req.body.first_name,
+            last_name: req.body.last_name,
+            email: req.body.email,
+            role: req.body.role,
+            department: req.body.department,
+            user_type: req.body.user_type,
+        }
+
+        // Check Required Fields
+        if (!user.first_name || !user.last_name || !user.email || !user.role || !user.department || !user.user_type) {
+            return next(new AppError("Please fill all required fields", 400));
+        }
+
+        // Delete User
+        let deletedUser = await UserDAL.deleteUser(user);
+
+        // Respond
+        res.status(200).json({
+            status: "Success",
+            data: deletedUser,
+        });        
+    } catch (error) {
+        throw error;
     }
-
-    // Check Required Fields
-    if (!user.first_name || !user.last_name || !user.email || !user.role || !user.department || !user.user_type) {
-        return next(new AppError("Please fill all required fields", 400));
-    }
-
-    // Delete User
-    let deletedUser = await UserDAL.deleteUser(user);
-
-    // Respond
-    res.status(200).json({
-        status: "Success",
-        data: deletedUser,
-    });
 }
 
 exports.deleteAllUsers = async (req, res, next) => {
-    // Delete All Users
-    let deletedUsers = await UserDAL.deleteAllUsers();
+    try {
+        // Delete All Users
+        let deletedUsers = await UserDAL.deleteAllUsers();
 
-    // Respond
-    res.status(200).json({
-        status: "Success",
-        data: deletedUsers,
-    });
+        // Respond
+        res.status(200).json({
+            status: "Success",
+            data: deletedUsers,
+        });
+    } catch (error) {
+
+    }
 }
 
 exports.editUser = async (req, res, next) => {
-    // Get Req Body
-    let id = req.body.id;
-    let user = {
-        first_name: req.body.first_name,
-        last_name: req.body.last_name,
-        email: req.body.email,
-        role: req.body.role,
-        department: req.body.department,
-        user_type: req.body.user_type,
+    try {
+        // Get Req Body
+        let id = req.body.id;
+        let user = {
+            first_name: req.body.first_name,
+            last_name: req.body.last_name,
+            email: req.body.email,
+            role: req.body.role,
+            department: req.body.department,
+            user_type: req.body.user_type,
+        }
+
+        // Check Required Fields
+        if (!user.first_name || !user.last_name || !user.email || !user.role || !user.department || !user.user_type) {
+            return next(new AppError("Please fill all required fields", 400));
+        }
+
+        // Edit User
+        let editedUser = await UserDAL.editUser(id, user);
+
+        // Respond
+        res.status(200).json({
+            status: "Success",
+            data: editedUser,
+        });
+    } catch (error) {
+        throw error;
     }
-
-    // Check Required Fields
-    if (!user.first_name || !user.last_name || !user.email || !user.role || !user.department || !user.user_type) {
-        return next(new AppError("Please fill all required fields", 400));
-    }
-
-    // Edit User
-    let editedUser = await UserDAL.editUser(id, user);
-
-    // Respond
-    res.status(200).json({
-        status: "Success",
-        data: editedUser,
-    });
 }
 
 exports.loginUser = async (req, res, next) => {}

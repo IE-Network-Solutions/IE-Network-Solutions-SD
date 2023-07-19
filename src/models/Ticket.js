@@ -1,13 +1,13 @@
 // ticket.entity.js
 const { EntitySchema } = require("typeorm");
+const { v4: uuidv4 } = require("uuid"); // Import the uuid library
 
 const Ticket = new EntitySchema({
   name: "Ticket",
   columns: {
     id: {
       primary: true,
-      type: "int",
-      generated: true,
+      type: "uuid",
     },
     subject: {
       type: "varchar",

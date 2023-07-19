@@ -22,7 +22,7 @@ const Ticket = new EntitySchema({
     },
     created_at: {
       type: "timestamp",
-      default: () => "CURRENT_TIMESTAMP",
+      default: () => "CURRENT_TIMESTAMP", 
     },
     updated_at: {
       type: "timestamp",
@@ -38,19 +38,20 @@ const Ticket = new EntitySchema({
     assigned_users: {
       type: "many-to-many",
       target: "User",
+
       joinTable: {
         name: "ticket_assigned_users",
         joinColumn: {
           name: "ticket_id",
           referencedColumnName: "id",
         },
-        inverseJoinColumn: {
+        inverseJoinColumn: { 
           name: "user_id",
-          referencedColumnName: "id",
+          referencedColumnName: "id", 
         },
       },
     },
-  },
+  }, 
 });
 
 module.exports = Ticket;

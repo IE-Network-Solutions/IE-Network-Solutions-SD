@@ -1,5 +1,6 @@
 const { getConnection } = require("typeorm");
 const Ticket = require("../../models/Ticket");
+const { v4: uuidv4, validate: uuidValidate } = require("uuid");
 
   const DBConnection = ()=>{
     
@@ -43,7 +44,7 @@ class TicketDAL {
     try {
         //Destructure user requests
       const { status, description, priority, subject, userId, assignedToId } = data;
-
+      const uuid = uuidv4();
       // get connection from the pool
       const connection = getConnection();
 
@@ -51,7 +52,7 @@ class TicketDAL {
       const ticketRepository = connection.getRepository(Ticket);
 
       // create ticket
-      const newTicket = await ticketRepository.create({ status, description, priority, subject, userId, assignedToId});
+      const newTicket = await ticketRepository.create({uuid, status, description, priority, subject, userId, assignedToId});
          return await ticketRepository.save(newTicket);
        
     } catch (error) {

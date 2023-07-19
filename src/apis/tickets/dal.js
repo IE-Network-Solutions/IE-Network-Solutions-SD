@@ -8,7 +8,7 @@ class TicketDAL {
   static async getAllTickets() {
     try {
       // get connection from the pool
-      const connection = await getConnection();
+      const connection = await getConnection(); 
 
       // create a bridg
       const ticketRepository = await connection.getRepository(Ticket);

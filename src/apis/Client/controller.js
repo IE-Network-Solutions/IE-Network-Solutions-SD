@@ -1,11 +1,11 @@
 const AppError = require("../../../utils/apperror");
 const ClientDAL = require("./dal");
-const clientDAL = require("./dal");
+
 
 exports.allClients = async (req, res, next) => {
   try {
     //   get all clients
-    const clients = await clientDAL.getClient();
+    const clients = await ClientDAL.getClient();
 
     // check if clients data exist
     if (!clients) {
@@ -28,7 +28,7 @@ exports.singleClient = async (req, res, next) => {
     const id = req.params.id;
 
     // get client with the given id
-    const client = await clientDAL.getClientById(id);
+    const client = await ClientDAL.getClientById(id);
 
     if (!client) return next(new AppError("client with the given id not found"));
 
@@ -68,12 +68,12 @@ exports.updateClient = async (req, res, next) => {
     const updatedFields = req.body;
 
     // check if client exist or not
-    const clientData = await clientDAL.getClientById(id);
+    const clientData = await ClientDAL.getClientById(id);
 
     if (!clientData)
       return next(new AppError("client with the given id not found"));
 
-    const client = await clientDAL.updateClient(id, updatedFields);
+    const client = await ClientDAL.updateClient(id, updatedFields);
 
     res.status(200).json({
       status: "Success",
@@ -89,12 +89,12 @@ exports.deleteClient = async (req, res, next) => {
     const id = req.params.id;
 
     // validate if client exist or not
-    const clientData = await clientDAL.getClientById(id);
+    const clientData = await ClientDAL.getClientById(id);
 
     if (!clientData)
       return next(new AppError("client with the given id not found"));
 
-    await clientDAL.deleteclient(id);
+    await ClientDAL.deleteclient(id);
 
     res.status(200).json({
       status: "Success",

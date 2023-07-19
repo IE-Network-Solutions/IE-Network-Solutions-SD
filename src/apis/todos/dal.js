@@ -1,5 +1,7 @@
 const { getConnection } = require("typeorm");
-const Todo = require("../../models/Todo");
+const { Todo } = require("../../models/Todo");
+const { v4: uuidv4, validate: uuidValidate } = require("uuid");
+const AppError = require("../../../utils/apperror");
 
 class TodoDal {
   static async getAllTodo() {
@@ -22,6 +24,11 @@ class TodoDal {
 
   static async getTodoById(id) {
     try {
+      // Validate the provided UUID
+      if (!uuidValidate(id)) {
+        return next(new AppError("Invalid Id"));
+      }
+
       // get connection from the pool
       const connection = await getConnection();
 
@@ -43,6 +50,7 @@ class TodoDal {
   static async createTodo(data) {
     try {
       const { title, description, status, due_date, user_id } = data;
+      const id = uuidv4();
       // get connection from the pool
       const connection = getConnection();
 
@@ -51,6 +59,7 @@ class TodoDal {
 
       // create todo
       const newTodo = await todoRepository.create({
+        id,
         title,
         description,
         status,
@@ -73,12 +82,12 @@ class TodoDal {
     const todoRepository = connection.getRepository(Todo);
     const todo = await todoRepository.findOneBy({ id: id });
     if (!todo) {
-      throw new Error("test not found");
+      throw new Error("todo not found");
     }
 
     //   update the todo
-    todoRepository.merge(test, updatedFields);
-    await todoRepository.save(test);
+    todoRepository.merge(todo, updatedFields);
+    await todoRepository.save(todo);
 
     return todo;
   }

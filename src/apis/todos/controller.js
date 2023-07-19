@@ -27,7 +27,7 @@ exports.singleTodo = async (req, res, next) => {
     const id = req.params.id;
 
     // get todo with the given id
-    const todo = await TodoDal.getTestById(id);
+    const todo = await TodoDal.getTodoById(id);
 
     if (!todo) return next(new AppError("Todo with the given id not found"));
 

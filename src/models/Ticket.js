@@ -4,7 +4,7 @@ const { EntitySchema } = require("typeorm");
 const Ticket = new EntitySchema({
   name: "Ticket",
   columns: {
-    ticket_id: {
+    id: {
       primary: true,
       type: "int",
       generated: true,
@@ -39,9 +39,9 @@ const Ticket = new EntitySchema({
     assigned_to: {
       type: "many-to-one",
       target: "User",
-      joinColumn: true,
+      joinColumn: true,  
     },
   },
 });
 
-module.exports = { Ticket };
+module.exports = Ticket;

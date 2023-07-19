@@ -11,4 +11,4 @@ router.route("/:id").get(TestController.singleTest);
 router.route("/:id").patch(TestController.updateTests);
 router.route("/:id").delete(TestController.deleteTest);
 
-module.exports = router;
+module.exports = router; 

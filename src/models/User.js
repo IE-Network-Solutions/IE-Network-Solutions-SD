@@ -50,15 +50,30 @@ const User = new EntitySchema({
       target: "Ticket",
       inverseSide: "user",
     },
-    assignedTickets: {
-      type: "one-to-many",
+    assigned_tickets: {
+      type: "many-to-many",
       target: "Ticket",
-      inverseSide: "assigned_to",
+      joinTable: {
+        name: "ticket_assigned_users",
+        joinColumn: {
+          name: "user_id",
+          referencedColumnName: "id",
+        },
+        inverseJoinColumn: {
+          name: "ticket_id",
+          referencedColumnName: "id",
+        },
+      },
     },
     knowledgeBase: {
       type: "one-to-many",
       target: "KnowledgeBase",
       inverseSide: "created_by",
+    },
+    todos: {
+      type: "one-to-many",
+      target: "Todo",
+      inverseSide: "user",
     },
   },
 });

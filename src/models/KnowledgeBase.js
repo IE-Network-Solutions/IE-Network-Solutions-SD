@@ -4,7 +4,7 @@ const { EntitySchema } = require("typeorm");
 const KnowledgeBase = new EntitySchema({
   name: "KnowledgeBase",
   columns: {
-    knowledge_id: {
+    id: {
       primary: true,
       type: "int",
       generated: true,

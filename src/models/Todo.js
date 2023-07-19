@@ -1,26 +1,29 @@
-// ticket.entity.js
 const { EntitySchema } = require("typeorm");
 
-const Ticket = new EntitySchema({
-  name: "Ticket",
+const Todo = new EntitySchema({
+  name: "Todo",
   columns: {
     id: {
       primary: true,
       type: "int",
       generated: true,
     },
-    subject: {
+    title: {
       type: "varchar",
     },
     description: {
       type: "text",
+      nullable: true,
     },
     status: {
       type: "varchar",
+      default: "TODO",
     },
-    priority: {
-      type: "varchar",
+    due_date: {
+      type: "timestamp",
+      nullable: true,
     },
+
     created_at: {
       type: "timestamp",
       default: () => "CURRENT_TIMESTAMP",
@@ -34,24 +37,12 @@ const Ticket = new EntitySchema({
     user: {
       type: "many-to-one",
       target: "User",
-      joinColumn: true,
-    },
-    assigned_users: {
-      type: "many-to-many",
-      target: "User",
-      joinTable: {
-        name: "ticket_assigned_users",
-        joinColumn: {
-          name: "ticket_id",
-          referencedColumnName: "id",
-        },
-        inverseJoinColumn: {
-          name: "user_id",
-          referencedColumnName: "id",
-        },
+      joinColumn: {
+        name: "user_id",
+        referencedColumnName: "id",
       },
     },
   },
 });
 
-module.exports = { Ticket };
+module.exports = { Todo };

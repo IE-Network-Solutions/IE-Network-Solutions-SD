@@ -1,0 +1,57 @@
+GET http://localhost:3001/api/v1/users/
+
+###
+
+GET http://localhost:3001/api/v1/users/getAllUsers
+
+###
+
+GET http://localhost:3001/api/v1/users/getOneUser/6
+
+###
+
+POST http://localhost:3001/api/v1/users/createUser HTTP/1.1
+content-type: application/json
+
+{
+    "first_name": "Jane",
+    "last_name": "Doe",
+    "email": "Janis@gmail.com",
+    "role": "software dev",
+    "department": "SASS",
+    "user_type": "employee"
+}
+
+###
+
+DELETE  http://localhost:3001/api/v1/users/deleteUser HTTP/1.1
+content-type: application/json
+
+{
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "JohnDoe@gmail.com",
+    "role": "software dev",
+    "department": "SASS",
+    "user_type": "employee"
+}
+
+###
+
+DELETE http://localhost:3001/api/v1/users/deleteAllUsers
+
+
+###
+
+POST http://localhost:3001/api/v1/users/editUser HTTP/1.1
+content-type: application/json
+
+{
+    "id": 6,
+    "first_name": "John",
+    "last_name": "Dagmawi",
+    "email": "JohnDoe@gmail.com",
+    "role": "software dev",
+    "department": "SASS",
+    "user_type": "employee"
+}

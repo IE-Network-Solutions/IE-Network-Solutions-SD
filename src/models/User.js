@@ -70,6 +70,15 @@ const User = new EntitySchema({
       target: "Todo",
       inverseSide: "user",
     },
+    role: {
+      type: "many-to-one",
+      target: "Role",
+      // joinColumn: true,
+      joinColumn: {
+        name: "role_id",
+        referencedColumnName: "id",
+      },
+    },
   },
 });
 

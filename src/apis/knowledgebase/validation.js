@@ -4,7 +4,8 @@ const joi = require("joi")
 const createKnowledgebaseValidator = joi.object({ 
     title: joi.string().required(),
     category: joi.string().required(),
-    description: joi.string().required()
+    description: joi.string().required(),
+    // user_id: joi.string().required()
 })
 
 module.exports = createKnowledgebaseValidator;

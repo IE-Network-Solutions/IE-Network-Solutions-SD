@@ -10,6 +10,7 @@ const Role = new EntitySchema({
     },
     roleName: {
       type: "varchar",
+      unique: true,
     }, 
     created_at: {
       type: "timestamp",

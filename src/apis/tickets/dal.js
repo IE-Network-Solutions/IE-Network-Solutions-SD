@@ -1,27 +1,22 @@
 const { getConnection } = require("typeorm");
 const Ticket = require("../../models/Ticket");
 const { v4: uuidv4, validate: uuidValidate } = require("uuid");
-const TestDAL = require('../../apis/test/dal');
+const TestDAL = require("../../apis/test/dal");
 const Test = require("../../models/Test");
-const AppError = require('../../../utils/apperror')
+const AppError = require("../../../utils/apperror");
 
-
-  const DBConnection = ()=>{
-    
-  }
 class TicketDAL {
   static async getAllTickets() {
     try {
       // get connection from the pool
-      const connection = await getConnection(); 
+      const connection = await getConnection();
 
       // create a bridg
       const ticketRepository = await connection.getRepository(Ticket);
 
       // find all ticket data
       return await ticketRepository.find();
-
-    } catch (error) { 
+    } catch (error) {
       throw error;
     }
   }
@@ -36,8 +31,7 @@ class TicketDAL {
       const ticketRepository = await connection.getRepository(Ticket);
 
       // get data
-       return await ticketRepository.findOneBy({ id: id });
-
+      return await ticketRepository.findOneBy({ id: id });
     } catch (error) {
       throw error;
     }
@@ -46,9 +40,9 @@ class TicketDAL {
   //This method implements to create new ticket
   static async createNewTicket(data) {
     try {
-        //Destructure user requests
-      const { status, description, priority, subject, userId } = data;
-    
+      //Destructure user requests
+      const { status, description, priority, subject } = data;
+
       const id = uuidv4();
 
       // get connection from the pool
@@ -56,14 +50,18 @@ class TicketDAL {
 
       // create bridge
       const ticketRepository = connection.getRepository(Ticket);
-      const testRepository = connection.getRepository(Test);
-      const user = testRepository.findOneBy({id: userId});
-      // create ticket  
-      const newTicket = await ticketRepository.create({id, status, description, priority, subject, userId, });
- console.log(newTicket)
-      
-      return await ticketRepository.save(newTicket);
-       
+
+      // create ticket
+      const newTicket = await ticketRepository.create({
+        id,
+        status,
+        description,
+        priority,
+        subject,
+      });
+      await ticketRepository.save(newTicket);
+
+      return newTicket;
     } catch (error) {
       throw error;
     }
@@ -77,17 +75,16 @@ class TicketDAL {
     const ticketRepository = connection.getRepository(Ticket);
 
     const ticket = await ticketRepository.findOneBy({ id: id });
-    console.log(ticket)
+    console.log(ticket);
     if (!ticket) {
       throw new Error("Ticket is Not Found with the provided id");
     }
- 
-    ticketRepository.merge(ticket, updatedFields); 
+
+    ticketRepository.merge(ticket, updatedFields);
     return await ticketRepository.save(ticket);
   }
 
   static async deleteTicketById(id) {
-
     // get connection from the pool
     const connection = getConnection();
 

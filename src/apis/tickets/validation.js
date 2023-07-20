@@ -6,7 +6,6 @@ const createTestValidator = joi.object({
   status: joi.string().required(),
   description: joi.string().required(),
   priority: joi.string().required(),
-  userId : joi.number().required(),
 });
 
 module.exports = createTestValidator;

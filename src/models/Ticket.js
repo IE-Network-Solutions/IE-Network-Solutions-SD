@@ -1,5 +1,6 @@
 // ticket.entity.js
 const { EntitySchema } = require("typeorm");
+const { v4: uuidv4 } = require("uuid"); // Import the uuid library
 
 const Ticket = new EntitySchema({
   name: "Ticket",
@@ -30,11 +31,11 @@ const Ticket = new EntitySchema({
     },
   },
   relations: {
-    users: {
+    assigned_users: {
       type: "many-to-many",
       target: "User",
       joinTable: {
-        name: "user_ticket",
+        name: "ticket_assigned_users",
         joinColumn: {
           name: "ticket_id",
           referencedColumnName: "id",

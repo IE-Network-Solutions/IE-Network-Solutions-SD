@@ -8,6 +8,14 @@
             "driver": "PostgreSQL",
             "name": "SD",
             "database": "SD",
+           },
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "sd",
+            "database": "sd",
             "username": "postgres"
         }
     ]

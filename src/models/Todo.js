@@ -1,9 +1,8 @@
-// knowledgebase.entity.js
 const { EntitySchema } = require("typeorm");
 const { v4: uuidv4 } = require("uuid"); // Import the uuid library
 
-const KnowledgeBase = new EntitySchema({
-  name: "KnowledgeBase",
+const Todo = new EntitySchema({
+  name: "Todo",
   columns: {
     id: {
       primary: true,
@@ -12,12 +11,19 @@ const KnowledgeBase = new EntitySchema({
     title: {
       type: "varchar",
     },
-    category: {
-      type: "varchar",
-    },
     description: {
       type: "text",
+      nullable: true,
     },
+    status: {
+      type: "varchar",
+      default: "TODO",
+    },
+    due_date: {
+      type: "timestamp",
+      nullable: true,
+    },
+
     created_at: {
       type: "timestamp",
       default: () => "CURRENT_TIMESTAMP",
@@ -28,12 +34,15 @@ const KnowledgeBase = new EntitySchema({
     },
   },
   relations: {
-    created_by: {
+    user: {
       type: "many-to-one",
       target: "User",
-      joinColumn: true,
+      joinColumn: {
+        name: "user_id",
+        referencedColumnName: "id",
+      },
     },
   },
 });
 
-module.exports = KnowledgeBase;
+module.exports = { Todo };

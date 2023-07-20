@@ -9,8 +9,8 @@ const User = new EntitySchema({
   columns: {
     id: {
       primary: true,
-      type: "int",
-      generated: true,
+      type: "uuid",
+      generated: "uuid",
     },
     first_name: {
       type: "varchar",
@@ -44,28 +44,31 @@ const User = new EntitySchema({
       default: () => "CURRENT_TIMESTAMP",
     },
   },
-
-
-  relations: {
-      tickets: {
-        type: "many-to-many",
-        target: "Ticket",
-          joinTable: {
-            name: "user_ticket",
-            joinColumn: {
-              name: "user_id",
-              referencedColumnName: "id",
-            },
-            inverseJoinColumn: {
-              name: "ticket_id",
-              referencedColumnName: "id",
-            },
-          },
+relations: {
+    assigned_tickets: {
+      type: "many-to-many",
+      target: "Ticket",
+      joinTable: {
+        name: "ticket_assigned_users",
+        joinColumn: {
+          name: "user_id",
+          referencedColumnName: "id",
+        },
+        inverseJoinColumn: {
+          name: "ticket_id",
+          referencedColumnName: "id",
+        },
+      },
     },
     knowledgeBase: {
       type: "one-to-many",
       target: "KnowledgeBase",
       inverseSide: "created_by",
+    },
+    todos: {
+      type: "one-to-many",
+      target: "Todo",
+      inverseSide: "user",
     },
   },
 });

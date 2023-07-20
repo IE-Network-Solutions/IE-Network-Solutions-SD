@@ -30,28 +30,22 @@ const Ticket = new EntitySchema({
     },
   },
   relations: {
-    user: {
-      type: "many-to-one",
-      target: "User",
-      joinColumn: true,
-    },
-    assigned_users: {
+    users: {
       type: "many-to-many",
       target: "User",
-
       joinTable: {
-        name: "ticket_assigned_users",
+        name: "user_ticket",
         joinColumn: {
           name: "ticket_id",
           referencedColumnName: "id",
         },
-        inverseJoinColumn: { 
+        inverseJoinColumn: {
           name: "user_id",
-          referencedColumnName: "id", 
+          referencedColumnName: "id",
         },
       },
     },
-  }, 
+  },
 });
 
 module.exports = Ticket;

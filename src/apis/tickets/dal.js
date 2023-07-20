@@ -1,6 +1,10 @@
 const { getConnection } = require("typeorm");
 const Ticket = require("../../models/Ticket");
 const { v4: uuidv4, validate: uuidValidate } = require("uuid");
+const TestDAL = require('../../apis/test/dal');
+const Test = require("../../models/Test");
+const AppError = require('../../../utils/apperror')
+
 
   const DBConnection = ()=>{
     
@@ -43,17 +47,22 @@ class TicketDAL {
   static async createNewTicket(data) {
     try {
         //Destructure user requests
-      const { status, description, priority, subject, userId, assignedToId } = data;
-      const uuid = uuidv4();
+      const { status, description, priority, subject, userId } = data;
+    
+      const id = uuidv4();
+
       // get connection from the pool
       const connection = getConnection();
 
       // create bridge
       const ticketRepository = connection.getRepository(Ticket);
-
-      // create ticket
-      const newTicket = await ticketRepository.create({uuid, status, description, priority, subject, userId, assignedToId});
-         return await ticketRepository.save(newTicket);
+      const testRepository = connection.getRepository(Test);
+      const user = testRepository.findOneBy({id: userId});
+      // create ticket  
+      const newTicket = await ticketRepository.create({id, status, description, priority, subject, userId, });
+ console.log(newTicket)
+      
+      return await ticketRepository.save(newTicket);
        
     } catch (error) {
       throw error;

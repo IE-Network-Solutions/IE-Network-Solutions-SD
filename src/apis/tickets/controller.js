@@ -1,5 +1,6 @@
 const AppError = require("../../../utils/apperror");
 const TicketDAL = require("./dal");
+const TestDAL = require('../../apis/test/dal')
 
 //This method implements to get all tickets
 exports.getAllTickets = async (req, res, next) => {
@@ -45,7 +46,7 @@ exports.getTicketById = async (req, res, next) => {
 exports.createNewTicket = async (req, res, next) => {
   try {
     const data = req.body;
-
+    
     //   create new ticket
     const newTicket = await TicketDAL.createNewTicket(data);
 
@@ -85,7 +86,6 @@ exports.updateTicket = async (req, res, next) => {
 exports.deleteTicket = async (req, res, next) => {
   try {
     const id = req.params.id;
-console.log(id)
     // validate if ticket exist or not
     const ticketData = await TicketDAL.getTicketById(id);
 
@@ -101,4 +101,5 @@ console.log(id)
   } catch (error) { 
     throw error;
   }
+
 };

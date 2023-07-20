@@ -23,7 +23,7 @@ const Ticket = new EntitySchema({
     },
     created_at: {
       type: "timestamp",
-      default: () => "CURRENT_TIMESTAMP",
+      default: () => "CURRENT_TIMESTAMP", 
     },
     updated_at: {
       type: "timestamp",
@@ -49,4 +49,4 @@ const Ticket = new EntitySchema({
   },
 });
 
-module.exports = { Ticket };
+module.exports = Ticket;

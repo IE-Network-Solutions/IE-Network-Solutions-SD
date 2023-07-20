@@ -6,10 +6,9 @@
             "port": 5432,
             "askForPassword": true,
             "driver": "PostgreSQL",
-            "name": "IE Bootcamp",
-            "database": "postgres",
-            "username": "postgres"
-        },
+            "name": "SD",
+            "database": "SD",
+           },
         {
             "previewLimit": 50,
             "server": "localhost",

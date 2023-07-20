@@ -54,7 +54,7 @@ class TestDAL {
       await testRepository.save(newTest);
       // console.log(newTest);
       return newTest;
-    } catch (error) {
+    } catch (error) { 
       throw error;
     }
   }

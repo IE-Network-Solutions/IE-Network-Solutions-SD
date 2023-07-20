@@ -1,5 +1,6 @@
 const AppError = require("../../../utils/apperror");
 const KnowledgeBaseDAL = require("./dal");
+const { v4: uuidv4 } = require("uuid");
 
 exports.getAllKnowledgebase = async (req, res, next) => {
   try {
@@ -23,7 +24,12 @@ exports.getAllKnowledgebase = async (req, res, next) => {
 
 exports.createKnowledgebase = async (req, res, next) => {
   try {
+    // generate uuid.
+    const uuid = uuidv4();
+    // get input data.
     const data = req.body;
+    // merge uuid to input data.
+    data.id = uuid;
     //   create new knowlegebase
     const knowledgebase = await KnowledgeBaseDAL.createKnowledgebase(data);
 

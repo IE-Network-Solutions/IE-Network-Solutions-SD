@@ -45,11 +45,6 @@ const User = new EntitySchema({
     },
   },
   relations: {
-    tickets: {
-      type: "one-to-many",
-      target: "Ticket",
-      inverseSide: "user",
-    },
     assigned_tickets: {
       type: "many-to-many",
       target: "Ticket",

@@ -7,6 +7,7 @@ const Todo = new EntitySchema({
     id: {
       primary: true,
       type: "uuid",
+      generated: "uuid",
     },
     title: {
       type: "varchar",

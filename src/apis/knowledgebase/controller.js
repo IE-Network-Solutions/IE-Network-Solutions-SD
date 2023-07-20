@@ -1,6 +1,5 @@
 const AppError = require("../../../utils/apperror");
 const KnowledgeBaseDAL = require("./dal");
-const { v4: uuidv4 } = require("uuid");
 
 exports.getAllKnowledgebase = async (req, res, next) => {
   try {
@@ -23,13 +22,9 @@ exports.getAllKnowledgebase = async (req, res, next) => {
 };
 
 exports.createKnowledgebase = async (req, res, next) => {
-  try {
-    // generate uuid.
-    const uuid = uuidv4();
+  try { 
     // get input data.
-    const data = req.body;
-    // merge uuid to input data.
-    data.id = uuid;
+    const data = req.body; 
     //   create new knowlegebase
     const knowledgebase = await KnowledgeBaseDAL.createKnowledgebase(data);
 
@@ -46,10 +41,10 @@ exports.getKnowlegebaseById = async (req, res, next) => {
   try {
     const id = req.params.id;
 
-    const knowledgebase = await KnowledgeBaseDAL.getKnowlegebaseById(id);
+    const knowledgebase = await KnowledgeBaseDAL.getKnowledgebaseById(id);
 
     if (!knowledgebase)
-      return next(new AppError("Knowledgebase with the given id is not found"));
+      return next(new AppError("Knowledgebase with the given id is not found", 404));
 
     res.status(200).json({
       status: "Success",
@@ -66,7 +61,7 @@ exports.updateOneKnowledgebase = async (req, res, next) => {
     const updatedFields = req.body;
 
     // check if knowledgebase with the given id is found or not?
-    const checkKnowledgebase = await KnowledgeBaseDAL.getKnowlegebaseById(id);
+    const checkKnowledgebase = await KnowledgeBaseDAL.getKnowledgebaseById(id);
 
     if (!checkKnowledgebase) {
       return next(

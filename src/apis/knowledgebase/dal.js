@@ -1,5 +1,6 @@
 const { getConnection } = require("typeorm");
-const KnowledgeBase = require("../../models/KnowledgeBase"); 
+const KnowledgeBase = require("../../models/KnowledgeBase");
+const { validate: isUUID } = require("uuid");
 
 class KnowledgeBaseDAL {
   static async getAllKnowledgebase() {
@@ -18,13 +19,17 @@ class KnowledgeBaseDAL {
 
   static async getKnowledgebaseById(id) {
     try {
-      const connection = await getConnection();
+      // check the validity of the id format.
+      if (!isUUID(id)) {
+        return null;
+      }
 
+      // form connection
+      const connection = await getConnection();
       const knowledgebaseRepository = connection.getRepository(KnowledgeBase);
 
-      const knowledgebase = await knowledgebaseRepository.findOneBy({
-        id: id,
-      });
+      // fetch data.
+      const knowledgebase = await knowledgebaseRepository.findOneBy({ id: id });
       return knowledgebase;
     } catch (error) {
       throw error;
@@ -33,18 +38,17 @@ class KnowledgeBaseDAL {
 
   static async createKnowledgebase(data) {
     try {
-      const { id, title, category, description } = data;
+      const { title, category, description } = data;
 
-      // const id = 
+      // const id =
       const connection = getConnection();
 
       const knowledgebaseRepository = connection.getRepository(KnowledgeBase);
 
       const newKnowledgebase = await knowledgebaseRepository.create({
-        id,
         title,
         category,
-        description, 
+        description,
       });
 
       await knowledgebaseRepository.save(newKnowledgebase);
@@ -56,21 +60,28 @@ class KnowledgeBaseDAL {
   }
 
   static async updateOneKnowledgebase(id, updatedFields) {
-    const connection = getConnection();
+    // check the validity of the id format.
+    if (!isUUID(id)) {
+      return null;
+    }
 
+    // form connection
+    const connection = getConnection();
     const knowledgebaseRepository = connection.getRepository(KnowledgeBase);
 
+    // fetch the knowledgebase to be updated
     const knowledgebase = await knowledgebaseRepository.findOneBy({ id });
 
+    // if no know ledgebase
     if (!knowledgebase) {
       throw new Error("Knowledgebase with the given id is not found");
     }
-    
+
     // referesh the updated_at field.
     updatedFields.updated_at = new Date();
 
+    // update
     knowledgebaseRepository.merge(knowledgebase, updatedFields);
-
     await knowledgebaseRepository.save(knowledgebase);
 
     // return updated knowlegebase data.
@@ -78,11 +89,15 @@ class KnowledgeBaseDAL {
   }
 
   static async deleteOneKnowledgebase(id) {
+    // check the validity of the id format.
+    if (!isUUID(id)) {
+      return null;
+    }
     const connection = getConnection();
 
     const knowledgebaseRepository = connection.getRepository(KnowledgeBase);
 
-    await knowledgebaseRepository.delete({id});
+    await knowledgebaseRepository.delete({ id });
 
     return "Test deleted Successfully";
   }

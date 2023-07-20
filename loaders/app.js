@@ -8,7 +8,6 @@ const geh = require("../src/geh");
 const AppError = require("../utils/apperror");
 const TestRoute = require("../src/apis/test/router");
 const clientRouter = require("../src/apis/Client/router");
-
 const TodoRoute = require("../src/apis/todos/router");
 
 const app = express();
@@ -21,7 +20,6 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use("/api/v1/tests", TestRoute);
 app.use("/api/v1/client", clientRouter);
-
 app.use("/api/v1/todos", TodoRoute);
 
 // Unknown URL Error Message

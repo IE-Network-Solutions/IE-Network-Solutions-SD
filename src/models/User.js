@@ -44,12 +44,7 @@ const User = new EntitySchema({
       default: () => "CURRENT_TIMESTAMP",
     },
   },
-  relations: {
-    tickets: {
-      type: "one-to-many",
-      target: "Ticket",
-      inverseSide: "user",
-    },
+relations: {
     assigned_tickets: {
       type: "many-to-many",
       target: "Ticket",

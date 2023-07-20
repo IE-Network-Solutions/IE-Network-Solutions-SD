@@ -4,21 +4,22 @@ const validate = require("../../../utils/validator");
 const { userValidator, loginValidator } = require("./validation");
 const auth = require("../../middlewares/auth");
 const authorize = require("../../middlewares/auth/authorization");
+const uuidValidator = require("../../../utils/uuid");
 
 router.route("/").get(authorize, UserController.getAllUsers);
-router.route("/:id").get(authorize, UserController.getOneUser);
+router.route("/:id").get(uuidValidator, authorize, UserController.getOneUser);
 
 router
   .route("/")
   .post(authorize, validate(userValidator), UserController.createUser);
+router.route("/:id").patch(uuidValidator, authorize, UserController.editUser);
+
 router
   .route("/:id")
-  .patch([authorize, validate(userValidator)], UserController.editUser);
-
-router.route("/:id").delete(authorize, UserController.deleteUser);
+  .delete(uuidValidator, authorize, UserController.deleteUser);
 router
   .route("/deleteAllUsers/:id")
-  .delete(authorize, UserController.deleteAllUsers);
+  .delete(uuidValidator, authorize, UserController.deleteAllUsers);
 
 router.route("/login").post(validate(loginValidator), UserController.loginUser);
 router

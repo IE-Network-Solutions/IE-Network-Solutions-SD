@@ -4,6 +4,8 @@ const { v4: uuidv4, validate: uuidValidate } = require("uuid");
 const TestDAL = require("../../apis/test/dal");
 const Test = require("../../models/Test");
 const AppError = require("../../../utils/apperror");
+const User = require("../../models/User");
+const TicketUser = require("../../models/TicketUSer");
 
 class TicketDAL {
   static async getAllTickets() {
@@ -92,6 +94,35 @@ class TicketDAL {
     const ticketRepository = connection.getRepository(Ticket);
 
     return await ticketRepository.delete(id);
+  }
+
+  static async assignUsersToTicket(ticketId, usersIds) {
+    // get connection from the pool
+    const connection = getConnection();
+
+    // create bridge
+    const ticketRepository = connection.getRepository(Ticket);
+
+    // get the ticket
+    const ticket = await ticketRepository.findOneBy({ id: ticketId });
+
+    // get users
+    const userRepository = connection.getRepository(User);
+    const users = await userRepository.findByIds(usersIds);
+
+    // create ticket_user instance to create the association
+    const ticketUserRepository = connection.getRepository(TicketUser);
+    const ticketUsers = users.map((user) => {
+      const ticketUser = ticketRepository.create({
+        ticket: ticket,
+        user,
+      });
+      return ticketUser;
+    });
+    await ticketUserRepository.save(ticketUsers);
+
+    //   return ticket users
+    return ticketUsers;
   }
 }
 

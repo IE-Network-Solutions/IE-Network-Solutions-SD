@@ -53,6 +53,12 @@ exports.createUser = async (req, res, next) => {
     let user = req.body;
     user.password = hash("%TGBnhy6");
 
+    // check if email exsist or not
+    const checkUser = await UserDAL.getUserByEmail(user.email);
+    if (checkUser) {
+      return next(new AppError("user with the given email already exist"));
+    }
+
     // Create New User
     let newUser = await UserDAL.createUser(user);
 
@@ -69,22 +75,17 @@ exports.createUser = async (req, res, next) => {
 exports.deleteUser = async (req, res, next) => {
   try {
     // Get Req Body
-    let user = {
-      first_name: req.body.first_name,
-      last_name: req.body.last_name,
-      email: req.body.email,
-      role: req.body.role,
-      department: req.body.department,
-      user_type: req.body.user_type,
-    };
+    const id = req.params.id;
 
+    const user = await UserDAL.getOneUser(id);
+    if (!user) return next(new AppError("user does not exist"));
     // Delete User
-    let deletedUser = await UserDAL.deleteUser(user);
+    const deletedUser = await UserDAL.deleteUser(id);
 
     // Respond
     res.status(200).json({
       status: "Success",
-      data: deletedUser,
+      data: null,
     });
   } catch (error) {
     throw error;
@@ -111,6 +112,12 @@ exports.editUser = async (req, res, next) => {
     // Get Req Body
     let id = req.body.id;
     let user = req.body;
+
+    //   check if user exist or not
+    let chekUser = UserDAL.getOneUser(id);
+    if (!chekUser) {
+      return next(new AppError("user does not exist", 404));
+    }
 
     // Edit User
     let editedUser = await UserDAL.editUser(id, user);

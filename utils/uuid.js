@@ -1,5 +1,12 @@
-const uuid = require("uuid");
+const uuidVAlidator = require("uuid-validate");
+const AppError = require("./apperror");
 
-exports.generateUUID = async () => {
-    return uuid.v4();
-}
+const generateUUID = async (req, res, next) => {
+  const id = req.params.id;
+  if (!uuidVAlidator(id)) {
+    return next(new AppError("Invalid Id", 500));
+  }
+  next();
+};
+
+module.exports = generateUUID;

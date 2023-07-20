@@ -74,41 +74,40 @@ class UserDAL {
     try {
       // Create User Objects
       const idUser = id;
-      const user = data;
+      const updatedFields = data;
 
       // Form Connection
       const connection = getConnection();
       const userRepository = connection.getRepository(User);
 
+      const user = await userRepository.findOneBy({ id: idUser });
       // Update User
-      const editedUser = await userRepository.update(
-        {
-          id: idUser,
-        },
-        user
-      );
-      // await userRepository.save(editedUser);
+      // Update only the specified fields in the updatedFields object
+      Object.keys(updatedFields).forEach((field) => {
+        if (field in user) {
+          user[field] = updatedFields[field];
+        }
+      });
+      console.log(user);
+      await userRepository.save(user);
 
-      return editedUser;
+      return user;
     } catch (error) {
       throw error;
     }
   }
 
   // Delete User
-  static async deleteUser(data) {
+  static async deleteUser(id) {
     try {
-      // Create User Object
-      const user = data;
-
       // Form Connection
       const connection = getConnection();
       const userRepository = connection.getRepository(User);
 
       // Delete User
-      const deletedUser = await userRepository.delete(user);
+      const deletedUser = await userRepository.delete({ id: id });
 
-      return deletedUser;
+      return "user deleted successfully";
     } catch (error) {
       throw error;
     }

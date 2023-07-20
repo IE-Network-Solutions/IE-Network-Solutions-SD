@@ -22,6 +22,7 @@ const User = new EntitySchema({
     },
     email: {
       type: "varchar",
+      unique: true,
     },
     password: {
       type: "varchar",
@@ -52,7 +53,7 @@ const User = new EntitySchema({
       type: "many-to-many",
       target: "Ticket",
       joinTable: {
-        name: "ticket_assigned_users",
+        name: "ticket_user",
         joinColumn: {
           name: "user_id",
           referencedColumnName: "id",

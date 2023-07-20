@@ -1,7 +1,7 @@
-const { EntitySchema } = require("typeorm"); 
+const { EntitySchema } = require("typeorm");
 
-const Todo = new EntitySchema({
-  name: "Todo",
+const Comment = new EntitySchema({
+  name: "Comment",
   columns: {
     id: {
       primary: true,
@@ -13,17 +13,7 @@ const Todo = new EntitySchema({
     },
     description: {
       type: "text",
-      nullable: true,
     },
-    status: {
-      type: "varchar",
-      default: "TODO",
-    },
-    due_date: {
-      type: "timestamp",
-      nullable: true,
-    },
-
     created_at: {
       type: "timestamp",
       default: () => "CURRENT_TIMESTAMP",
@@ -34,15 +24,23 @@ const Todo = new EntitySchema({
     },
   },
   relations: {
-    user: {
+    created_by: {
       type: "many-to-one",
       target: "User",
       joinColumn: {
         name: "user_id",
         referencedColumnName: "id",
       },
+    }, 
+    created_on: {
+      type: "many-to-one",
+      target: "Ticket",
+      joinColumn: {
+        name: "ticket_id",
+        referencedColumnName: "id",
+      },
     },
   },
 });
 
-module.exports = { Todo };
+module.exports = Comment;

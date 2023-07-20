@@ -24,12 +24,6 @@ exports.getAllKnowledgebase = async (req, res, next) => {
 exports.createKnowledgebase = async (req, res, next) => {
   try {
     const data = req.body;
-
-    // Check required fields
-    if (!data.title || !data.category || !data.description) {
-      return next(new AppError("Please fill all required fields", 400));
-    }
-
     //   create new knowlegebase
     const knowledgebase = await KnowledgeBaseDAL.createKnowledgebase(data);
 
@@ -93,7 +87,7 @@ exports.deleteOneKnowledgebase = async (req, res, next) => {
     const id = req.params.id;
 
     // check if knowledgebase with the given id is found or not?
-    const checkKnowledgebase = await KnowledgeBaseDAL.getKnowlegebaseById(id);
+    const checkKnowledgebase = await KnowledgeBaseDAL.getKnowledgebaseById(id);
 
     if (!checkKnowledgebase) {
       return next(

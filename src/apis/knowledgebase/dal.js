@@ -16,7 +16,7 @@ class KnowledgeBaseDAL {
     }
   }
 
-  static async getKnowlegebaseById(id) {
+  static async getKnowledgebaseById(id) {
     try {
       const connection = await getConnection();
 
@@ -35,11 +35,13 @@ class KnowledgeBaseDAL {
     try {
       const { title, category, description } = data;
 
+      // const id = 
       const connection = getConnection();
 
       const knowledgebaseRepository = connection.getRepository(KnowledgeBase);
 
       const newKnowledgebase = await knowledgebaseRepository.create({
+        // id,
         title,
         category,
         description,
@@ -64,7 +66,7 @@ class KnowledgeBaseDAL {
       throw new Error("Knowledgebase with the given id is not found");
     }
     
-    // referesh the updated at field.
+    // referesh the updated_at field.
     updatedFields.updated_at = new Date();
 
     knowledgebaseRepository.merge(knowledgebase, updatedFields);
@@ -80,7 +82,7 @@ class KnowledgeBaseDAL {
 
     const knowledgebaseRepository = connection.getRepository(KnowledgeBase);
 
-    await knowledgebaseRepository.delete(id);
+    await knowledgebaseRepository.delete({id});
 
     return "Test deleted Successfully";
   }

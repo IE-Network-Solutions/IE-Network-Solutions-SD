@@ -16,7 +16,7 @@ const igniter = async () => {
 
   // start listning
   server.listen(port, () => {
-    console.log(`surver running on port: ${port}`);
+    console.log(`surver running on port : http://localhost:${port}`);
   });
 
   // listn for errors

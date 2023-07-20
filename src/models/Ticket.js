@@ -23,7 +23,7 @@ const Ticket = new EntitySchema({
     },
     created_at: {
       type: "timestamp",
-      default: () => "CURRENT_TIMESTAMP",
+      default: () => "CURRENT_TIMESTAMP", 
     },
     updated_at: {
       type: "timestamp",
@@ -31,11 +31,6 @@ const Ticket = new EntitySchema({
     },
   },
   relations: {
-    user: {
-      type: "many-to-one",
-      target: "User",
-      joinColumn: true,
-    },
     assigned_users: {
       type: "many-to-many",
       target: "User",
@@ -54,4 +49,4 @@ const Ticket = new EntitySchema({
   },
 });
 
-module.exports = { Ticket };
+module.exports = Ticket;

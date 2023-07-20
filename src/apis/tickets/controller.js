@@ -1,6 +1,8 @@
 const AppError = require("../../../utils/apperror");
 const TicketDAL = require("./dal");
 const TestDAL = require('../../apis/test/dal')
+const uuidValidate = require('uuid-validate');
+
 
 //This method implements to get all tickets
 exports.getAllTickets = async (req, res, next) => {
@@ -24,6 +26,11 @@ exports.getAllTickets = async (req, res, next) => {
   }
 };
 
+exports.uuidValidetor =async (req, res, next)=>{
+      const id = req.params.id;
+      if (!uuidValidate(id)) return next(new AppError("Please use valid Id"));
+      next();
+}
 //This method is 
 exports.getTicketById = async (req, res, next) => {
   try {
@@ -32,7 +39,7 @@ exports.getTicketById = async (req, res, next) => {
     // get test with the given id
     const ticket = await TicketDAL.getTicketById(id);
 
-    if (!ticket) return next(new AppError("Ticket with the given id not found"));
+    if (!ticket) return next(new AppError(`Ticket with the ${ id } id not found`));
 
     res.status(200).json({
       status: "Success",
@@ -88,7 +95,7 @@ exports.deleteTicket = async (req, res, next) => {
     const id = req.params.id;
     // validate if ticket exist or not
     const ticketData = await TicketDAL.getTicketById(id);
-
+    
     if (!ticketData) 
       return next(new AppError(`Ticket with id ${id} is Not Found`));
 

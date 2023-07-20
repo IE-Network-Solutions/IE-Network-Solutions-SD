@@ -5,11 +5,11 @@ const validate = require("../../../utils/validator");
 
 router.route("/").post(validate(createRoleValidator), RoleController.createOneRole);
 
-router.route("/").get(RoleController.getAllRoles);
+router.route("/getAll/").post(RoleController.getAllRoles);
 
-router.route("/findOneRoleById/:id").get(RoleController.findOneRoleById);
+router.route("/findOneRoleById/:id").post(RoleController.findOneRoleById);
 
-router.route("/findOneRoleByName/:roleName").get(RoleController.findOneRoleByName);
+router.route("/findOneRoleByName/:roleName").post(RoleController.findOneRoleByName);
 
 router.route("/:id").patch(RoleController.updateOneRoleById);
 

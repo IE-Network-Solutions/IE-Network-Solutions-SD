@@ -1,6 +1,4 @@
-// Permission.entity.js
 const { EntitySchema } = require("typeorm");
-const { v4: uuidv4 } = require("uuid");
 
 const Permission = new EntitySchema({
   name: "Permission",
@@ -8,6 +6,7 @@ const Permission = new EntitySchema({
     id: {
       primary: true,
       type: "uuid",
+      generated: "uuid",
     },
     view: {
       type: "boolean",
@@ -34,12 +33,18 @@ const Permission = new EntitySchema({
     given_for: {
       type: "many-to-one",
       target: "Role",
-      joinColumn: true,
+      joinColumn: {
+        name: "role_id",
+        referencedColumnName: "id",
+      },
     },
     created_on: {
       type: "many-to-one",
       target: "Resource",
-      joinColumn: true,
+      joinColumn: {
+        name: "resource_id",
+        referencedColumnName: "id",
+      },
     },
   },
 });

@@ -1,6 +1,4 @@
-// Resource.entity.js
-const { EntitySchema } = require("typeorm");
-const { v4: uuidv4 } = require("uuid");
+const { EntitySchema } = require("typeorm"); 
 
 const Resource = new EntitySchema({
   name: "Resource",
@@ -8,6 +6,7 @@ const Resource = new EntitySchema({
     id: {
       primary: true,
       type: "uuid",
+      generated: "uuid",
     },
     resourceName: {
       type: "varchar",

@@ -1,4 +1,3 @@
-// TicketAssignedUsers.entity.js
 const { EntitySchema } = require("typeorm");
 
 const TicketAssignedUsers = new EntitySchema({
@@ -7,6 +6,7 @@ const TicketAssignedUsers = new EntitySchema({
     id: {
       primary: true,
       type: "uuid",
+      generated: "uuid",
     }, 
     created_at: {
       type: "timestamp",

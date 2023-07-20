@@ -1,6 +1,4 @@
-// note.entity.js
 const { EntitySchema } = require("typeorm");
-const { v4: uuidv4 } = require("uuid");
 
 const Note = new EntitySchema({
   name: "Note",
@@ -8,6 +6,7 @@ const Note = new EntitySchema({
     id: {
       primary: true,
       type: "uuid",
+      generated: "uuid",
     },
     body: {
       type: "text",
@@ -25,7 +24,10 @@ const Note = new EntitySchema({
     created_on: {
       type: "many-to-one",
       target: "Ticket",
-      joinColumn: true,
+      joinColumn: {
+        name: "ticket_id",
+        referencedColumnName: "id",
+      },
     },
   },
 });

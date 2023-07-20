@@ -1,6 +1,4 @@
-// Role.entity.js
-const { EntitySchema } = require("typeorm");
-const { v4: uuidv4 } = require("uuid"); 
+const { EntitySchema } = require("typeorm"); 
 
 const Role = new EntitySchema({
   name: "Role",
@@ -8,6 +6,7 @@ const Role = new EntitySchema({
     id: {
       primary: true,
       type: "uuid",
+      generated: "uuid",
     },
     roleName: {
       type: "varchar",

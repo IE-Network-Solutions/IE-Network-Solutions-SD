@@ -1,6 +1,5 @@
 // knowledgebase.entity.js
-const { EntitySchema } = require("typeorm");
-const { v4: uuidv4 } = require("uuid"); // Import the uuid library
+const { EntitySchema } = require("typeorm"); 
 
 const KnowledgeBase = new EntitySchema({
   name: "KnowledgeBase",
@@ -8,6 +7,7 @@ const KnowledgeBase = new EntitySchema({
     id: {
       primary: true,
       type: "uuid",
+      generated: "uuid",
     },
     title: {
       type: "varchar",
@@ -31,7 +31,10 @@ const KnowledgeBase = new EntitySchema({
     created_by: {
       type: "many-to-one",
       target: "User",
-      joinColumn: true,
+      joinColumn: {
+        name: "user_id",
+        referencedColumnName: "id",
+      },
     },
   },
 });

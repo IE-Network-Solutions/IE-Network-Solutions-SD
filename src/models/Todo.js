@@ -1,5 +1,4 @@
-const { EntitySchema } = require("typeorm");
-const { v4: uuidv4 } = require("uuid"); // Import the uuid library
+const { EntitySchema } = require("typeorm"); 
 
 const Todo = new EntitySchema({
   name: "Todo",
@@ -7,6 +6,7 @@ const Todo = new EntitySchema({
     id: {
       primary: true,
       type: "uuid",
+      generated: "uuid",
     },
     title: {
       type: "varchar",

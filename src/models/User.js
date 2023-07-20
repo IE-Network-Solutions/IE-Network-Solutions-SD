@@ -73,7 +73,11 @@ relations: {
     role: {
       type: "many-to-one",
       target: "Role",
-      joinColumn: true,
+      // joinColumn: true,
+      joinColumn: {
+        name: "role_id",
+        referencedColumnName: "id",
+      },
     },
   },
 });

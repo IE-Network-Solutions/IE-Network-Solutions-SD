@@ -1,4 +1,3 @@
-// comment.entity.js
 const { EntitySchema } = require("typeorm");
 
 const Comment = new EntitySchema({
@@ -7,6 +6,7 @@ const Comment = new EntitySchema({
     id: {
       primary: true,
       type: "uuid",
+      generated: "uuid",
     },
     title: {
       type: "varchar",
@@ -27,12 +27,18 @@ const Comment = new EntitySchema({
     created_by: {
       type: "many-to-one",
       target: "User",
-      joinColumn: true,
+      joinColumn: {
+        name: "user_id",
+        referencedColumnName: "id",
+      },
     }, 
     created_on: {
       type: "many-to-one",
       target: "Ticket",
-      joinColumn: true,
+      joinColumn: {
+        name: "ticket_id",
+        referencedColumnName: "id",
+      },
     },
   },
 });

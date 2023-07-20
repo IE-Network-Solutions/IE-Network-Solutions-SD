@@ -44,8 +44,6 @@ class ClientDAL {
   static async createClient(data) {
     try {
       const id = uuidv4();
-
-        
       const {
          first_name,
         last_name,
@@ -55,7 +53,6 @@ class ClientDAL {
         client_type, } = data;
       // get connection from the pool
       const connection = getConnection();
-
       // create bridge
       const clientRepository = connection.getRepository(User);
 
@@ -85,7 +82,7 @@ class ClientDAL {
       throw new Error("client not found");
     }
 
-    clientRepository.merge(client, updatedFields);
+   clientRepository.merge(client, updatedFields);
     await clientRepository.save(client);
 
     return client;

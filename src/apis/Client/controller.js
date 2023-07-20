@@ -45,10 +45,10 @@ exports.createClient = async (req, res, next) => {
   try {
     const data = req.body;
 
-    // Check required fields
-    if (!data.first_name ||!data.last_name  || !data.email || !data.role || !data.department || !data.user_type ) {
-      return next(new AppError("Please fill all required fields", 400));
-    }
+    // // Check required fields
+    // if (!data.first_name ||!data.last_name  || !data.email || !data.role || !data.department || !data.user_type ) {
+    //   return next(new AppError("Please fill all required fields", 400));
+    // }
 
     //   create new client
     const client = await ClientDAL.createClient(data);

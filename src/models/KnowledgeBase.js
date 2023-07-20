@@ -1,4 +1,3 @@
-// knowledgebase.entity.js
 const { EntitySchema } = require("typeorm"); 
 
 const KnowledgeBase = new EntitySchema({

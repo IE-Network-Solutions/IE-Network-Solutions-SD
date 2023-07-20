@@ -1,7 +1,7 @@
 const { EntitySchema } = require("typeorm");
 
-const TicketAssignedUsers = new EntitySchema({
-  name: "TicketAssignedUsers",
+const AssignedTicket = new EntitySchema({
+  name: "AssignedTicket",
   columns: {
     id: {
       primary: true,
@@ -31,4 +31,4 @@ const TicketAssignedUsers = new EntitySchema({
   },
 });
 
-module.exports = TicketAssignedUsers;
+module.exports = AssignedTicket;

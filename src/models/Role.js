@@ -1,22 +1,16 @@
 const { EntitySchema } = require("typeorm"); 
 
-const KnowledgeBase = new EntitySchema({
-  name: "KnowledgeBase",
+const Role = new EntitySchema({
+  name: "Role",
   columns: {
     id: {
       primary: true,
       type: "uuid",
       generated: "uuid",
     },
-    title: {
+    roleName: {
       type: "varchar",
-    },
-    category: {
-      type: "varchar",
-    },
-    description: {
-      type: "text",
-    },
+    }, 
     created_at: {
       type: "timestamp",
       default: () => "CURRENT_TIMESTAMP",
@@ -27,15 +21,17 @@ const KnowledgeBase = new EntitySchema({
     },
   },
   relations: {
-    created_by: {
-      type: "many-to-one",
+    users: {
+      type: "one-to-many",
       target: "User",
-      joinColumn: {
-        name: "user_id",
-        referencedColumnName: "id",
-      },
+      joinColumn: true,
+    },
+    permissions: {
+      type: "one-to-many",
+      target: "Permission",
+      joinColumn: true,
     },
   },
 });
 
-module.exports = KnowledgeBase;
+module.exports = Role;

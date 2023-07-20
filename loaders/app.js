@@ -6,8 +6,9 @@
 const express = require("express");
 const geh = require("../src/geh");
 const AppError = require("../utils/apperror");
-const TestRoute = require("../src/apis/test/router");
-const TodoRoute = require("../src/apis/todos/router");
+const TestRoute = require("../src/apis/test/router"); 
+const knowledgebaseRoute = require("../src/apis/knowledgebase/router") 
+const TodoRoute = require("../src/apis/todos/router"); 
 
 const app = express();
 
@@ -17,8 +18,9 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use("/api/v1/tests", TestRoute);
-app.use("/api/v1/todos", TodoRoute);
+app.use("/api/v1/tests", TestRoute); 
+app.use("/api/v1/knowlegebase", knowledgebaseRoute); 
+app.use("/api/v1/todos", TodoRoute); 
 
 // Unknown URL Error Message
 app.use("*", (req, res, next) => {

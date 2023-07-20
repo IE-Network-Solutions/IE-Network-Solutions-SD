@@ -1,4 +1,5 @@
 {
+
     "sqltools.connections": [
         {
             "previewLimit": 50,
@@ -20,3 +21,4 @@
         }
     ]
 }
+

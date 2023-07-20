@@ -54,11 +54,6 @@ exports.createUser = async (req, res, next) => {
             user_type: req.body.user_type,
         }
 
-        // Check Required Fields
-        if (!user.first_name || !user.last_name || !user.email || !user.role || !user.department || !user.user_type) {
-            return next(new AppError("Please fill all required fields", 400));
-        }
-
         // Create New User
         let newUser = await UserDAL.createUser(user);
 
@@ -85,11 +80,6 @@ exports.deleteUser = async (req, res, next) => {
             user_type: req.body.user_type,
         }
 
-        // Check Required Fields
-        if (!user.first_name || !user.last_name || !user.email || !user.role || !user.department || !user.user_type) {
-            return next(new AppError("Please fill all required fields", 400));
-        }
-
         // Delete User
         let deletedUser = await UserDAL.deleteUser(user);
 
@@ -114,7 +104,7 @@ exports.deleteAllUsers = async (req, res, next) => {
             data: deletedUsers,
         });
     } catch (error) {
-
+        throw error;
     }
 }
 
@@ -129,11 +119,6 @@ exports.editUser = async (req, res, next) => {
             role: req.body.role,
             department: req.body.department,
             user_type: req.body.user_type,
-        }
-
-        // Check Required Fields
-        if (!user.first_name || !user.last_name || !user.email || !user.role || !user.department || !user.user_type) {
-            return next(new AppError("Please fill all required fields", 400));
         }
 
         // Edit User

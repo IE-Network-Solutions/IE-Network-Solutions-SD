@@ -11,12 +11,13 @@ const TestRoute = require("../src/apis/test/router");
 const clientRouter = require("../src/apis/Client/router");
 const TodoRoute = require("../src/apis/todos/router");
 const UserRoute = require("../src/apis/users/router");
-const knowledgebaseRoute = require("../src/apis/knowledgebase/router") 
+const knowledgeBaseRoute = require("../src/apis/knowledgebase/router") 
+const roleRoute = require("../src/apis/role/router")
 
 const app = express();
 
 /**
- * add middlewares here
+ * add middleware here
  */
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -26,7 +27,8 @@ app.use("/api/v1/tests", TestRoute);
 app.use("/api/v1/client", clientRouter);
 app.use("/api/v1/todos", TodoRoute);
 app.use("/api/v1/users", UserRoute);
-app.use("/api/v1/knowlegebase", knowledgebaseRoute); 
+app.use("/api/v1/knowledgeBase", knowledgeBaseRoute); 
+app.use("/api/v1/role", roleRoute); 
 
 // Unknown URL Error Message
 app.use("*", (req, res, next) => {

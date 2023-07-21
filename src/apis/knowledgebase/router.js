@@ -9,7 +9,7 @@ router.route("/").post(validate(createKnowledgebaseValidator), knowledgebaseCont
 
 router.route("/:id").get(knowledgebaseController.getKnowlegebaseById)
 
-router.route("/:id").patch(knowledgebaseController.updateOneKnowledgebase)
+router.route("/:id").patch(validate(createKnowledgebaseValidator), knowledgebaseController.updateOneKnowledgebase)
 
 router.route("/:id").delete(knowledgebaseController.deleteOneKnowledgebase);
 

@@ -11,7 +11,7 @@ router.route("/:id").get(uuidValidator, authorize, UserController.getOneUser);
 
 router
   .route("/")
-  .post(authorize, validate(userValidator), UserController.createUser);
+  .post(validate(userValidator), UserController.createUser);
 router.route("/:id").patch(uuidValidator, authorize, UserController.editUser);
 
 router

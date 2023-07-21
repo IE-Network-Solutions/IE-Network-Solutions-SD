@@ -1,10 +1,11 @@
 const joi = require("joi")
 
 // validate create knowlegebase api.
-const createKnowledgebaseValidator = joi.object({ 
-    title: joi.string().required(),
-    category: joi.string().required(),
-    description: joi.string().required()
+const catagoryValidator = joi.object({ 
+    name: joi.string().required(),
+    description: joi.string().required(),
+    knowledgeBase_id: joi.string().uuid().required(),
+
 })
 
-module.exports = createKnowledgebaseValidator;
+module.exports = catagoryValidator;

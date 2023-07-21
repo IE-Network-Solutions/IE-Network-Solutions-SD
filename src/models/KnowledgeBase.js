@@ -17,9 +17,12 @@ const KnowledgeBase = new EntitySchema({
     description: {
       type: "text",
     },
-
+    user_Id:{
+      nullable:true,
+      type:"varchar"
+    },
      image: {
-      type: "blob"
+      type: "varchar"
     },
     created_at: {
       type: "timestamp",
@@ -39,9 +42,11 @@ const KnowledgeBase = new EntitySchema({
         referencedColumnName: "id",
       },
     },
-  catatory: {
+
+     catatory: {
       type: "one-to-many",
       target: "Catagory",
+      inverseSide: "catagory_Id",
     }
   },
 });

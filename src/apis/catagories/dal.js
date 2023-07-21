@@ -1,18 +1,21 @@
 const { getConnection } = require("typeorm");
 const catagories = require("../../models/Catagoreis");
 const { validate: isUUID } = require("uuid");
-const Catagories = require("../../models/Catagoreis");
 
 class catagoryDAL {
+    // This method implements to get all catagories
   static async getAllCatagories() {
-    try {
+    try 
+    {
+    // Create connections
       const connection = await getConnection();
 
+    // Inject catagory model
       const catagoyRepository = connection.getRepository(catagories);
-
-      const catagories = await catagoyRepository.find();
-      // return all fetched data.
-      return catagories;
+    
+      //Returns all catagory values
+      return await catagoyRepository.find();
+      
     } catch (error) {
       throw error;
     }
@@ -30,8 +33,7 @@ class catagoryDAL {
       const catagoryRepository = connection.getRepository(catagories);
 
       // fetch data.
-      const catagory = await catagoryRepository.findOneBy({ id: id });
-      return catagory;
+      return await catagoryRepository.findOneBy({ id: id });
     } catch (error) {
       throw error;
     }
@@ -39,7 +41,7 @@ class catagoryDAL {
 
   static async createCatagory(data) {
     try {
-      const { title, category, description } = data;
+      const {name, description, knowledgeBase_id } = data;
 
       // const id =
       const connection = getConnection();
@@ -47,9 +49,9 @@ class catagoryDAL {
       const catagoryRepository = connection.getRepository(catagories);
 
       const catagory = await catagoryRepository.create({
-        title,
-        category,
+        name,
         description,
+        knowledgeBase_id
       });
 
       return await catagoryRepository.save(catagory);

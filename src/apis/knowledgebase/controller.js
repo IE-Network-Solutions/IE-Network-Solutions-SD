@@ -1,6 +1,7 @@
 const AppError = require("../../../utils/apperror");
 const KnowledgeBaseDAL = require("./dal");
 
+//This method implements to get all knowledge base values
 exports.getAllKnowledgebase = async (req, res, next) => {
   try {
     // get all knowledgebase.
@@ -8,27 +9,12 @@ exports.getAllKnowledgebase = async (req, res, next) => {
 
     // check if knowlegebasee doen't exist.
     if (!knowledgebase) {
+
       // return custom error
       return next(new AppError("No knowledgebase data found."));
     }
 
     res.status(200).json({
-      status: "Success",
-      data: knowledgebase,
-    });
-  } catch (error) {
-    throw error;
-  }
-};
-
-exports.createKnowledgebase = async (req, res, next) => {
-  try { 
-    // get input data.
-    const data = req.body; 
-    //   create new knowlegebase
-    const knowledgebase = await KnowledgeBaseDAL.createKnowledgebase(data);
-
-    res.status(201).json({
       status: "Success",
       data: knowledgebase,
     });
@@ -54,6 +40,24 @@ exports.getKnowlegebaseById = async (req, res, next) => {
     throw error;
   }
 };
+
+exports.createKnowledgebase = async (req, res, next) => {
+  try { 
+    // get input data.
+    const data = req.body; 
+    
+    //   create new knowlegebase
+    const knowledgebase = await KnowledgeBaseDAL.createKnowledgebase(data);
+
+    res.status(201).json({
+      status: "Success",
+      data: knowledgebase,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
 
 exports.updateOneKnowledgebase = async (req, res, next) => {
   try {

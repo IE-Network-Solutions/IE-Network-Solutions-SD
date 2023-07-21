@@ -29,9 +29,8 @@ content-type: application/json
 PATCH http://localhost:3001/api/v1/notes/ HTTP/1.1
 content-type: application/json
 
-{   
-    "id": "6ded4eba-cf96-4c98-8441-d3fb00250f06",
-    "body": "Fourth Note EDITTED!"
+{
+    "body": "Fifth Note EDITED!!"
 }
 
 ### ------------------------------------------------------------ COMMENTS

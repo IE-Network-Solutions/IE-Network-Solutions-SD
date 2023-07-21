@@ -3,6 +3,7 @@ const CommentController = require("./controller");
 const validate = require("../../../utils/validator");
 const commentValidator = require("./validation")
 const { uuidValidator } = require("../../../utils/uuid");
+const authorize = require("../../middlewares/auth/authorization");
 
 router.route("/").get(authorize, CommentController.getAllComments);
 router.route("/:id").get(authorize, uuidValidator, CommentController.getOneComment);

@@ -47,6 +47,7 @@ class ClientDAL {
       const {
          first_name,
         last_name,
+        password,
         email,
         role,
         department,
@@ -59,10 +60,11 @@ class ClientDAL {
       // create client
       const newClient = await clientRepository.create({ id,first_name,
         last_name,
+        password,
         email,
         role,
         department,
-        client_type });
+        user_type:client_type });
       await clientRepository.save(newClient);
       // console.log(newTest);
       return newClient;

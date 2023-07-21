@@ -1,4 +1,5 @@
 const AppError = require("../../../utils/apperror");
+const hash = require("../../../utils/hashpassword");
 const ClientDAL = require("./dal");
 
 
@@ -44,6 +45,7 @@ exports.singleClient = async (req, res, next) => {
 exports.createClient = async (req, res, next) => {
   try {
     const data = req.body;
+    data.password = hash("%TGBnhy6");
     
     //   create new client
     const client = await ClientDAL.createClient(data);

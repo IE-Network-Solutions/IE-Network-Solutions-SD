@@ -4,7 +4,7 @@ const joi = require("joi")
 const catagoryValidator = joi.object({ 
     name: joi.string().required(),
     description: joi.string().required(),
-    knowledgeBase_id: joi.string().uuid().required(),
+    knowledgeId: joi.string().uuid().required(),
 
 })
 

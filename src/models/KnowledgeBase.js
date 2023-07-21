@@ -17,8 +17,8 @@ const KnowledgeBase = new EntitySchema({
     description: {
       type: "text",
     },
-    user_Id:{
-      nullable:true,
+    createdBy:{
+      nullable:false,
       type:"varchar"
     },
      image: {
@@ -34,20 +34,20 @@ const KnowledgeBase = new EntitySchema({
     },
   },
   relations: {
-    created_by: {
+    createdBy: {
       type: "many-to-one",
       target: "User",
       joinColumn: {
-        name: "user_Id",
+        name: "createdBy",
         referencedColumnName: "id",
       },
     },
 
-     catatory: {
+    catagory : {
       type: "one-to-many",
       target: "Catagory",
-      inverseSide: "catagory_Id",
-    }
+      inverseSide: "knowledgeId",
+    },
   },
 });
 

@@ -1,8 +1,8 @@
 const { getConnection } = require("typeorm");
 const catagories = require("../../models/Catagoreis");
-const { validate: isUUID } = require("uuid");
 
 class catagoryDAL {
+
     // This method implements to get all catagories
   static async getAllCatagories() {
     try 
@@ -14,7 +14,7 @@ class catagoryDAL {
       const catagoyRepository = connection.getRepository(catagories);
     
       //Returns all catagory values
-      return await catagoyRepository.find();
+      return await catagoyRepository.find({relations: ['knowledgeId']});
       
     } catch (error) {
       throw error;
@@ -23,76 +23,78 @@ class catagoryDAL {
 
   static async getCatagoryById(id) {
     try {
-      // check the validity of the id format.
-      if (!isUUID(id)) {
-        return null;
-      }
-
-      // form connection
+      // Create connection
       const connection = await getConnection();
+
+      //Inject catagories model
       const catagoryRepository = connection.getRepository(catagories);
 
-      // fetch data.
-      return await catagoryRepository.findOneBy({ id: id });
+      return await catagoryRepository.findOne({where: { id: id }, relations: ['knowledgeId']});
+
     } catch (error) {
       throw error;
     }
   }
 
+  //This method implements to create new catagories
   static async createCatagory(data) {
     try {
-      const {name, description, knowledgeBase_id } = data;
+      const {name, description, knowledgeId } = data;
 
-      // const id =
+      // Create connection
       const connection = getConnection();
 
+      //Inject catagory model
       const catagoryRepository = connection.getRepository(catagories);
 
-      const catagory = await catagoryRepository.create({
-        name,
-        description,
-        knowledgeBase_id
-      });
+      const catagory = await catagoryRepository.create({ name, description,knowledgeId});
 
       return await catagoryRepository.save(catagory);
+
     } catch (error) {
-      throw error;
+       if (error.code === '23503') {
+      return { Message : "Foreign key Constraint FAIL please insert correct id"};
+    }
     }
   }
 
+  //This method implements to update catagory by id
   static async updateCatagory(id, updatedFields) {
-    // check the validity of the id format.
-    if (!isUUID(id)) {
-      return null;
+    try{
+      //Create a connections
+        const connection = getConnection();
+
+        //Inject catagory model
+        const catagoryRepository = connection.getRepository(catagories);
+
+        // fetch the catagory to be updated
+        const catagory = await catagoryRepository.findOneBy({ id: id });
+
+        catagoryRepository.merge(catagory, updatedFields);
+
+       return await catagoryRepository.save(catagory);
+
+    }catch(error){
+       if (error.code === '23503') {
+      return { Message : "Foreign key Constraint FAIL please insert correct id"};
     }
-
-    // form connection
-    const connection = getConnection();
-    const catagoryRepository = connection.getRepository(catagories);
-
-    // fetch the catagory to be updated
-    const catagory = await catagoryRepository.findOneBy({ id: id });
-
-    // update
-    catagoryRepository.merge(catagory, updatedFields);
-    await catagoryRepository.save(catagory);
-
-    // return updated catagory data.
-    return catagories;
+    }
   }
 
+  //This method implements to delete catagory by id
   static async deleteCatagory(id) {
-    // check the validity of the id format.
-    if (!isUUID(id)) {
-      return null;
-    }
+    try{
+      // Create connection
     const connection = getConnection();
 
+    //Inject catagory model
     const catagoryRepository = connection.getRepository(catagories);
 
-    await catagoryRepository.delete({ id: id });
+    return await catagoryRepository.delete({ id });  
 
-    return "Catagory is deleted Successfully";
+}catch(error){
+  throw error;
+  }
   }
 }
 

@@ -67,7 +67,7 @@ const User = new EntitySchema({
     knowledgeBase: {
       type: "one-to-many",
       target: "KnowledgeBase",
-      inverseSide: "created_by",
+      inverseSide: "createdBy",
     },
     todos: {
       type: "one-to-many",

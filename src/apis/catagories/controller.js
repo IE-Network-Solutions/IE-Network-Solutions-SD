@@ -1,16 +1,11 @@
 const AppError = require("../../../utils/apperror");
 const catagoryDAL = require("./dal");
 
+//This method implements to get all catagories
 exports.getAllCatagories = async (req, res, next) => {
   try {
     // get all catagories.
     const catagories = await catagoryDAL.getAllCatagories();
-
-    // check if catagories doen't exist.
-    if (!catagories) {
-      // return custom error
-      return next(new AppError("No catagory data found."));
-    }
 
     res.status(200).json({
       status: "Success",
@@ -21,11 +16,13 @@ exports.getAllCatagories = async (req, res, next) => {
   }
 };
 
+// This method implements to create new catagories
 exports.createCatagory = async (req, res, next) => {
   try { 
-    // get input data.
+    // get catagory request body
     const data = req.body; 
-    //   create new knowlegebase
+
+    // Create new catagory
     const catagory = await catagoryDAL.createCatagory(data);
 
     res.status(201).json({
@@ -37,15 +34,18 @@ exports.createCatagory = async (req, res, next) => {
   }
 };
 
+// This method implements to get catagaory with id
 exports.getCatagoyById = async (req, res, next) => {
   try {
+
+    // get catagory id
     const id = req.params.id;
 
     const catagory = await catagoryDAL.getCatagoryById(id);
 
-    if (!catagory)
+    if (!catagory){
       return next(new AppError("Catagory with the given id is not found", 404));
-
+    }
     res.status(200).json({
       status: "Success",
       data: catagory,
@@ -55,24 +55,18 @@ exports.getCatagoyById = async (req, res, next) => {
   }
 };
 
+//This method implements to update catagory by id
 exports.updateCatagory = async (req, res, next) => {
   try {
     const id = req.params.id;
+
     const updatedFields = req.body;
 
-    // check if catagory with the given id is found or not?
-    const isCatagoryExist = await catagoryDAL.getCatagoryById(id);
+   const catagory = await catagoryDAL.updateCatagory( id, updatedFields );
 
-    if (!isCatagoryExist) {
-      return next(
-        new AppError("Catagory with the given id is not found.")
-      );
+    if (!catagory) {
+      return next(new AppError("Catagory with the given id is not found."));
     }
-
-    const catagory = await catagoryDAL.updateCatagory(
-      id,
-      updatedFields
-    );
 
     res.status(200).json({
       status: "Success",
@@ -83,24 +77,19 @@ exports.updateCatagory = async (req, res, next) => {
   }
 };
 
+//This method implements to delete catagories by id
 exports.deleteCatagory = async (req, res, next) => {
   try {
     const id = req.params.id;
+    const  catagaory = await catagoryDAL.getCatagoryById(id);
 
-    // check if catagory with the given id is found or not?
-    const isCatagoryExist = await catagoryDAL.getCatagoyById(id);
-
-    if (!isCatagoryExist) {
-      return next(
-        new AppError("Catagory with the given id is not found.")
-      );
+    if (!catagaory) {
+      return next(new AppError("Catagory with the given id is not found."));
     }
-
-    await catagoryDAL.deleteCatagory(id);
 
     res.status(200).json({
       status: "Success",
-      data: null,
+      data: catagaory,
     });
   } catch (error) {
     throw error;

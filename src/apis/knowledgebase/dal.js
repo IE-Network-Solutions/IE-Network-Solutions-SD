@@ -1,8 +1,5 @@
 const { getConnection } = require("typeorm");
 const KnowledgeBase = require("../../models/KnowledgeBase");
-const { validate: isUUID } = require("uuid");
-const userDAL = require('../users/dal');
-const AppError = require('../../../utils/apperror');
 
 class KnowledgeBaseDAL {
 
@@ -16,10 +13,10 @@ class KnowledgeBaseDAL {
       const knowledgebaseRepository = connection.getRepository(KnowledgeBase);
       
       // Returns Knowledge base data relate with create by user
-      return await knowledgebaseRepository.find({relations : ['created_by']});
+      return await knowledgebaseRepository.find({relations : ['createdBy']});
       
     } catch (error) {
-      throw error;
+     throw error
     }
   }
 
@@ -34,10 +31,12 @@ class KnowledgeBaseDAL {
       const knowledgebaseRepository = connection.getRepository(KnowledgeBase);
 
     // Returns Knowledge base data relate with create by user
-      return await knowledgebaseRepository.findOne({where: { id: id }, relations: ['created_by']});
+      return await knowledgebaseRepository.findOne({where: { id: id }, relations: ['createdBy']});
 
     } catch (error) {
-      throw error;
+      if (error.code === '23503') {
+      return { Message : "Foreign key Constraint FAIL please insert correct id"};
+    }
     }
   }
 
@@ -46,7 +45,7 @@ class KnowledgeBaseDAL {
     try {
 
       // Accept all knowledge base values
-      const { title, category, description, image, user_Id } = data;
+      const { title, category, description, image, createdBy } = data;
 
       // Create connection
       const connection = getConnection();
@@ -55,14 +54,16 @@ class KnowledgeBaseDAL {
       const knowledgebaseRepository = connection.getRepository(KnowledgeBase);
 
       // Create knowledge base value in memory
-      const Knowledgebase = await knowledgebaseRepository.create({
-        title, category, description, image, user_Id });
+      const knowledgebase = await knowledgebaseRepository.create({
+        title, category, description, image, createdBy });
 
       // Save knowledge base values and Return new data
-      return await knowledgebaseRepository.save(Knowledgebase);
+      return await knowledgebaseRepository.save(knowledgebase);
 
     } catch (error) {
-      throw error;
+     if (error.code === '23503') {
+      return { Message : "Foreign key Constraint FAIL please insert correct id"};
+    }
     }
   }
 
@@ -77,7 +78,7 @@ class KnowledgeBaseDAL {
     const knowledgebaseRepository = connection.getRepository(KnowledgeBase);
 
     // Returns Update values of knowledge base
-    const knowledgebase = await knowledgebaseRepository.findOneBy({ id });
+    const knowledgebase = await knowledgebaseRepository.findOneBy({id : id});
 
     // Update knowledge base values
     knowledgebaseRepository.merge(knowledgebase, updatedFields);
@@ -86,7 +87,9 @@ class KnowledgeBaseDAL {
     return await knowledgebaseRepository.save(knowledgebase);
   }
   catch(error){
-    throw error
+     if (error.code === '23503') {
+      return { Message : "Foreign key Constraint FAIL please insert correct id"};
+    }
   }
 }
 

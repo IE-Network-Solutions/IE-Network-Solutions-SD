@@ -58,11 +58,10 @@ class UserDAL {
         try {
             // Create User Object
             const user = data;
-
+         
             // Form Connection
             const connection = getConnection();
             const userRepository = connection.getRepository(User);
-      
             // Create User
             const newUser = await userRepository.create(user);
             await userRepository.save(newUser);

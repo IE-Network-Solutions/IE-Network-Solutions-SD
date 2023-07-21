@@ -54,9 +54,10 @@ exports.createUser = async (req, res, next) => {
             user_type: req.body.user_type,
         }
 
+        
         // Create New User
         let newUser = await UserDAL.createUser(user);
-
+console.log("User list", newUser);
         // Respond
         res.status(200).json({
             status: "Success",

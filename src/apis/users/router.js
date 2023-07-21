@@ -8,7 +8,7 @@ router.route("/:token").get(auth.verifyToken, UserController.introduction);
 router.route("/getAllUsers/:token").get(auth.verifyToken, UserController.getAllUsers);
 router.route("/getOneUser/:id/:token").get(auth.verifyToken, UserController.getOneUser);
 
-router.route("/createUser").post([auth.verifyToken, validate(userValidator)], UserController.createUser);
+router.route("/createUser").post([validate(userValidator)], UserController.createUser);
 router.route("/editUser").post([auth.verifyToken, validate(userValidator)], UserController.editUser);
 
 router.route("/deleteUser").delete(auth.verifyToken, UserController.deleteUser);

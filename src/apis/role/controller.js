@@ -9,8 +9,13 @@ exports.createOneRole = async (req, res, next) => {
     // Check for the uniqueness of the role name.
     const role = await RoleDAL.findOneRoleByName(data.roleName);
     if (role) return next(new AppError("role name must be unique.", 406));
+
     //   create new role
     const createdRole = await RoleDAL.createOneRole(data);
+
+    // Create/give least permission on all seeded resources in the system for newly created role, 
+    // then the admin will update it latter as necessary.
+    // await RoleDAL.createManyPermissions(createdRole.id);
 
     res.status(201).json({
       status: "Success",
@@ -27,8 +32,7 @@ exports.getAllRoles = async (req, res, next) => {
     const roles = await RoleDAL.getAllRole();
 
     // check if Role doesn't exist.
-    if (!roles) {
-      // return custom error
+    if (!roles) { 
       return next(new AppError("No Role data found."));
     }
 

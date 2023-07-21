@@ -83,7 +83,7 @@ class RoleDAL {
       // Form connection.
       const connection = getConnection();
       const roleRepository = connection.getRepository(Role);
- 
+
       const role = await roleRepository.findOneBy({ id: id });
 
       // refresh the updated_at field.
@@ -117,6 +117,15 @@ class RoleDAL {
       throw error;
     }
   }
+
+  // create default permissions for newly created role.
+  // static async createManyPermissions(roleId) {
+  //   try {
+
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
 }
 
 module.exports = RoleDAL;

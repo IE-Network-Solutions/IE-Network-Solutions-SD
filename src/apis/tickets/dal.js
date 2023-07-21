@@ -33,7 +33,14 @@ class TicketDAL {
       const ticketRepository = await connection.getRepository(Ticket);
 
       // get data
-      return await ticketRepository.findOneBy({ id: id });
+      return await ticketRepository.findOne({
+        where: {
+          id: id,
+        },
+        relations: {
+          assigned_users: true,
+        },
+      });
     } catch (error) {
       throw error;
     }
@@ -97,32 +104,71 @@ class TicketDAL {
   }
 
   static async assignUsersToTicket(ticketId, usersIds) {
-    // get connection from the pool
-    const connection = getConnection();
+    try {
+      // get connection from the pool
+      const connection = getConnection();
 
-    // create bridge
-    const ticketRepository = connection.getRepository(Ticket);
+      // create bridge
+      const ticketRepository = connection.getRepository(Ticket);
 
-    // get the ticket
-    const ticket = await ticketRepository.findOneBy({ id: ticketId });
-
-    // get users
-    const userRepository = connection.getRepository(User);
-    const users = await userRepository.findByIds(usersIds);
-
-    // create ticket_user instance to create the association
-    const ticketUserRepository = connection.getRepository(TicketUser);
-    const ticketUsers = users.map((user) => {
-      const ticketUser = ticketRepository.create({
-        ticket: ticket,
-        user,
+      // get the ticket
+      const ticket = await ticketRepository.findOneBy({
+        id: ticketId,
       });
-      return ticketUser;
-    });
-    await ticketUserRepository.save(ticketUsers);
 
-    //   return ticket users
-    return ticketUsers;
+      // get users
+      const userRepository = connection.getRepository(User);
+      const users = await userRepository.findByIds(usersIds);
+
+      // create ticket_user instance to create the association
+      const ticketUserRepository = connection.getRepository(TicketUser);
+      const ticketUsers = users.map((user) => {
+        const ticketUser = ticketUserRepository.create({
+          ticket: ticket,
+          user,
+        });
+        return ticketUser;
+      });
+      await ticketUserRepository.save(ticketUsers);
+
+      //   return ticket users
+      return ticketUsers;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async removeAssignedUser(ticketId, userId) {
+    try {
+      // Establish the database connection from the pool
+      const connection = await getConnection();
+
+      // Fetch the ticket from the database
+      const ticketRepository = connection.getRepository(Ticket);
+      const ticket = await ticketRepository.findOneBy({ id: ticketId });
+
+      // Fetch the user from the database
+      const userRepository = connection.getRepository(User);
+      const user = await userRepository.findOneBy({ id: userId });
+
+      // Fetch the TicketUser entity representing the association
+      const ticketUserRepository = connection.getRepository(TicketUser);
+      const ticketUser = await ticketUserRepository.findOneBy({
+        ticket_id: ticket.id,
+        user_id: user.id,
+      });
+
+      if (!ticketUser) {
+        new AppError("relation not found", 404);
+      }
+
+      // Remove the TicketUser association from the database
+      await ticketUserRepository.remove(ticketUser);
+
+      return ticket;
+    } catch (error) {
+      throw error;
+    }
   }
 }
 

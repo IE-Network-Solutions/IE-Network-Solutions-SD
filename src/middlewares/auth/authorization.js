@@ -25,7 +25,7 @@ const authorize = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    throw error;
+    return next(new AppError("Please Login!", 401));
   }
 };
 

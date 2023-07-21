@@ -1,6 +1,8 @@
 const AppError = require("../../../utils/apperror");
 const TicketDAL = require("./dal");
 const TestDAL = require("../../apis/test/dal");
+const UserDAL = require("../users/dal");
+const validateUuid = require("uuid-validate");
 
 /**
  *
@@ -104,6 +106,63 @@ exports.deleteTicket = async (req, res, next) => {
     res.status(200).json({
       status: `Ticket is with id ${id} is deleted Successfully`,
       statusCode: 200,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.assignUserToTicket = async (req, res, next) => {
+  try {
+    const ticketId = req.params.id;
+    const userIds = req.body.users;
+
+    //   validate uuid
+    userIds.map((uuid) => {
+      if (!validateUuid(uuid)) {
+        return next(new AppError("Invalid Id", 500));
+      }
+    });
+
+    // check users
+    const users = await UserDAL.findMultipleUsers(userIds);
+    if (!users) return next(new AppError("user exsistance error", 404));
+
+    // check ticket
+    const ticket = await TicketDAL.getTicketById(ticketId);
+    if (!ticket) return next("ticket does not exist", 404);
+
+    // assign users
+    const ticketUsers = await TicketDAL.assignUsersToTicket(ticketId, userIds);
+
+    res.status(200).json({
+      status: "Success",
+      data: ticketUsers,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.removeAssigned = async (req, res, next) => {
+  try {
+    const ticketId = req.params.id;
+    const use_id = req.body.users;
+
+    // check user
+    const user = await UserDAL.getOneUser(use_id);
+    if (!user) return next(new AppError("user does not", 404));
+
+    // check ticket
+    const ticket = await TicketDAL.getTicketById(ticketId);
+    if (!ticket) return next("ticket does not exist", 404);
+
+    // remove users
+    const ticketUsers = await TicketDAL.removeAssignedUser(ticketId, use_id);
+
+    res.status(200).json({
+      status: "Success",
+      data: ticketUsers,
     });
   } catch (error) {
     throw error;

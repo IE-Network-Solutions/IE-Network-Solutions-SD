@@ -146,6 +146,21 @@ class UserDAL {
       return user;
     } catch (error) {}
   }
+
+  static async findMultipleUsers(userIds) {
+    try {
+      // get connection
+      const connection = getConnection();
+      // get users
+      const userRepository = connection.getRepository(User);
+      const users = await userRepository.findByIds(userIds);
+
+      // return users
+      return users;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 module.exports = UserDAL;

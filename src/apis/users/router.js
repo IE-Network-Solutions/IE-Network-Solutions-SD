@@ -4,7 +4,7 @@ const validate = require("../../../utils/validator");
 const { userValidator, loginValidator } = require("./validation");
 const auth = require("../../middlewares/auth");
 const authorize = require("../../middlewares/auth/authorization");
-const uuidValidator = require("../../../utils/uuid");
+const { uuidValidator } = require("../../../utils/uuid");
 
 router.route("/").get(authorize, UserController.getAllUsers);
 router.route("/:id").get(uuidValidator, authorize, UserController.getOneUser);

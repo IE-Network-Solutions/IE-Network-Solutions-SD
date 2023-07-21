@@ -1,4 +1,3 @@
-// ticket.entity.js
 const { EntitySchema } = require("typeorm");
 
 const Ticket = new EntitySchema({
@@ -22,7 +21,7 @@ const Ticket = new EntitySchema({
     },
     created_at: {
       type: "timestamp",
-      default: () => "CURRENT_TIMESTAMP", 
+      default: () => "CURRENT_TIMESTAMP",
     },
     updated_at: {
       type: "timestamp",
@@ -35,7 +34,7 @@ const Ticket = new EntitySchema({
       target: "User",
 
       joinTable: {
-        name: "ticket_assigned_users",
+        name: "ticket_user",
         joinColumn: {
           name: "ticket_id",
           referencedColumnName: "id",

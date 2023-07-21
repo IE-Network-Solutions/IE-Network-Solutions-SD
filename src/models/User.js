@@ -22,6 +22,10 @@ const User = new EntitySchema({
     },
     email: {
       type: "varchar",
+      unique: true,
+    },
+    password: {
+      type: "varchar",
     },
     role: {
       type: "varchar",
@@ -44,22 +48,21 @@ const User = new EntitySchema({
       default: () => "CURRENT_TIMESTAMP",
     },
   },
-relations: {
-    assigned_tickets: { 
-        type: "one-to-many",
-        target: "AssignedTicket",
-        inverseSide: "assigned_for", 
-      // joinTable: {
-      //   name: "ticket_assigned_users",
-      //   joinColumn: {
-      //     name: "user_id",
-      //     referencedColumnName: "id",
-      //   },
-      //   inverseJoinColumn: {
-      //     name: "ticket_id",
-      //     referencedColumnName: "id",
-      //   },
-      // },
+  relations: {
+    assigned_tickets: {
+      type: "many-to-many",
+      target: "Ticket",
+      joinTable: {
+        name: "ticket_user",
+        joinColumn: {
+          name: "user_id",
+          referencedColumnName: "id",
+        },
+        inverseJoinColumn: {
+          name: "ticket_id",
+          referencedColumnName: "id",
+        },
+      },
     },
     knowledgeBase: {
       type: "one-to-many",

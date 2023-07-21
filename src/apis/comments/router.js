@@ -1,26 +1,27 @@
 const router = require("express").Router();
 const CommentController = require("./controller");
-// const validate = require("../../../utils/validator");
+const validate = require("../../../utils/validator");
+const commentValidator = require("./validation")
 const { uuidValidator } = require("../../../utils/uuid");
 
-router.route("/").get(CommentController.getAllComments);
-router.route("/:id").get(uuidValidator, CommentController.getOneComment);
+router.route("/").get(authorize, CommentController.getAllComments);
+router.route("/:id").get(authorize, uuidValidator, CommentController.getOneComment);
 
 router
   .route("/")
-  .post(CommentController.createComment);
+  .post(validate(commentValidator), CommentController.createComment);
 
 router
     .route("/")
-    .patch(CommentController.editComment);
+    .patch(authorize, CommentController.editComment);
 
 router
   .route("/deleteAllComments")
-  .delete(CommentController.deleteAllComments);
+  .delete(authorize, CommentController.deleteAllComments);
 
 router
   .route("/:id")
-  .delete(uuidValidator, CommentController.deleteComment);
+  .delete(authorize, uuidValidator, CommentController.deleteComment);
 
 
 

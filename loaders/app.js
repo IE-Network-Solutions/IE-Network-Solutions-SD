@@ -11,7 +11,8 @@ const TestRoute = require("../src/apis/test/router");
 const clientRouter = require("../src/apis/Client/router");
 const TodoRoute = require("../src/apis/todos/router");
 const UserRoute = require("../src/apis/users/router");
-const CommentsRoute = require("../src/apis/comments/router")
+const CommentsRoute = require("../src/apis/comments/router");
+const NotesRoute = require("../src/apis/notes/router");
 const knowledgebaseRoute = require("../src/apis/knowledgebase/router") 
 
 const app = express();
@@ -28,6 +29,7 @@ app.use("/api/v1/client", clientRouter);
 app.use("/api/v1/todos", TodoRoute);
 app.use("/api/v1/users", UserRoute);
 app.use("/api/v1/comments", CommentsRoute);
+app.use("/api/v1/notes", NotesRoute);
 app.use("/api/v1/knowlegebase", knowledgebaseRoute); 
 
 // Unknown URL Error Message

@@ -1,3 +1,39 @@
+### ------------------------------------------------------------ NOTES
+
+GET http://localhost:3001/api/v1/notes/
+
+###
+
+GET http://localhost:3001/api/v1/notes/1ddc9c43-105f-4955-b719-58db654e7f1a
+
+### 
+
+DELETE http://localhost:3001/api/v1/notes/5723bbe1-d8e7-448e-a8d5-fe6b9acd0f87
+
+### 
+
+DELETE http://localhost:3001/api/v1/notes/deleteAllNotes
+
+
+### 
+
+POST http://localhost:3001/api/v1/notes/ HTTP/1.1
+content-type: application/json
+
+{
+    "body": "Fifth Note"
+}
+
+### 
+
+PATCH http://localhost:3001/api/v1/notes/ HTTP/1.1
+content-type: application/json
+
+{   
+    "id": "6ded4eba-cf96-4c98-8441-d3fb00250f06",
+    "body": "Fourth Note EDITTED!"
+}
+
 ### ------------------------------------------------------------ COMMENTS
 
 GET http://localhost:3001/api/v1/comments/

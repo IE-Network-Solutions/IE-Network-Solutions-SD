@@ -1,20 +1,29 @@
 const router = require("express").Router();
 const UserController = require("./controller");
 const validate = require("../../../utils/validator");
-const userValidator = require("./validation");
+const { userValidator, loginValidator } = require("./validation");
 const auth = require("../../middlewares/auth");
+const authorize = require("../../middlewares/auth/authorization");
+const { uuidValidator } = require("../../../utils/uuid");
 
-router.route("/:token").get(auth.verifyToken, UserController.introduction);
-router.route("/getAllUsers/:token").get(auth.verifyToken, UserController.getAllUsers);
-router.route("/getOneUser/:id/:token").get(auth.verifyToken, UserController.getOneUser);
+router.route("/").get(authorize, UserController.getAllUsers);
+router.route("/:id").get(uuidValidator, authorize, UserController.getOneUser);
 
-router.route("/createUser").post([auth.verifyToken, validate(userValidator)], UserController.createUser);
-router.route("/editUser").post([auth.verifyToken, validate(userValidator)], UserController.editUser);
+router
+  .route("/")
+  .post(authorize, validate(userValidator), UserController.createUser);
+router.route("/:id").patch(uuidValidator, authorize, UserController.editUser);
 
-router.route("/deleteUser").delete(auth.verifyToken, UserController.deleteUser);
-router.route("/deleteAllUsers/:token").delete(auth.verifyToken, UserController.deleteAllUsers);
+router
+  .route("/:id")
+  .delete(uuidValidator, authorize, UserController.deleteUser);
+router
+  .route("/deleteAllUsers/:id")
+  .delete(uuidValidator, authorize, UserController.deleteAllUsers);
 
-router.route("/loginUser").post(validate(userValidator), UserController.loginUser);
-router.route("/logoutUser").post([auth.verifyToken, validate(userValidator)], UserController.logoutUser);
+router.route("/login").post(validate(loginValidator), UserController.loginUser);
+router
+  .route("/logout")
+  .post([authorize, validate(userValidator)], UserController.logoutUser);
 
 module.exports = router;

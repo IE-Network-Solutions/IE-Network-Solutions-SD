@@ -1,4 +1,48 @@
-GET http://localhost:3001/api/v1/users/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdF9uYW1lIjoiRGFnbWF3aSIsImxhc3RfbmFtZSI6IkJhYmkiLCJlbWFpbCI6ImRhZ21hd2lAZ21haWwuY29tIiwicm9sZSI6InNvZnR3YXJlIGRldiIsImRlcGFydG1lbnQiOiJTQVNTIiwidXNlcl90eXBlIjoiZW1wbG95ZWUiLCJpYXQiOjE2ODk3NzA4MzIsImV4cCI6MTY5MDM3NTYzMn0.JtC09vGnkVfu9V7it0GqTnocMMtXMBzTrMjqpfyjkA4
+### ------------------------------------------------------------ COMMENTS
+
+GET http://localhost:3001/api/v1/comments/
+
+###
+
+GET http://localhost:3001/api/v1/comments/a8a12f20-b423-4ec4-9db7-c3b633d01e62
+
+### 
+
+DELETE http://localhost:3001/api/v1/comments/556e8368-b8a4-438f-8682-73e4253d8f8a
+
+### 
+
+DELETE http://localhost:3001/api/v1/comments/deleteAllComments
+
+
+### 
+
+POST http://localhost:3001/api/v1/comments/ HTTP/1.1
+content-type: application/json
+
+{
+    "title": "Third Comment",
+    "description": "This is the Third comment that's put into the DB"
+}
+
+### 
+
+PATCH http://localhost:3001/api/v1/comments/ HTTP/1.1
+content-type: application/json
+
+{   
+    "id": "69d632f2-6c89-40eb-adf9-db39a2311383",
+    "title": "Fourth Comment EDITTED!",
+    "description": "This is the Fourth comment that's put into the DB"
+}
+
+###
+
+GET http://localhost:3001/api/v1/comments/
+
+### ------------------------------------------------------------ USERS
+
+GET http://localhost:3001/api/v1/users/
 
 ###
 
@@ -17,7 +61,6 @@ content-type: application/json
     "first_name": "Dagmawi",
     "last_name": "Babi",
     "email": "dagmawi@gmail.com",
-    "role": "software dev",
     "department": "SASS",
     "user_type": "employee"
 }

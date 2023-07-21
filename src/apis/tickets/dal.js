@@ -5,7 +5,7 @@ const TestDAL = require("../../apis/test/dal");
 const Test = require("../../models/Test");
 const AppError = require("../../../utils/apperror");
 const User = require("../../models/User");
-const TicketUser = require("../../models/TicketUSer");
+const TicketUser = require("../../models/TicketUser");
 
 class TicketDAL {
   static async getAllTickets() {

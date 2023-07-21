@@ -38,7 +38,7 @@ class KnowledgeBaseDAL {
 
   static async createKnowledgebase(data) {
     try {
-      const { title, category, description } = data;
+      const { title, category, description, images, user_Id } = data;
 
       // const id =
       const connection = getConnection();
@@ -49,6 +49,8 @@ class KnowledgeBaseDAL {
         title,
         category,
         description,
+        images,
+        user_Id
       });
 
       await knowledgebaseRepository.save(newKnowledgebase);

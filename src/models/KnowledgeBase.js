@@ -17,6 +17,10 @@ const KnowledgeBase = new EntitySchema({
     description: {
       type: "text",
     },
+
+     image: {
+      type: "blob"
+    },
     created_at: {
       type: "timestamp",
       default: () => "CURRENT_TIMESTAMP",
@@ -31,10 +35,14 @@ const KnowledgeBase = new EntitySchema({
       type: "many-to-one",
       target: "User",
       joinColumn: {
-        name: "user_id",
+        name: "user_Id",
         referencedColumnName: "id",
       },
     },
+  catatory: {
+      type: "one-to-many",
+      target: "Catagory",
+    }
   },
 });
 

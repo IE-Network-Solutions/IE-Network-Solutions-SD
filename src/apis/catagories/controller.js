@@ -35,7 +35,7 @@ exports.createCatagory = async (req, res, next) => {
 };
 
 // This method implements to get catagaory with id
-exports.getCatagoyById = async (req, res, next) => {
+exports.getCatagoryById = async (req, res, next) => {
   try {
 
     // get catagory id
@@ -44,7 +44,8 @@ exports.getCatagoyById = async (req, res, next) => {
     const catagory = await catagoryDAL.getCatagoryById(id);
 
     if (!catagory){
-      return next(new AppError("Catagory with the given id is not found", 404));
+      return next(
+        new AppError("Catagory with the given id is not found", 404));
     }
     res.status(200).json({
       status: "Success",
@@ -81,6 +82,7 @@ exports.updateCatagory = async (req, res, next) => {
 exports.deleteCatagory = async (req, res, next) => {
   try {
     const id = req.params.id;
+
     const  catagaory = await catagoryDAL.getCatagoryById(id);
 
     if (!catagaory) {

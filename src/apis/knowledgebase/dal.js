@@ -34,9 +34,7 @@ class KnowledgeBaseDAL {
       return await knowledgebaseRepository.findOne({where: { id: id }, relations: ['createdBy']});
 
     } catch (error) {
-      if (error.code === '23503') {
-      return { Message : "Foreign key Constraint FAIL please insert correct id"};
-    }
+      throw error;
     }
   }
 

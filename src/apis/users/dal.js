@@ -27,7 +27,7 @@ class UserDAL {
 
       // Get Data
       const foundUser = await userRepository.findBy({ id: id });
-      return foundUser;
+      return foundUser[0];
     } catch (error) {
       throw error;
     }

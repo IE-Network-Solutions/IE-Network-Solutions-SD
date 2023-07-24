@@ -1,3 +1,111 @@
+### ------------------------------------------------------------ DEPARTMENT
+
+GET http://localhost:3001/api/v1/departments/
+
+###
+
+GET http://localhost:3001/api/v1/departments/a6649089-2e7c-4cd6-8c55-0c645f770532
+
+### 
+
+DELETE http://localhost:3001/api/v1/departments/f6e069d5-00f3-4402-9df3-fa194c6fe6b6
+
+### 
+
+DELETE http://localhost:3001/api/v1/departments/deleteAlldepartments
+
+
+### 
+
+POST http://localhost:3001/api/v1/departments/ HTTP/1.1
+content-type: application/json
+
+{
+    "type": "Intern"
+}
+
+### 
+
+PATCH http://localhost:3001/api/v1/departments/ HTTP/1.1
+content-type: application/json
+
+{
+    "id": "a6649089-2e7c-4cd6-8c55-0c645f770532",
+    "type": "SASS"
+}
+
+### ------------------------------------------------------------ STATUS
+
+GET http://localhost:3001/api/v1/statuses/
+
+###
+
+GET http://localhost:3001/api/v1/statuses/3e91c8e1-282b-4042-9b83-edd4ad30da97
+
+### 
+
+DELETE http://localhost:3001/api/v1/statuses/bfbb3e14-f842-4848-aba5-4171184da033
+
+### 
+
+DELETE http://localhost:3001/api/v1/statuses/deleteAllStatuses
+
+
+### 
+
+POST http://localhost:3001/api/v1/statuses/ HTTP/1.1
+content-type: application/json
+
+{
+    "type": "Pending"
+}
+
+### 
+
+PATCH http://localhost:3001/api/v1/statuses/ HTTP/1.1
+content-type: application/json
+
+{
+    "id": "bfbb3e14-f842-4848-aba5-4171184da033",
+    "type": "Unresolved"
+}
+
+### ------------------------------------------------------------ PRIORITY
+
+GET http://localhost:3001/api/v1/prioritites/
+
+###
+
+GET http://localhost:3001/api/v1/prioritites/9c2e43a0-bbea-4219-8188-d66deffa5af0
+
+### 
+
+DELETE http://localhost:3001/api/v1/prioritites/52e7f875-c5d9-4a49-996f-4fefdfe3b821
+
+### 
+
+DELETE http://localhost:3001/api/v1/prioritites/deleteAllPriorities
+
+
+### 
+
+POST http://localhost:3001/api/v1/prioritites/ HTTP/1.1
+content-type: application/json
+
+{
+    "type": "BUG"
+}
+
+### 
+
+PATCH http://localhost:3001/api/v1/prioritites/ HTTP/1.1
+content-type: application/json
+
+{
+    "id": "4be8594f-2f63-40c3-9d6d-6a05daaa5892",
+    "type": "MIDIUM"
+}
+
 ### ------------------------------------------------------------ NOTES
 
 GET http://localhost:3001/api/v1/notes/
@@ -81,7 +189,7 @@ GET http://localhost:3001/api/v1/users/
 
 ###
 
-GET http://localhost:3001/api/v1/users/getAllUsers/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdF9uYW1lIjoiRGFnbWF3aSIsImxhc3RfbmFtZSI6IkJhYmkiLCJlbWFpbCI6ImRhZ21hd2lAZ21haWwuY29tIiwicm9sZSI6InNvZnR3YXJlIGRldiIsImRlcGFydG1lbnQiOiJTQVNTIiwidXNlcl90eXBlIjoiZW1wbG95ZWUiLCJpYXQiOjE2ODk3NzA4MzIsImV4cCI6MTY5MDM3NTYzMn0.JtC09vGnkVfu9V7it0GqTnocMMtXMBzTrMjqpfyjkA4
+GET http://localhost:3001/api/v1/users/c5d37029-18c8-47d5-a7e1-11b23d9c2116
 
 ###
 

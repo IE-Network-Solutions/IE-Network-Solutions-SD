@@ -48,9 +48,13 @@ exports.createComment = async (req, res, next) => {
     try {
         // Get Req Body
         let comment = req.body;
-
+        commentValidator.user_id = req.user.id;
+        
         // Create Comment
         let newComment = await CommentDAL.createComment(comment);
+
+        
+
     
         // Respond
         res.status(200).json({

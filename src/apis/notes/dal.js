@@ -1,5 +1,6 @@
 const { getConnection } = require("typeorm");
 const Note = require("../../models/Note");
+const UserDAL = require("../users/dal");
 
 class NoteDAL {
     // Get All Notes
@@ -34,17 +35,23 @@ class NoteDAL {
     }
 
     // Create New Note
-    static async createNote(data) {
+    static async createNote(data, userID) {
         try {
+            // Get User 
+            const user_ID = userID;
+            const user = await UserDAL.getOneUser(user_ID);
+            if(!user) return next(new AppError("User Does Not Exist",404));
+
             // Create Note Object
-            const comment = data;
+            const note = data;
+            note.created_by = user;
 
             // Form Connection
             const connection = getConnection();
             const noteRepository = connection.getRepository(Note);
 
             // Create Note
-            const newNote = await noteRepository.create(comment);
+            const newNote = await noteRepository.create(note);
             await noteRepository.save(newNote);
             return newNote;
         } catch (error) {

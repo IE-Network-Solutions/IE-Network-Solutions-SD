@@ -5,12 +5,12 @@ const noteValidator = require("./validation")
 const { uuidValidator } = require("../../../utils/uuid");
 const authorize = require("../../middlewares/auth/authorization");
 
-router.route("/").get(authorize, NoteController.getAllNotes);
+router.route("/").get(NoteController.getAllNotes);
 router.route("/:id").get(authorize, uuidValidator, NoteController.getOneNote);
 
 router
   .route("/")
-  .post(validate(noteValidator), NoteController.createNote);
+  .post(NoteController.createNote);
 
 router
     .route("/")
@@ -18,7 +18,7 @@ router
 
 router
   .route("/deleteAllNotes")
-  .delete(authorize, NoteController.deleteAllNotes);
+  .delete(NoteController.deleteAllNotes);
 
 router
   .route("/:id")

@@ -166,7 +166,8 @@ POST http://localhost:3001/api/v1/notes/ HTTP/1.1
 content-type: application/json
 
 {
-    "body": "Fifth Note"
+    "userID": "83676597-d166-4f0b-baea-5ddfdef6235b",
+    "body": "RELATED Note 333"
 }
 
 ### 
@@ -202,7 +203,7 @@ content-type: application/json
 
 {
     "userID": "83676597-d166-4f0b-baea-5ddfdef6235b",
-    "title": "thyju",
+    "title": "New Comment",
     "description": "Testing out relations"
 }
 

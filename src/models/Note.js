@@ -21,6 +21,14 @@ const Note = new EntitySchema({
     },
   },
   relations: {
+    created_by: {
+      type: "many-to-one",
+      target: "User",
+      joinColumn: {
+        name: "user_id",
+        referencedColumnName: "id",
+      },
+    }, 
     created_on: {
       type: "many-to-one",
       target: "Ticket",

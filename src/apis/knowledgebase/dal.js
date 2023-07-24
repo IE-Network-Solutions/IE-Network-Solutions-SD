@@ -13,7 +13,7 @@ class KnowledgeBaseDAL {
       const knowledgebaseRepository = connection.getRepository(KnowledgeBase);
       
       // Returns Knowledge base data relate with create by user
-      return await knowledgebaseRepository.find({relations : ['createdBy']});
+      return await knowledgebaseRepository.find({relations : ['createdBy','catagoryId']});
       
     } catch (error) {
      throw error
@@ -31,7 +31,7 @@ class KnowledgeBaseDAL {
       const knowledgebaseRepository = connection.getRepository(KnowledgeBase);
 
     // Returns Knowledge base data relate with create by user
-      return await knowledgebaseRepository.findOne({where: { id: id }, relations: ['createdBy']});
+      return await knowledgebaseRepository.findOne({where: { id: id }, relations: ['createdBy', 'catagoryId']});
 
     } catch (error) {
       throw error;
@@ -43,7 +43,7 @@ class KnowledgeBaseDAL {
     try {
 
       // Accept all knowledge base values
-      const { title, category, description, image, createdBy } = data;
+      const { title, category, description, image, createdBy, catagoryId } = data;
 
       // Create connection
       const connection = getConnection();
@@ -53,7 +53,7 @@ class KnowledgeBaseDAL {
 
       // Create knowledge base value in memory
       const knowledgebase = await knowledgebaseRepository.create({
-        title, category, description, image, createdBy });
+        title, category, description, image, createdBy, catagoryId });
 
       // Save knowledge base values and Return new data
       return await knowledgebaseRepository.save(knowledgebase);

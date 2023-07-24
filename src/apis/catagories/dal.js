@@ -14,7 +14,7 @@ class catagoryDAL {
       const catagoyRepository = connection.getRepository(catagories);
     
       //Returns all catagory values
-      return await catagoyRepository.find({relations: ['knowledgeId']});
+      return await catagoyRepository.find();
       
     } catch (error) {
       throw error;
@@ -29,7 +29,7 @@ class catagoryDAL {
       //Inject catagories model
       const catagoryRepository = connection.getRepository(catagories);
 
-      return await catagoryRepository.findOne({where: { id: id }, relations: ['knowledgeId']});
+      return await catagoryRepository.findOne({ id: id });
 
     } catch (error) {
       throw error;
@@ -39,7 +39,7 @@ class catagoryDAL {
   //This method implements to create new catagories
   static async createCatagory(data) {
     try {
-      const {name, description, knowledgeId } = data;
+      const {name, description } = data;
 
       // Create connection
       const connection = getConnection();
@@ -47,7 +47,7 @@ class catagoryDAL {
       //Inject catagory model
       const catagoryRepository = connection.getRepository(catagories);
 
-      const catagory = await catagoryRepository.create({ name, description,knowledgeId});
+      const catagory = await catagoryRepository.create({ name, description });
 
       return await catagoryRepository.save(catagory);
 

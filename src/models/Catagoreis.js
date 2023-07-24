@@ -14,9 +14,6 @@ const Catagories = new EntitySchema({
     description: {
       type: "text",
     },
-    knowledgeId:{
-      type: "varchar",
-    },
     created_at: {
       type: "timestamp",
       default: () => "CURRENT_TIMESTAMP",
@@ -27,14 +24,11 @@ const Catagories = new EntitySchema({
     },
   },
   relations: {
-    knowledgeId :{
-      type: "many-to-one",
+     catagory : {
+      type: "one-to-many",
       target: "KnowledgeBase",
-      joinColumn: {
-        name: "knowledgeId",
-        referencedColumnName: "id",
-      },
-    }
+      inverseSide: "catagoryId",
+    },
   },
 });
 

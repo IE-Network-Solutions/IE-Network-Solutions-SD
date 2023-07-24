@@ -24,6 +24,9 @@ const KnowledgeBase = new EntitySchema({
      image: {
       type: "varchar"
     },
+    catagoryId:{
+      type: "varchar",
+    },
     created_at: {
       type: "timestamp",
       default: () => "CURRENT_TIMESTAMP",
@@ -43,11 +46,14 @@ const KnowledgeBase = new EntitySchema({
       },
     },
 
-    catagory : {
-      type: "one-to-many",
+    catagoryId :{
+      type: "many-to-one",
       target: "Catagory",
-      inverseSide: "knowledgeId",
-    },
+      joinColumn: {
+        name: "catagoryId",
+        referencedColumnName: "id",
+      },
+    }
   },
 });
 

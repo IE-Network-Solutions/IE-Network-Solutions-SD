@@ -6,7 +6,8 @@ const createKnowledgebaseValidator = joi.object({
     category: joi.string().required(),
     description: joi.string().required(),
     image: joi.string().required(),
-    createdBy: joi.string().guid().required()
+    createdBy: joi.string().guid().required(),
+    catagoryId: joi.string().guid().required()
 })
 
 module.exports = createKnowledgebaseValidator;

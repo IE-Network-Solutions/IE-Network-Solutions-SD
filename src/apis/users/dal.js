@@ -26,8 +26,8 @@ class UserDAL {
       const userRepository = connection.getRepository(User);
 
       // Get Data
-      const foundUser = await userRepository.findBy({ id: id });
-      return foundUser[0];
+      const foundUser = await userRepository.findOne({ where: { id: id } });
+      return foundUser;
     } catch (error) {
       throw error;
     }

@@ -8,9 +8,10 @@ const authorize = require("../../middlewares/auth/authorization");
 router.route("/").get(authorize, CommentController.getAllComments);
 router.route("/:id").get(authorize, uuidValidator, CommentController.getOneComment);
 
+
 router
-  .route("/")
-  .post(validate(commentValidator), CommentController.createComment);
+    .route("/")
+    .post(validate(commentValidator), CommentController.createComment);
 
 router
     .route("/")

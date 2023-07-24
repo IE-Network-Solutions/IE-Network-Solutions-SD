@@ -1,5 +1,7 @@
 const { getConnection } = require("typeorm");
 const Comment = require("../../models/Comment");
+const UserDAL = require("../users/dal");
+const AppError = require("../../../utils/apperror");
 
 class CommentDAL {
     // Get All Comments
@@ -41,10 +43,16 @@ class CommentDAL {
 
             // Form Connection
             const connection = getConnection();
+
+            // get user 
+            const user = UserDAL.getOneUser(user_id);
+            if(!user) return next(new AppError("user does not exist",404));
+
+            
             const commentRepository = connection.getRepository(Comment);
 
             // Create Comment
-            const newComment = await commentRepository.create(comment);
+            const newComment = await commentRepository.create({comment,created_by: user});
             await commentRepository.save(newComment);
             return newComment;
         } catch (error) {

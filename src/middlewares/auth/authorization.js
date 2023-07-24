@@ -22,7 +22,7 @@ const authorize = async (req, res, next) => {
     const user = await UserDAL.getOneUser(verifyToken.id);
     if (!user) return next(new AppError("user not found", 400));
 
-    req.user = user;
+    req.user = user.data;
     next();
   } catch (error) {
     return next(new AppError("Please Login!", 401));

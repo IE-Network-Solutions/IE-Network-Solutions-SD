@@ -6,12 +6,13 @@ const auth = require("../../middlewares/auth");
 const authorize = require("../../middlewares/auth/authorization");
 const { uuidValidator } = require("../../../utils/uuid");
 
-router.route("/").get(authorize, UserController.getAllUsers);
-router.route("/:id").get(uuidValidator, authorize, UserController.getOneUser);
+router.route("/").get(UserController.getAllUsers);
+router.route("/:id").get(UserController.getOneUser);
 
 router
   .route("/")
   .post(authorize, validate(userValidator), UserController.createUser);
+  
 router.route("/:id").patch(uuidValidator, authorize, UserController.editUser);
 
 router

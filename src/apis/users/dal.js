@@ -88,7 +88,6 @@ class UserDAL {
           user[field] = updatedFields[field];
         }
       });
-      console.log(user);
       await userRepository.save(user);
 
       return user;
@@ -132,7 +131,6 @@ class UserDAL {
   }
 
   // get user by email
-
   static async getUserByEmail(email) {
     try {
       // Form Connection

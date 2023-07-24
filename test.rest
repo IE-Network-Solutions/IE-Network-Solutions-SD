@@ -56,8 +56,8 @@ POST http://localhost:3001/api/v1/comments/ HTTP/1.1
 content-type: application/json
 
 {
-    "title": "Third Comment",
-    "description": "This is the Third comment that's put into the DB"
+    "title": "UOOOOOOOO Comment",
+    "description": "Testing out relations"
 }
 
 ### 
@@ -89,13 +89,13 @@ GET http://localhost:3001/api/v1/users/getOneUser/c5d37029-18c8-47d5-a7e1-11b23d
 
 ###
 
-POST http://localhost:3001/api/v1/users/createUser HTTP/1.1
+POST http://localhost:3001/api/v1/users/ HTTP/1.1
 content-type: application/json
 
 {
     "first_name": "Dagmawi",
     "last_name": "Babi",
-    "email": "dagmawi@gmail.com",
+    "email": "babii@gmail.com",
     "department": "SASS",
     "user_type": "employee"
 }

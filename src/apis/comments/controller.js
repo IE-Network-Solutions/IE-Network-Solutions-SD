@@ -1,5 +1,8 @@
 const CommentDAL = require("./dal")
 const AppError = require("../../../utils/apperror");
+const UserDAL = require("../../apis/users/dal");
+const Comment = require("../../models/Comment");
+
 
 exports.introduction = async (req, res, next) => {
     // Respond

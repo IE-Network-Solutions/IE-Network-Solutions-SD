@@ -45,6 +45,30 @@ const Ticket = new EntitySchema({
         },
       },
     },
+    tickt_priority: {
+      type: "many-to-one",
+      target: "Priority",
+      joinColumn: {
+        name: "priority_id",
+        referencedColumnName: "id",
+      },
+    },
+    tickt_status: {
+      type: "many-to-one",
+      target: "Status",
+      joinColumn: {
+        name: "status_id",
+        referencedColumnName: "id",
+      },
+    },
+    department: {
+      type: "many-to-one",
+      target: "Department",
+      joinColumn: {
+        name: "department_id",
+        referencedColumnName: "id",
+      },
+    },
   },
 });
 

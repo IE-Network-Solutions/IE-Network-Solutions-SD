@@ -1,7 +1,9 @@
 const { getConnection } = require("typeorm");
 const Ticket = require("../../models/Ticket");
 const { v4: uuidv4, validate: uuidValidate } = require("uuid");
-const TestDAL = require("../../apis/test/dal");
+const PriorityDAL = require("../../apis/priority/dal");
+const StatusDAL = require("../../apis/status/dal");
+const DepartmentDAL = require("../../apis/department/dal");
 const Test = require("../../models/Test");
 const AppError = require("../../../utils/apperror");
 const User = require("../../models/User");
@@ -57,12 +59,31 @@ class TicketDAL {
   static async createNewTicket(data) {
     try {
       //Destructure user requests
-      const { status, description, priority, subject } = data;
+      const { status_id, description, priority_id, subject } = data;
 
       const id = uuidv4();
 
       // get connection from the pool
       const connection = getConnection();
+
+      // get priority
+      const priority = PriorityDAL.getPriority(priority_id);
+
+      if (!priority) {
+        return new AppError("such priority does not exist", 404);
+      }
+
+      // get status
+      const status = StatusDAL.getStatus(status_id);
+      if (!status) {
+        return new AppError("status does not exist", 404);
+      }
+
+      // get department
+      const department = DepartmentDAL(department_id);
+      if (!department) {
+        return new AppError("department does not exist", 404);
+      }
 
       // create bridge
       const ticketRepository = connection.getRepository(Ticket);
@@ -70,10 +91,11 @@ class TicketDAL {
       // create ticket
       const newTicket = await ticketRepository.create({
         id,
-        status,
         description,
-        priority,
         subject,
+        ticket_priority: priority,
+        ticket_status: status,
+        department: department,
       });
       await ticketRepository.save(newTicket);
 

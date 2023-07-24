@@ -5,13 +5,13 @@ const commentValidator = require("./validation")
 const { uuidValidator } = require("../../../utils/uuid");
 const authorize = require("../../middlewares/auth/authorization");
 
-router.route("/").get(authorize, CommentController.getAllComments);
-router.route("/:id").get(authorize, uuidValidator, CommentController.getOneComment);
+router.route("/").get(CommentController.getAllComments);
+router.route("/:id").get(uuidValidator, CommentController.getOneComment);
 
 
 router
     .route("/")
-    .post(validate(commentValidator), CommentController.createComment);
+    .post(CommentController.createComment);
 
 router
     .route("/")
@@ -19,7 +19,7 @@ router
 
 router
   .route("/deleteAllComments")
-  .delete(authorize, CommentController.deleteAllComments);
+  .delete(CommentController.deleteAllComments);
 
 router
   .route("/:id")

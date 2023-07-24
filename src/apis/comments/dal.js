@@ -36,23 +36,24 @@ class CommentDAL {
     }
 
     // Create New Comment
-    static async createComment(data) {
+    static async createComment(data, userID) {
         try {
+            // Get User 
+            const user_ID = userID;
+            const user = await UserDAL.getOneUser(user_ID);
+            console.log(user.first_name);
+            if(!user) return next(new AppError("User Does Not Exist",404));
+
             // Create Comment Object
             const comment = data;
+            comment.created_by = user;
 
             // Form Connection
             const connection = getConnection();
-
-            // get user 
-            const user = UserDAL.getOneUser(user_id);
-            if(!user) return next(new AppError("user does not exist",404));
-
-            
             const commentRepository = connection.getRepository(Comment);
 
             // Create Comment
-            const newComment = await commentRepository.create({comment,created_by: user});
+            const newComment = await commentRepository.create(comment);
             await commentRepository.save(newComment);
             return newComment;
         } catch (error) {

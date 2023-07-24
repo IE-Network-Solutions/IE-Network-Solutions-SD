@@ -164,7 +164,8 @@ POST http://localhost:3001/api/v1/comments/ HTTP/1.1
 content-type: application/json
 
 {
-    "title": "UOOOOOOOO Comment",
+    "userID": "83676597-d166-4f0b-baea-5ddfdef6235b",
+    "title": "thyju",
     "description": "Testing out relations"
 }
 

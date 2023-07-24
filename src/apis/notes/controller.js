@@ -46,14 +46,15 @@ exports.createNote = async (req, res, next) => {
     try {
         // Get Req Body
         let note = req.body;
+        let userID = req.body.userID;
 
         // Create Note
-        let newNote = await NoteDAL.createNote(note);
+        let newNote = await NoteDAL.createNote(note, userID);
     
         // Respond
         res.status(200).json({
           status: "Success",
-          data: newNote,
+          data: newNote, 
         });
     } catch (error) {
         throw error;

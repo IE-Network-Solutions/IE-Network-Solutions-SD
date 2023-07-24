@@ -1,3 +1,40 @@
+### ------------------------------------------------------------ TYPE
+
+GET http://localhost:3001/api/v1/types/
+
+###
+
+GET http://localhost:3001/api/v1/types/a6649089-2e7c-4cd6-8c55-0c645f770532
+
+### 
+
+DELETE http://localhost:3001/api/v1/types/0c7f72ef-f6de-4531-8761-7c3caf7260a0
+
+### 
+
+DELETE http://localhost:3001/api/v1/types/deleteAllTypes
+
+
+### 
+
+POST http://localhost:3001/api/v1/types/ HTTP/1.1
+content-type: application/json
+
+{
+    "userID": "83676597-d166-4f0b-baea-5ddfdef6235b",
+    "type": "Urgent2"
+}
+
+### 
+
+PATCH http://localhost:3001/api/v1/types/ HTTP/1.1
+content-type: application/json
+
+{
+    "id": "0c7f72ef-f6de-4531-8761-7c3caf7260a0",
+    "type": "NOPROB"
+}
+
 ### ------------------------------------------------------------ DEPARTMENT
 
 GET http://localhost:3001/api/v1/departments/

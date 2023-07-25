@@ -2,8 +2,10 @@ const AppError = require("../../../utils/apperror");
 const UserDAL = require("./dal");
 const jwt = require("../../middlewares/auth");
 const hash = require("../../../utils/hashpassword");
+const generateRandomPassword = require("../../../utils/generateRandomPassword");
 const checkHash = require("../../../utils/comparePassword");
 const createToken = require("../../../utils/generateToken");
+const sendEmail = require("../../../utils/sendEmail");
 
 exports.introduction = async (req, res, next) => {
   // Respond
@@ -157,4 +159,59 @@ exports.loginUser = async (req, res, next) => {
   });
 };
 
-exports.logoutUser = async (req, res, next) => {};
+exports.resetPassword = async (req, res, next) => {
+  try {
+    // Get Req Body
+    let email = req.body.email;
+
+    // Generate Password
+    let password = hash("%TGBnhy6");
+
+    // Check User Existence
+    let user = await UserDAL.getUserByEmail(email);
+    if(!user) return next(new AppError("User Not Found!", 404));
+
+    // Reset Password
+    user.password = password;
+    let passwordResetUser = await UserDAL.editUser(user.id, user);
+
+    // Respond
+    res.status(200).json({
+        status: "Success",
+        data: passwordResetUser,
+    });
+  } catch(error) {
+    throw error;
+  }
+}
+
+exports.forgotPassword = async (req, res, next) => {
+  try {
+    // Get Req Body
+    let email = req.body.email;
+
+    // Generate Password
+    let newPassword = hash(generateRandomPassword());
+
+    // Check User Existence
+    let user = await UserDAL.getUserByEmail(email);
+    if(!user) return next(new AppError("User Not Found!", 404));
+
+    // Reset Password
+    user.password = newPassword;
+    let passwordChangedUser = await UserDAL.editUser(user.id, user);
+
+    // Email New Password To User
+    let newPass = "Your new password is: " + newPassword;
+    await sendEmail(process.env.SYSTEM_EMAIL, email, "Forgot Password", newPass);
+
+    // Respond
+    res.status(200).json({
+        status: "Success",
+        data: passwordChangedUser,
+    });
+  } catch(error) {
+    throw error;
+  }
+}
+

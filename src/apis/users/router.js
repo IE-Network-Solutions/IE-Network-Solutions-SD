@@ -11,7 +11,10 @@ router.route("/:id").get(UserController.getOneUser);
 
 router
   .route("/")
-  .post(authorize, validate(userValidator), UserController.createUser);
+  .post(UserController.createUser);
+// router
+//   .route("/")
+//   .post(authorize, validate(userValidator), UserController.createUser);
   
 router.route("/:id").patch(uuidValidator, authorize, UserController.editUser);
 
@@ -23,8 +26,8 @@ router
   .delete(uuidValidator, authorize, UserController.deleteAllUsers);
 
 router.route("/login").post(validate(loginValidator), UserController.loginUser);
-router
-  .route("/logout")
-  .post([authorize, validate(userValidator)], UserController.logoutUser);
+
+router.route("/resetPassword").post(UserController.resetPassword);
+router.route("/forgotPassword").post(UserController.forgotPassword);
 
 module.exports = router;

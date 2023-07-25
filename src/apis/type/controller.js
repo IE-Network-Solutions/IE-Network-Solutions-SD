@@ -1,6 +1,5 @@
-const CommentDAL = require("./dal")
 const AppError = require("../../../utils/apperror");
-const NoteDAL = require("./dal");
+const TypeDAL = require("./dal");
 
 exports.introduction = async (req, res, next) => {
     // Respond
@@ -11,92 +10,92 @@ exports.introduction = async (req, res, next) => {
 };
 
 
-exports.getAllNotes = async (req, res, next) => {
+exports.getAllTypes = async (req, res, next) => {
     try {
-        // Get All Notes
-        let notes = await NoteDAL.getAllNotes();
+        // Get All Types
+        let types = await TypeDAL.getAllTypes();
     
         // Respond
         res.status(200).json({
           status: "Success",
-          data: notes,
+          data: types,
         });
     } catch (error) {
         throw error;
     }
 }
 
-exports.getOneNote = async (req, res, next) => {
+exports.getOneType = async (req, res, next) => {
     // Get ID
     let id = req.params.id;
-    let note = await NoteDAL.getOneNote(id);
+    let type = await TypeDAL.getOneType(id);
 
-    // Return If Note Doesn't Exist
-    if (!note) return next(new AppError("Note does not exist", 404));
+    // Return If Type Doesn't Exist
+    if (!type) return next(new AppError("Type does not exist", 404));
 
     // Respond
     res.status(200).json({
         status: "Success",
-        data: note,
+        data: type,
     });
     
 }
 
-exports.createNote = async (req, res, next) => {
+exports.createType = async (req, res, next) => {
     try {
         // Get Req Body
-        let note = req.body;
+        let type = req.body;
         let userID = req.body.userID;
 
-        // Create Note
-        let newNote = await NoteDAL.createNote(note, userID);
+        // Create Type
+        let newType = await TypeDAL.createType(type, userID);
     
         // Respond
         res.status(200).json({
           status: "Success",
-          data: newNote, 
+          data: newType, 
         });
     } catch (error) {
         throw error;
     }
 }
 
-exports.editNote = async (req, res, next) => {
+exports.editType = async (req, res, next) => {
     try {
         // Get Req Body
         let id = req.body.id;
-        let note = req.body;
+        let type = req.body;
     
-        // Check If Note Exists
-        let checkNote = NoteDAL.getOneNote(id);
-        if (!checkNote) {
-          return next(new AppError("Note Does Not Exist!", 404));
+        // Check If Type Exists
+        let checkType = TypeDAL.getOneType(id);
+        if (!checkType) {
+          return next(new AppError("Type Does Not Exist!", 404));
         }
     
         // Edit Note
-        let editedNote = await NoteDAL.editNote(id, note);
+        let editedType = await TypeDAL.editType(id, type);
     
         // Respond
         res.status(200).json({
           status: "Success",
-          data: editedNote,
+          data: editedType,
         });
     } catch (error) {
         throw error;
     }
 }
 
-exports.deleteNote = async (req, res, next) => {
+exports.deleteType = async (req, res, next) => {
     try {
         // Get Req Body
         const id = req.params.id;
         
         // Check If Note Exists
-        const note = await NoteDAL.getOneNote(id);
-        if (!note) return next(new AppError("Note Does Not Exist!"));
+        const type = await TypeDAL.getOneType(id);
+        if (!type) return next(new AppError("Type Does Not Exist!"));
 
         // Delete Note
-        const deletedNote = await NoteDAL.deleteNote(id);
+        const deletedType = await TypeDAL.deleteType(id);
     
         // Respond
         res.status(200).json({
@@ -108,15 +107,15 @@ exports.deleteNote = async (req, res, next) => {
     }
 }
 
-exports.deleteAllNotes = async (req, res, next) => {
+exports.deleteAllTypes = async (req, res, next) => {
     try {
-        // Delete All Notes
-        let deletedNotes = await NoteDAL.deleteAllNotes();
+        // Delete All Types
+        let deletedTypes = await TypeDAL.deleteAllTypes();
     
         // Respond
         res.status(200).json({
           status: "Success",
-          data: deletedNotes,
+          data: deletedTypes,
         });
     } catch (error) {
         throw error;

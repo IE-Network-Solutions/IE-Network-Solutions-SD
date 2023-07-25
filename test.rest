@@ -1,3 +1,40 @@
+### ------------------------------------------------------------ TYPE
+
+GET http://localhost:3001/api/v1/types/
+
+###
+
+GET http://localhost:3001/api/v1/types/a6649089-2e7c-4cd6-8c55-0c645f770532
+
+### 
+
+DELETE http://localhost:3001/api/v1/types/0c7f72ef-f6de-4531-8761-7c3caf7260a0
+
+### 
+
+DELETE http://localhost:3001/api/v1/types/deleteAllTypes
+
+
+### 
+
+POST http://localhost:3001/api/v1/types/ HTTP/1.1
+content-type: application/json
+
+{
+    "userID": "83676597-d166-4f0b-baea-5ddfdef6235b",
+    "type": "Urgent2"
+}
+
+### 
+
+PATCH http://localhost:3001/api/v1/types/ HTTP/1.1
+content-type: application/json
+
+{
+    "id": "0c7f72ef-f6de-4531-8761-7c3caf7260a0",
+    "type": "NOPROB"
+}
+
 ### ------------------------------------------------------------ DEPARTMENT
 
 GET http://localhost:3001/api/v1/departments/
@@ -129,7 +166,8 @@ POST http://localhost:3001/api/v1/notes/ HTTP/1.1
 content-type: application/json
 
 {
-    "body": "Fifth Note"
+    "userID": "83676597-d166-4f0b-baea-5ddfdef6235b",
+    "body": "RELATED Note 333"
 }
 
 ### 
@@ -164,7 +202,8 @@ POST http://localhost:3001/api/v1/comments/ HTTP/1.1
 content-type: application/json
 
 {
-    "title": "UOOOOOOOO Comment",
+    "userID": "83676597-d166-4f0b-baea-5ddfdef6235b",
+    "title": "New Comment",
     "description": "Testing out relations"
 }
 
@@ -193,7 +232,7 @@ GET http://localhost:3001/api/v1/users/c5d37029-18c8-47d5-a7e1-11b23d9c2116
 
 ###
 
-GET http://localhost:3001/api/v1/users/getOneUser/c5d37029-18c8-47d5-a7e1-11b23d9c2116/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdF9uYW1lIjoiRGFnbWF3aSIsImxhc3RfbmFtZSI6IkJhYmkiLCJlbWFpbCI6ImRhZ21hd2lAZ21haWwuY29tIiwicm9sZSI6InNvZnR3YXJlIGRldiIsImRlcGFydG1lbnQiOiJTQVNTIiwidXNlcl90eXBlIjoiZW1wbG95ZWUiLCJpYXQiOjE2ODk3NzA4MzIsImV4cCI6MTY5MDM3NTYzMn0.JtC09vGnkVfu9V7it0GqTnocMMtXMBzTrMjqpfyjkA4
+GET http://localhost:3001/api/v1/users/2fba52ed-7454-4ddc-a89c-ed3e0a6ce2f3
 
 ###
 
@@ -210,16 +249,15 @@ content-type: application/json
 
 ###
 
-POST http://localhost:3001/api/v1/users/createUser HTTP/1.1
+POST http://localhost:3001/api/v1/users/ HTTP/1.1
 content-type: application/json
 
 {
-    "first_name": "IE",
-    "last_name": "EI",
-    "email": "IE@gmail.com",
-    "role": "software comp",
+    "first_name": "Real",
+    "last_name": "DagBab",
+    "email": "1babidagi@gmail.com",
     "department": "SASS",
-    "user_type": "employee",
+    "user_type": "intern",
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdF9uYW1lIjoiRGFnbWF3aSIsImxhc3RfbmFtZSI6IkJhYmkiLCJlbWFpbCI6ImRhZ21hd2lAZ21haWwuY29tIiwicm9sZSI6InNvZnR3YXJlIGRldiIsImRlcGFydG1lbnQiOiJTQVNTIiwidXNlcl90eXBlIjoiZW1wbG95ZWUiLCJpYXQiOjE2ODk3NzA4MzIsImV4cCI6MTY5MDM3NTYzMn0.JtC09vGnkVfu9V7it0GqTnocMMtXMBzTrMjqpfyjkA4"
 }
 
@@ -275,5 +313,20 @@ content-type: application/json
 }
 
 ###
-    # "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdF9uYW1lIjoiRGFnbWF3aSIsImxhc3RfbmFtZSI6IkJhYmkiLCJlbWFpbCI6ImRhZ21hd2lAZ21haWwuY29tIiwicm9sZSI6InNvZnR3YXJlIGRldiIsImRlcGFydG1lbnQiOiJTQVNTIiwidXNlcl90eXBlIjoiZW1wbG95ZWUiLCJpYXQiOjE2ODk3NzA4MzIsImV4cCI6MTY5MDM3NTYzMn0.JtC09vGnkVfu9V7it0GqTnocMMtXMBzTrMjqpfyjkA4"
 
+POST http://localhost:3001/api/v1/users/resetPassword HTTP/1.1
+content-type: application/json
+
+{   
+    "email": "dagmawi@gmail.com"
+}
+
+
+###
+
+POST http://localhost:3001/api/v1/users/forgotPassword HTTP/1.1
+content-type: application/json
+
+{   
+    "email": "1babidagi@gmail.com"
+}

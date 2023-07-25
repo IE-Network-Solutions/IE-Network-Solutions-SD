@@ -7,6 +7,7 @@ exports.createTicketValidator = joi.object({
   priority_id: joi.string().required(),
   department_id: joi.string().required(),
   status_id: joi.string().required(),
+  type_id: joi.string().required(),
 });
 
 exports.assignTicket = joi.object({

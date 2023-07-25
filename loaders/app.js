@@ -5,8 +5,9 @@
 
 const express = require("express");
 const geh = require("../src/geh");
+const cors = require("cors");
 const AppError = require("../utils/apperror");
-const ticketRoute = require('../src/apis/tickets/router')
+const ticketRoute = require("../src/apis/tickets/router");
 const TestRoute = require("../src/apis/test/router");
 const clientRouter = require("../src/apis/Client/router");
 const TodoRoute = require("../src/apis/todos/router");
@@ -18,13 +19,17 @@ const StatusesRoute = require("../src/apis/status/router");
 const DepartmentRoute = require("../src/apis/department/router");
 const TypeRoute = require("../src/apis/type/router");
 
-const knowledgebaseRoute = require("../src/apis/knowledgebase/router") 
+const knowledgebaseRoute = require("../src/apis/knowledgebase/router");
 
 const app = express();
 
 /**
  * add middlewares here
  */
+
+// cors middleware
+app.use(cors());
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -40,7 +45,7 @@ app.use("/api/v1/statuses", StatusesRoute);
 app.use("/api/v1/departments", DepartmentRoute);
 app.use("/api/v1/types", TypeRoute);
 
-app.use("/api/v1/knowlegebase", knowledgebaseRoute); 
+app.use("/api/v1/knowlegebase", knowledgebaseRoute);
 
 // Unknown URL Error Message
 app.use("*", (req, res, next) => {

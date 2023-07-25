@@ -4,6 +4,7 @@ const { v4: uuidv4, validate: uuidValidate } = require("uuid");
 const PriorityDAL = require("../../apis/priority/dal");
 const StatusDAL = require("../../apis/status/dal");
 const DepartmentDAL = require("../../apis/department/dal");
+const TypeDAL = require("../../apis/type/dal");
 const Test = require("../../models/Test");
 const AppError = require("../../../utils/apperror");
 const User = require("../../models/User");
@@ -19,11 +20,83 @@ class TicketDAL {
       const ticketRepository = await connection.getRepository(Ticket);
 
       // find all ticket data
-      const tickets = await ticketRepository.find({
-        relations: {
-          assigned_users: true,
-        },
-      });
+      // const tickets = await ticketRepository.find({
+      //   relations: {
+      //     assigned_users: true,
+      //     select: ["email", "first_name"],
+      //   },
+      // });
+
+      // const tickets = await ticketRepository.find();
+
+      // // fetch assigned users for each tickets
+      // const ticketIds = tickets.map((ticket) => {
+      //   ticket.id;
+      // });
+      // const assignedUsers = await ticketRepository
+      //   .createQueryBuilder("ticket")
+      //   .leftJoin("ticket.assigned_users", "assigned_users")
+      //   .select([
+      //     "ticket.id",
+      //     "assigned_users.id",
+      //     "assigned_users.email",
+      //     "assigned_users.first_name",
+      //     "assigned_users.last_name",
+      //     "assigned_users.role",
+      //     "assigned_users.department",
+      //     "assigned_users.user_type",
+      //   ])
+      //   .getMany();
+
+      // // fetch type for each ticket
+      // const types = await ticketRepository
+      //   .createQueryBuilder("ticket")
+      //   .leftJoin("ticket.ticket_type", "ticket_type")
+      //   .select(["ticket.id", "ticket_type.*"])
+      //   .whereInIds(ticketIds)
+      //   .getMany();
+
+      // return types;
+      // for (const ticket of tickets) {
+      //   ticket.assignedUsers = assignedUsers.filter(
+      //     (user) => user.id === ticket.id
+      //   );
+
+      // ticket.type = types.filter((type) => {
+      //   type.
+      // })
+      // }
+
+      const tickets = await ticketRepository
+        .createQueryBuilder("ticket")
+        .leftJoin("ticket.assigned_users", "users")
+        .leftJoin("ticket.ticket_type", "types")
+        .leftJoin("ticket.ticket_priority", "priority")
+        .leftJoin("ticket.ticket_status", "status")
+        .leftJoin("ticket.department", "department")
+        .addSelect([
+          "ticket.id",
+          "ticket.subject",
+          "ticket.description",
+          "types.type",
+          "types.id",
+          "priority.id",
+          "priority.type",
+          "status.id",
+          "status.type",
+          "status.status_color",
+          "department.id",
+          "department.type",
+          "users.id",
+          "users.email",
+          "users.first_name",
+          "users.last_name",
+          "users.role",
+          "users.department",
+          "users.user_type",
+        ])
+        .addSelect("types.*")
+        .getMany();
 
       // return all
       return tickets;
@@ -59,8 +132,14 @@ class TicketDAL {
   static async createNewTicket(data) {
     try {
       //Destructure user requests
-      const { status_id, description, priority_id, subject, department_id } =
-        data;
+      const {
+        status_id,
+        description,
+        priority_id,
+        subject,
+        department_id,
+        type_id,
+      } = data;
 
       const id = uuidv4();
 
@@ -80,12 +159,18 @@ class TicketDAL {
         return new AppError("status does not exist", 404);
       }
 
+      // get type
+      const type = await TypeDAL.getOneType(type_id);
+      if (!type) {
+        return new AppError("type does not exist", 404);
+      }
+
       // get department
       const department = await DepartmentDAL.getDepartment(department_id);
       if (!department) {
         return new AppError("department does not exist", 404);
       }
-      console.log(priority, status, department);
+      console.log(type);
       // create bridge
       const ticketRepository = connection.getRepository(Ticket);
 
@@ -95,6 +180,7 @@ class TicketDAL {
         subject,
         ticket_priority: priority,
         ticket_status: status,
+        ticket_type: type,
         department: department,
       });
       await ticketRepository.save(newTicket);

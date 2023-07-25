@@ -19,54 +19,7 @@ class TicketDAL {
       // create a bridg
       const ticketRepository = await connection.getRepository(Ticket);
 
-      // find all ticket data
-      // const tickets = await ticketRepository.find({
-      //   relations: {
-      //     assigned_users: true,
-      //     select: ["email", "first_name"],
-      //   },
-      // });
-
-      // const tickets = await ticketRepository.find();
-
-      // // fetch assigned users for each tickets
-      // const ticketIds = tickets.map((ticket) => {
-      //   ticket.id;
-      // });
-      // const assignedUsers = await ticketRepository
-      //   .createQueryBuilder("ticket")
-      //   .leftJoin("ticket.assigned_users", "assigned_users")
-      //   .select([
-      //     "ticket.id",
-      //     "assigned_users.id",
-      //     "assigned_users.email",
-      //     "assigned_users.first_name",
-      //     "assigned_users.last_name",
-      //     "assigned_users.role",
-      //     "assigned_users.department",
-      //     "assigned_users.user_type",
-      //   ])
-      //   .getMany();
-
-      // // fetch type for each ticket
-      // const types = await ticketRepository
-      //   .createQueryBuilder("ticket")
-      //   .leftJoin("ticket.ticket_type", "ticket_type")
-      //   .select(["ticket.id", "ticket_type.*"])
-      //   .whereInIds(ticketIds)
-      //   .getMany();
-
-      // return types;
-      // for (const ticket of tickets) {
-      //   ticket.assignedUsers = assignedUsers.filter(
-      //     (user) => user.id === ticket.id
-      //   );
-
-      // ticket.type = types.filter((type) => {
-      //   type.
-      // })
-      // }
-
+      // fetch tickets with related data
       const tickets = await ticketRepository
         .createQueryBuilder("ticket")
         .leftJoin("ticket.assigned_users", "users")
@@ -114,15 +67,39 @@ class TicketDAL {
       // create a bridge between the entity and the database
       const ticketRepository = await connection.getRepository(Ticket);
 
-      // get data
-      return await ticketRepository.findOne({
-        where: {
-          id: id,
-        },
-        relations: {
-          assigned_users: true,
-        },
-      });
+      // fetch tickets with related data
+      const ticket = await ticketRepository
+        .createQueryBuilder("ticket")
+        .leftJoin("ticket.assigned_users", "users")
+        .leftJoin("ticket.ticket_type", "types")
+        .leftJoin("ticket.ticket_priority", "priority")
+        .leftJoin("ticket.ticket_status", "status")
+        .leftJoin("ticket.department", "department")
+        .addSelect([
+          "ticket.id",
+          "ticket.subject",
+          "ticket.description",
+          "types.type",
+          "types.id",
+          "priority.id",
+          "priority.type",
+          "status.id",
+          "status.type",
+          "status.status_color",
+          "department.id",
+          "department.type",
+          "users.id",
+          "users.email",
+          "users.first_name",
+          "users.last_name",
+          "users.role",
+          "users.department",
+          "users.user_type",
+        ])
+        .where("ticket.id = :id", { id })
+        .getOne();
+
+      return ticket;
     } catch (error) {
       throw error;
     }

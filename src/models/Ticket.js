@@ -14,12 +14,6 @@ const Ticket = new EntitySchema({
     description: {
       type: "text",
     },
-    status: {
-      type: "varchar",
-    },
-    priority: {
-      type: "varchar",
-    },
     created_at: {
       type: "timestamp",
       default: () => "CURRENT_TIMESTAMP",
@@ -45,7 +39,7 @@ const Ticket = new EntitySchema({
         },
       },
     },
-    tickt_priority: {
+    ticket_priority: {
       type: "many-to-one",
       target: "Priority",
       joinColumn: {
@@ -53,7 +47,7 @@ const Ticket = new EntitySchema({
         referencedColumnName: "id",
       },
     },
-    tickt_status: {
+    ticket_status: {
       type: "many-to-one",
       target: "Status",
       joinColumn: {

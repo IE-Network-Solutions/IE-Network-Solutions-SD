@@ -59,7 +59,8 @@ class TicketDAL {
   static async createNewTicket(data) {
     try {
       //Destructure user requests
-      const { status_id, description, priority_id, subject } = data;
+      const { status_id, description, priority_id, subject, department_id } =
+        data;
 
       const id = uuidv4();
 
@@ -67,30 +68,29 @@ class TicketDAL {
       const connection = getConnection();
 
       // get priority
-      const priority = PriorityDAL.getPriority(priority_id);
+      const priority = await PriorityDAL.getPriority(priority_id);
 
       if (!priority) {
         return new AppError("such priority does not exist", 404);
       }
 
       // get status
-      const status = StatusDAL.getStatus(status_id);
+      const status = await StatusDAL.getStatus(status_id);
       if (!status) {
         return new AppError("status does not exist", 404);
       }
 
       // get department
-      const department = DepartmentDAL(department_id);
+      const department = await DepartmentDAL.getDepartment(department_id);
       if (!department) {
         return new AppError("department does not exist", 404);
       }
-
+      console.log(priority, status, department);
       // create bridge
       const ticketRepository = connection.getRepository(Ticket);
 
       // create ticket
       const newTicket = await ticketRepository.create({
-        id,
         description,
         subject,
         ticket_priority: priority,

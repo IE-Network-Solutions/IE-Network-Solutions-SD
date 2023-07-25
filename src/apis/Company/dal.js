@@ -1,6 +1,8 @@
 const { getConnection } = require("typeorm");
 const Company = require("../../models/Company");
 const {v4: uuidv4} = require('uuid');
+var fs = require('fs');
+const AppError = require("../../../utils/apperror");
 
 class CompanyDAL {
   static async allCompanies() {
@@ -13,6 +15,9 @@ class CompanyDAL {
 
       // find all company data
       const company = await companyRepository.find();
+      if(!company){
+        throw new Error("Error to fetch companies , try again!")
+      }
 
       // return all fetched data
       return company;
@@ -28,11 +33,14 @@ class CompanyDAL {
 
       // create a bridge between the entity and the database
       const companyRepository = await connection.getRepository(Company);
-
+      // const fetchedCompany = await connection.manager.findOne(Company, 1, { relations: ['users'] });
       // get data
-      const company = await companyRepository.findOneBy({
-        id: id,
-      });
+      const company = await companyRepository.findOne(
+       {
+        where:{id},
+        relations: ["clients"],
+       }
+        );
 
       // return single data
       return company;
@@ -99,9 +107,19 @@ company_logo });
     // create bridge
     const companyRepository = connection.getRepository(Company);
 
-    await companyRepository.delete(id);
+    const company=await companyRepository.findOneBy({id})
+    if(!company) {
+    throw new Error("Company with the given id is not found")
+    
+  }
+    const sourceUrls =`${company.company_logo}`
+    const deleLogo= await fs.unlinkSync(`./${sourceUrls}`);
+   const deleteComp= await companyRepository.delete(id);
+     if(!deleteComp && !deleLogo){
+      throw new Error("Error Deleting the Company , try again!")
+     }
 
-    return "company deleted Successfully";
+    return "Company deleted Successfully";
   }
 }
 

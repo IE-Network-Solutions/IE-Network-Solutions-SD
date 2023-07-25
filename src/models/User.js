@@ -1,4 +1,5 @@
 const { EntitySchema } = require("typeorm");
+const Company = require("./Company");
 
 /**
  * Entitiy model for user table
@@ -39,6 +40,11 @@ const User = new EntitySchema({
       type: "varchar",
       nullable: true,
     },
+    company_id:{
+      type: "uuid",
+      nullable:true
+     },
+   
     created_at: {
       type: "timestamp",
       default: () => "CURRENT_TIMESTAMP",
@@ -77,13 +83,19 @@ const User = new EntitySchema({
     role: {
       type: "many-to-one",
       target: "Role",
-      // joinColumn: true,
       joinColumn: {
         name: "role_id",
         referencedColumnName: "id",
       },
     },
+   
+    company: {
+      type: "many-to-one",
+      target: "Company",
+      inverseSide: "clients"
+    }
   },
+  
 });
 
 module.exports = User;

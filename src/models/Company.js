@@ -1,29 +1,7 @@
 // src/entities/Company.js
 const { Entity, PrimaryGeneratedColumn, Column , EntitySchema } = require('typeorm');
 const { v4: uuidv4 } = require('uuid');
-
-// @Entity()
-// class Company {
-//   @PrimaryGeneratedColumn('uuid')
-//   id = uuidv4();
-
-//   @Column()
-//   companyName;
-
-//   @Column()
-//   description;
-
-//   @Column()
-//   notes;
-
-//   @Column({ type: 'enum', enum: ['Happy', 'Not Happy'] })
-//   healthScore;
-
-//   @Column({ type: 'enum', enum: ['Basic', 'Premium'] })
-//   accountTier;
-// }
-
-// module.exports = { Company };
+const User = require('./User');
 
 const Company = new EntitySchema({
     name: "Company",
@@ -50,13 +28,25 @@ const Company = new EntitySchema({
         type: "varchar",
         enum: ["Basic", "Premium"],
       },
+     
       company_logo:{
         type:"varchar",
         nullable:true
       }
-    }
+    },
+   
+    relations: {
+     
+      
+      clients: {
+        type: "one-to-many",
+        target: "User",
+        inverseSide: "company"
+      }
+    },
+    
     
   });
-  
   module.exports = Company;
+  
   

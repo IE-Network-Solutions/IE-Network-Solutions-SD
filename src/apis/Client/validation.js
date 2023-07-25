@@ -6,6 +6,7 @@ const createClientValidator = joi.object({
     last_name: joi.string().required(),
     email: joi.string().email().required(),
     department: joi.string().required(),
+    company_id:joi.string(),
     user_type: joi.string().required(),
 });
 

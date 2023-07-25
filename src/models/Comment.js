@@ -10,9 +10,11 @@ const Comment = new EntitySchema({
     },
     title: {
       type: "varchar",
+      nullable: true,
     },
     description: {
       type: "text",
+      nullable: true,
     },
     created_at: {
       type: "timestamp",

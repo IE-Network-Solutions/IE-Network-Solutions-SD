@@ -2371,6 +2371,11 @@
   "resolved" "https://registry.npmjs.org/next-tick/-/next-tick-1.1.0.tgz"
   "version" "1.1.0"
 
+"nodemailer@^6.9.4":
+  "integrity" "sha512-CXjQvrQZV4+6X5wP6ZIgdehJamI63MFoYFGGPtHudWym9qaEHDNdPzaj5bfMCvxG1vhAileSWW90q7nL0N36mA=="
+  "resolved" "https://registry.npmjs.org/nodemailer/-/nodemailer-6.9.4.tgz"
+  "version" "6.9.4"
+
 "nodemon@^3.0.1":
   "integrity" "sha512-g9AZ7HmkhQkqXkRc20w+ZfQ73cHLbE8hnPbtaFbFtCumZsjyMhKk9LajQ07U5Ux28lvFjZ5X7HvWR1xzU8jHVw=="
   "resolved" "https://registry.npmjs.org/nodemon/-/nodemon-3.0.1.tgz"

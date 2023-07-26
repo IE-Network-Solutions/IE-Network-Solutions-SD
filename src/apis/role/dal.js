@@ -1,60 +1,131 @@
 const { getConnection } = require("typeorm");
 const Role = require("../../models/Role");
+const { validate: isUUID } = require("uuid");
 
 class RoleDAL {
-  static async getAllRoles(page = 1) {
+  static async createOneRole(data) {
     try {
-      const pageSize = 10;
-      const pageNumber = page;
-      // get connection from the pool
+      const { roleName } = data;
+
+      // Form connection.
       const connection = getConnection();
+      const RoleRepository = connection.getRepository(Role);
 
-      // create connection bridge to the db
-      const roleRepository = connection.getRepository(Role);
-      const skip = page * pageSize;
+      // Create new role
+      const createdRole = await RoleRepository.create({
+        roleName,
+      });
 
-      // get all roles
-      const roles = roleRepository.find();
+      await RoleRepository.save(createdRole);
 
-      return roles;
-    } catch (error) {}
+      return createdRole;
+    } catch (error) {
+      throw error;
+    }
   }
-  static async getSingleRole(id) {
+
+  static async getAllRole() {
     try {
-      // get connection from the pool
-      const connection = getConnection();
-
-      // create connection bridge to the db
+      // Form connection.
+      const connection = await getConnection();
       const roleRepository = connection.getRepository(Role);
-      const role = roleRepository.findOne({ where: { id: id } });
 
-      // return all
+      // Get all roles.
+      const roles = await roleRepository.find();
+
+      // return all fetched data.
+      return roles;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async findOneRoleByName(roleName) {
+    try {
+      // Form connection
+      const connection = getConnection();
+      const roleRepository = connection.getRepository(Role);
+
+      //  find role by the given role name.
+      const role = await roleRepository.findOneBy({ roleName });
+
       return role;
     } catch (error) {
       throw error;
     }
   }
-  static async createRole(data) {
+
+  static async findOneRoleById(id) {
     try {
-      const { roleName } = data;
+      // check the validity of the id format.
+      if (!isUUID(id)) {
+        return null;
+      }
+      // Form connection
+      const connection = getConnection();
+      const roleRepository = connection.getRepository(Role);
 
-      // get connection from the pool
-      const connection = await getConnection();
+      //  find role by the given role id.
+      const role = await roleRepository.findOneBy({ id });
 
-      // create bridge to the db
-      const roleRepository = await connection.getRepository(Role);
-
-      // create role
-      const newRole = await roleRepository.create({
-        roleName,
-      });
-      await roleRepository.save(newRole);
-
-      return newRole;
+      return role;
     } catch (error) {
       throw error;
     }
   }
+
+  static async updateOneRoleById(id, updatedFields) {
+    try {
+      // check the validity of the id format.
+      if (!isUUID(id)) {
+        return null;
+      }
+      // Form connection.
+      const connection = getConnection();
+      const roleRepository = connection.getRepository(Role);
+
+      const role = await roleRepository.findOneBy({ id: id });
+
+      // refresh the updated_at field.
+      updatedFields.updated_at = new Date();
+
+      // update
+      roleRepository.merge(role, updatedFields);
+      await roleRepository.save(role);
+
+      // return updated role data.
+      return role;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async deleteOneRoleById(id) {
+    try {
+      // check the validity of the id format.
+      if (!isUUID(id)) {
+        return null;
+      }
+      // Form a connection
+      const connection = getConnection();
+      const roleRepository = connection.getRepository(Role);
+
+      await roleRepository.delete({ id });
+
+      return "Role deleted successfully.";
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // create default permissions for newly created role.
+  // static async createManyPermissions(roleId) {
+  //   try {
+
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
 }
 
 module.exports = RoleDAL;

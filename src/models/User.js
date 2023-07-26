@@ -1,4 +1,5 @@
 const { EntitySchema } = require("typeorm");
+const Company = require("./Company");
 
 /**
  * Entitiy model for user table
@@ -46,6 +47,11 @@ const User = new EntitySchema({
       type: "boolean",
       default: false,
     },
+    company_id: {
+      type: "uuid",
+      nullable: true,
+    },
+
     created_at: {
       type: "timestamp",
       default: () => "CURRENT_TIMESTAMP",

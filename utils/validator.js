@@ -6,6 +6,7 @@ const validator = (joiSchema) => {
     if (error) return next(new AppError(error.message, 400));
     next();
   };
+
 };
 
 module.exports = validator;

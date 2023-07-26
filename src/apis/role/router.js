@@ -1,12 +1,22 @@
 const router = require("express").Router();
-const authorize = require("../../middlewares/auth/authorization");
-const { getAll, createRole, getRole } = require("./controller");
-const { roleValidator } = require("./validation");
+const RoleController = require("./controller");
+const createRoleValidator = require("./validation");
 const validate = require("../../../utils/validator");
-const { uuidValidator } = require("../../../utils/uuid");
 
-router.route("/").get(authorize, getAll);
-router.route("/:id").get(uuidValidator, authorize, getRole);
-router.route("/").post(authorize, validate(roleValidator), createRole);
+router
+  .route("/")
+  .post(validate(createRoleValidator), RoleController.createOneRole);
+
+router.route("/getAll/").post(RoleController.getAllRoles);
+
+router.route("/findOneRoleById/:id").post(RoleController.findOneRoleById);
+
+router
+  .route("/findOneRoleByName/:roleName")
+  .post(RoleController.findOneRoleByName);
+
+router.route("/:id").patch(RoleController.updateOneRoleById);
+
+router.route("/:id").delete(RoleController.deleteOneRoleById);
 
 module.exports = router;

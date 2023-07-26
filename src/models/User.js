@@ -4,6 +4,11 @@ const { EntitySchema } = require("typeorm");
  * Entitiy model for user table
  */
 
+const UserType = {
+  Client: "client",
+  Employee: "employee",
+};
+
 const User = new EntitySchema({
   name: "User",
   columns: {
@@ -28,17 +33,18 @@ const User = new EntitySchema({
       type: "varchar",
       nullable: true,
     },
-    role: {
-      type: "varchar",
-      nullable: true,
-    },
     department: {
       type: "varchar",
       nullable: true,
     },
     user_type: {
-      type: "varchar",
-      nullable: true,
+      type: "enum",
+      enum: Object.values(UserType),
+      default: UserType.Client,
+    },
+    password_changed: {
+      type: "boolean",
+      default: false,
     },
     created_at: {
       type: "timestamp",
@@ -78,9 +84,16 @@ const User = new EntitySchema({
     role: {
       type: "many-to-one",
       target: "Role",
-      // joinColumn: true,
       joinColumn: {
         name: "role_id",
+        referencedColumnName: "id",
+      },
+    },
+    department: {
+      type: "many-to-one",
+      target: "Department",
+      joinColumn: {
+        name: "department_id",
         referencedColumnName: "id",
       },
     },

@@ -1,5 +1,7 @@
 const AppError = require("../../../utils/apperror");
 const UserDAL = require("./dal");
+const RoleDAL = require("../role/dal");
+const DepartmentDAL = require("../department/dal");
 const jwt = require("../../middlewares/auth");
 const hash = require("../../../utils/hashpassword");
 const generateRandomPassword = require("../../../utils/generateRandomPassword");
@@ -59,6 +61,25 @@ exports.createUser = async (req, res, next) => {
     const checkUser = await UserDAL.getUserByEmail(user.email);
     if (checkUser) {
       return next(new AppError("user with the given email already exist"));
+    }
+
+    // check type of the user type
+    if (user.user_type && user.user_type !== ("employee" || "client")) {
+      return next(new Error("User type is not correct", 500));
+    }
+
+    // check if role exist
+    if (user.role_id) {
+      const role = await RoleDAL.getSingleRole(user.role_id);
+      if (!role) return next(new AppError("role does not exist"));
+      user.role = role;
+    }
+
+    // check if department exist
+    if (user.department_id) {
+      const department = await DepartmentDAL.getDepartment(user.department_id);
+      if (!department) return next(new AppError("department does not exist"));
+      user.department = department;
     }
 
     // Create New User

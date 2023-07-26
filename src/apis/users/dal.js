@@ -55,14 +55,36 @@ class UserDAL {
   static async createUser(data) {
     try {
       // Create User Object
-      const user = data;
-
+      const {
+        first_name,
+        last_name,
+        email,
+        password,
+        role,
+        department,
+        user_type,
+      } = data;
+      console.log(role, department);
       // Form Connection
       const connection = getConnection();
       const userRepository = connection.getRepository(User);
 
       // Create User
-      const newUser = await userRepository.create(user);
+      const newUser = await userRepository.create({
+        first_name,
+        last_name,
+        email,
+        password,
+        user_type,
+      });
+
+      if (role) {
+        newUser.role = role;
+      }
+
+      if (department) {
+        newUser.department = department;
+      }
       await userRepository.save(newUser);
 
       return newUser;

@@ -9,6 +9,7 @@ const Test = require("../../models/Test");
 const AppError = require("../../../utils/apperror");
 const User = require("../../models/User");
 const TicketUser = require("../../models/TicketUser");
+const Type = require("../../models/Type");
 
 class TicketDAL {
   static async getAllTickets() {
@@ -27,7 +28,7 @@ class TicketDAL {
         .leftJoin("ticket.ticket_priority", "priority")
         .leftJoin("ticket.ticket_status", "status")
         .leftJoin("ticket.department", "department")
-        .addSelect([
+        .select([
           "ticket.id",
           "ticket.subject",
           "ticket.description",
@@ -75,7 +76,7 @@ class TicketDAL {
         .leftJoin("ticket.ticket_priority", "priority")
         .leftJoin("ticket.ticket_status", "status")
         .leftJoin("ticket.department", "department")
-        .addSelect([
+        .select([
           "ticket.id",
           "ticket.subject",
           "ticket.description",
@@ -105,49 +106,19 @@ class TicketDAL {
     }
   }
 
-  //This method implements to create new ticket
+  /**
+   *  This method implements to create new ticket
+   */
   static async createNewTicket(data) {
     try {
       //Destructure user requests
-      const {
-        status_id,
-        description,
-        priority_id,
-        subject,
-        department_id,
-        type_id,
-      } = data;
+      const { status, description, priority, subject, department, type } = data;
 
       const id = uuidv4();
 
       // get connection from the pool
       const connection = getConnection();
 
-      // get priority
-      const priority = await PriorityDAL.getPriority(priority_id);
-
-      if (!priority) {
-        return new AppError("such priority does not exist", 404);
-      }
-
-      // get status
-      const status = await StatusDAL.getStatus(status_id);
-      if (!status) {
-        return new AppError("status does not exist", 404);
-      }
-
-      // get type
-      const type = await TypeDAL.getOneType(type_id);
-      if (!type) {
-        return new AppError("type does not exist", 404);
-      }
-
-      // get department
-      const department = await DepartmentDAL.getDepartment(department_id);
-      if (!department) {
-        return new AppError("department does not exist", 404);
-      }
-      console.log(type);
       // create bridge
       const ticketRepository = connection.getRepository(Ticket);
 
@@ -175,14 +146,45 @@ class TicketDAL {
     // create bridge
     const ticketRepository = connection.getRepository(Ticket);
 
-    const ticket = await ticketRepository.findOneBy({ id: id });
-    console.log(ticket);
+    const ticket = await ticketRepository.findOne({
+      where: { id: id },
+      relations: [
+        "ticket_status",
+        "ticket_type",
+        "ticket_priority",
+        "department",
+      ],
+    });
+
     if (!ticket) {
       throw new Error("Ticket is Not Found with the provided id");
     }
 
     ticketRepository.merge(ticket, updatedFields);
-    return await ticketRepository.save(ticket);
+
+    // update type of the ticket if any
+    if (updatedFields.type) {
+      ticket.ticket_type = updatedFields.type;
+    }
+
+    // update priority of the ticket if any
+    if (updatedFields.priority) {
+      ticket.ticket_priority = updatedFields.priority;
+    }
+
+    // update status of the ticket if any
+    if (updatedFields.status) {
+      ticket.ticket_status = updatedFields.status;
+    }
+
+    // update department of the ticket if any
+    if (updatedFields.department) {
+      ticket.department = updatedFields.department;
+    }
+
+    await ticketRepository.save(ticket);
+
+    return ticket;
   }
 
   static async deleteTicketById(id) {

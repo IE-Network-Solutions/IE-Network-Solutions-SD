@@ -18,6 +18,7 @@ const PriorititesRoute = require("../src/apis/priority/router");
 const StatusesRoute = require("../src/apis/status/router");
 const DepartmentRoute = require("../src/apis/department/router");
 const TypeRoute = require("../src/apis/type/router");
+const RoleRoute = require("../src/apis/role/router");
 
 const knowledgebaseRoute = require("../src/apis/knowledgebase/router");
 
@@ -40,10 +41,11 @@ app.use("/api/v1/todos", TodoRoute);
 app.use("/api/v1/users", UserRoute);
 app.use("/api/v1/comments", CommentsRoute);
 app.use("/api/v1/notes", NotesRoute);
-app.use("/api/v1/prioritites", PriorititesRoute);
+app.use("/api/v1/priorities", PriorititesRoute);
 app.use("/api/v1/statuses", StatusesRoute);
 app.use("/api/v1/departments", DepartmentRoute);
 app.use("/api/v1/types", TypeRoute);
+app.use("/api/v1/roles", RoleRoute);
 
 app.use("/api/v1/knowlegebase", knowledgebaseRoute);
 

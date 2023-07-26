@@ -1,19 +1,6 @@
 let nodemailer = require('nodemailer');
 
-const sendEmail = async (from, to, subject, body) => {
-    // You can test with this
-    // const testAccount = await nodemailer.createTestAccount();
-    // const transporter = nodemailer.createTransport({
-    //     host: 'smtp.ethereal.email',
-    //     port: 587,
-    //     secure: false,
-    //     auth: {
-    //       user: testAccount.user,
-    //       pass: testAccount.pass,
-    //     },
-    //   });
-    // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
+exports.sendEmailNotification = async (from, to, subject, body) => {
     var mailOptions = {
         from: from,
         to: to,
@@ -46,6 +33,3 @@ const sendEmail = async (from, to, subject, body) => {
         }
     }); 
 }
-
-
-module.exports = sendEmail;

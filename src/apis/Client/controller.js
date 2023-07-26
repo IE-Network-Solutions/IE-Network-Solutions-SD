@@ -1,4 +1,5 @@
 const AppError = require("../../../utils/apperror");
+const hash = require("../../../utils/hashpassword");
 const ClientDAL = require("./dal");
 
 
@@ -44,21 +45,16 @@ exports.singleClient = async (req, res, next) => {
 exports.createClient = async (req, res, next) => {
   try {
     const data = req.body;
-
-    // // Check required fields
-    // if (!data.first_name ||!data.last_name  || !data.email || !data.role || !data.department || !data.user_type ) {
-    //   return next(new AppError("Please fill all required fields", 400));
-    // }
-
+    data.password = hash("%TGBnhy6");    
     //   create new client
     const client = await ClientDAL.createClient(data);
-
     res.status(201).json({
       status: "Success",
       data: client,
     });
   } catch (error) {
-    throw error;
+    // throw error;
+    return next(new AppError(error.message , 500))
   }
 };
 

@@ -17,7 +17,14 @@ class TicketDAL {
       const ticketRepository = await connection.getRepository(Ticket);
 
       // find all ticket data
-      return await ticketRepository.find();
+      const tickets = await ticketRepository.find({
+        relations: {
+          assigned_users: true,
+        },
+      });
+
+      // return all
+      return tickets;
     } catch (error) {
       throw error;
     }

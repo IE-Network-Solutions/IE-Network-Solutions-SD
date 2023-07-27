@@ -1,17 +1,25 @@
 const router = require("express").Router();
+
 const knowledgebaseController = require("./controller");
 const createKnowledgebaseValidator = require("./validation");
 const uuidValidator = require('../../../utils/uuidValidator')
+const knowledgeBaseController = require("./controller");
+const createKnowledgeBaseValidator = require("./validation");
 const validate = require("../../../utils/validator");
  
-router.route("/").get(knowledgebaseController.getAllKnowledgebase);
+router.route("/").get(knowledgeBaseController.getAllKnowledgeBase);
 
-router.route("/").post(validate(createKnowledgebaseValidator), knowledgebaseController.createKnowledgebase);
+router.route("/").post(validate(createKnowledgeBaseValidator), knowledgeBaseController.createKnowledgeBase);
 
 router.route("/:id").get(uuidValidator, knowledgebaseController.getKnowlegebaseById)
 
 router.route("/:id").patch(uuidValidator, validate(createKnowledgebaseValidator), knowledgebaseController.updateOneKnowledgebase)
 
 router.route("/:id").delete(uuidValidator, knowledgebaseController.deleteOneKnowledgebase);
+router.route("/:id").get(knowledgeBaseController.getKnowledgeBaseById)
+
+router.route("/:id").patch(knowledgeBaseController.updateOneKnowledgeBase)
+
+router.route("/:id").delete(knowledgeBaseController.deleteOneKnowledgeBase);
 
 module.exports = router;

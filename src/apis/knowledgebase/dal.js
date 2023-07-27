@@ -3,11 +3,13 @@ const KnowledgeBase = require("../../models/KnowledgeBase");
 
 class KnowledgeBaseDAL {
 
+
   //This method implements to get all knowledge bases
   static async getAllKnowledgebase() {
     try {
       // Create connection
       const connection = await getConnection();
+      const knowledgeBaseRepository = connection.getRepository(KnowledgeBase);
 
       // Inject knowledge base model
       const knowledgebaseRepository = connection.getRepository(KnowledgeBase);
@@ -58,6 +60,7 @@ class KnowledgeBaseDAL {
       // Save knowledge base values and Return new data
       return await knowledgebaseRepository.save(knowledgebase);
 
+      
     } catch (error) {
      if (error.code === '23503') {
       return { Message : "Foreign key Constraint FAIL please insert correct id"};
@@ -104,6 +107,56 @@ class KnowledgeBaseDAL {
       return await knowledgebaseRepository.delete({ id });
     }
     catch(error){
+      throw error;
+    }
+  }
+
+  static async updateOneKnowledgeBase(id, updatedFields) {
+    try {
+      // check the validity of the id format.
+      if (!isUUID(id)) {
+        return null;
+      }
+
+      // form connection
+      const connection = await getConnection();
+      const knowledgeBaseRepository = connection.getRepository(KnowledgeBase);
+
+      // get knowledgeBase to be updated.
+      // const knowledgeBase = knowledgeBaseRepository.findOneBy({ id: id });
+
+      // refresh the updated_at field.
+      updatedFields.updated_at = new Date();
+
+      // // update
+      // knowledgeBaseRepository.merge(knowledgeBase, updatedFields);
+      // await knowledgeBaseRepository.save(knowledgeBase);
+ 
+      const updatedKnowledgeBase = await knowledgeBaseRepository.update({
+        id: id,
+      }, updatedFields) 
+
+      // return updated knowledgeBase data.
+      return updatedKnowledgeBase;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async deleteOneKnowledgeBase(id) {
+    try {
+      // check the validity of the id format.
+      if (!isUUID(id)) {
+        return null;
+      }
+      // Form connection
+      const connection = getConnection();
+      const knowledgeBaseRepository = connection.getRepository(KnowledgeBase);
+
+      await knowledgeBaseRepository.delete({ id });
+
+      return "KnowledgeBase deleted Successfully.";
+    } catch (error) {
       throw error;
     }
   }

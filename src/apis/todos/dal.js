@@ -2,6 +2,8 @@ const { getConnection } = require("typeorm");
 const { Todo } = require("../../models/Todo");
 const { v4: uuidv4, validate: uuidValidate } = require("uuid");
 const AppError = require("../../../utils/apperror");
+const User = require("../../models/User");
+const UserDAL = require("../users/dal");
 
 class TodoDal {
   static async getAllTodo() {
@@ -54,17 +56,20 @@ class TodoDal {
       // get connection from the pool
       const connection = getConnection();
 
+      // fetch user
+      const userRepository = connection.getRepository(User);
+      const user = await UserDAL.getOneUser(user_id);
+
       // create bridge
       const todoRepository = connection.getRepository(Todo);
 
       // create todo
       const newTodo = await todoRepository.create({
-        id,
         title,
         description,
         status,
         due_date,
-        user_id,
+        user: user,
       });
       await todoRepository.save(newTodo);
 

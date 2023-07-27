@@ -10,6 +10,7 @@ const Resource = new EntitySchema({
     },
     resourceName: {
       type: "varchar",
+      unique: true,
     },
     created_at: {
       type: "timestamp",

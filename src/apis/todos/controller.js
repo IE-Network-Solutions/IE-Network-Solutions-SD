@@ -43,10 +43,13 @@ exports.singleTodo = async (req, res, next) => {
 exports.createTodo = async (req, res, next) => {
   try {
     const data = req.body;
+    console.log(req.user);
+    data.user_id = req.user.id;
 
     //   create new todo
     const todo = await TodoDal.createTodo(data);
 
+    // retrn created todo
     res.status(201).json({
       status: "Success",
       data: todo,

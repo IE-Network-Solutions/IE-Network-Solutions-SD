@@ -4,19 +4,19 @@ const KnowledgeBaseDAL = require("./dal");
 //This method implements to get all knowledge base values
 exports.getAllKnowledgebase = async (req, res, next) => {
   try {
-    // get all knowledgebase.
-    const knowledgebase = await KnowledgeBaseDAL.getAllKnowledgebase();
+    // get all knowledgeBase.
+    const knowledgeBase = await KnowledgeBaseDAL.getAllKnowledgeBase();
 
     // check if knowlegebasee doen't exist.
-    if (!knowledgebase) {
+    if (!knowledgeBase) {
 
       // return custom error
-      return next(new AppError("No knowledgebase data found."));
+      return next(new AppError("No knowledgeBase data found.", 404));
     }
 
     res.status(200).json({
       status: "List of Knowledge base",
-      data: knowledgebase,
+      data: knowledgeBase,
     });
   } catch (error) {
     throw error;
@@ -39,7 +39,7 @@ exports.getKnowlegebaseById = async (req, res, next) => {
 
     res.status(200).json({
       status: "Success",
-      data: knowledgebase,
+      data: knowledgeBase,
     });
   } catch (error) {
     throw error
@@ -52,10 +52,32 @@ exports.createKnowledgebase = async (req, res, next) => {
     // get input data.
     const data = req.body; 
 
+    //   create new knowledgeBase
+    const knowledgeBase = await KnowledgeBaseDAL.createKnowledgeBase(data);
+
     //Create knowledge base and return the data
     res.status(201).json({
       status: "Success",
-      data: await KnowledgeBaseDAL.createKnowledgebase(data),
+      data: await KnowledgeBaseDAL.createKnowledgebase(data),   });
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.getKnowledgeBaseById = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+
+    const knowledgeBase = await KnowledgeBaseDAL.getKnowledgeBaseById(id);
+
+    if (!knowledgeBase)
+      return next(
+        new AppError("KnowledgeBase with the given id is not found", 404)
+      );
+
+    res.status(200).json({
+      status: "Success",
+      data: knowledgeBase,
     });
   } catch (error) {
     throw error;
@@ -64,17 +86,17 @@ exports.createKnowledgebase = async (req, res, next) => {
 
 // This method implements to update knowledge base 
 exports.updateOneKnowledgebase = async (req, res, next) => {
-  try {
+try{
     //get knowledge base id
     const id = req.params.id;
 
     // get request body of knowledge base
     const updatedFields = req.body;
 
-    // check if knowledgebase with the given id is found or not?
-    const checkKnowledgebase = await KnowledgeBaseDAL.getKnowledgebaseById(id);
+    // check if knowledgeBase with the given id is found or not?
+    const checkKnowledgeBase = await KnowledgeBaseDAL.getKnowledgeBaseById(id);
 
-    if (!checkKnowledgebase) {
+    if (!checkKnowledgeBase) {
       return next(
         new AppError(`Knowledgebase with ID  ${id} is not found.`)
       );
@@ -83,6 +105,18 @@ exports.updateOneKnowledgebase = async (req, res, next) => {
     res.status(200).json({
       status: "Success",
       data: await KnowledgeBaseDAL.updateOneKnowledgebase( id, updatedFields ),
+    }
+      );
+  
+
+    const knowledgeBase = await KnowledgeBaseDAL.updateOneKnowledgeBase(
+      id,
+      updatedFields
+    );
+
+    res.status(200).json({
+      status: "Success",
+      data: knowledgeBase,
     });
   } catch (error) {
     throw error;
@@ -91,17 +125,19 @@ exports.updateOneKnowledgebase = async (req, res, next) => {
 
 // This method implements to delete knowledge base by id
 exports.deleteOneKnowledgebase = async (req, res, next) => {
+
   try {
     const id = req.params.id;
 
-    // check if knowledgebase with the given id is found or not?
-    const checkKnowledgebase = await KnowledgeBaseDAL.getKnowledgebaseById(id);
+    // check if knowledgeBase with the given id is found or not?
+    const checkKnowledgeBase = await KnowledgeBaseDAL.getKnowledgeBaseById(id);
 
-    if (!checkKnowledgebase) {
+    if (!checkKnowledgeBase) {
       return next(
-        new AppError("Knowledgebase with the given id is not found.")
+        new AppError("KnowledgeBase with the given id is not found.", 404)
       );
-    }
+      }
+
     res.status(200).json({
       status: "Knowledge base is successfully deleted",
       data: await KnowledgeBaseDAL.deleteOneKnowledgebase(id),

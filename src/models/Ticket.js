@@ -2,6 +2,7 @@ const { EntitySchema } = require("typeorm");
 
 const Ticket = new EntitySchema({
   name: "Ticket",
+  
   columns: {
     id: {
       primary: true,

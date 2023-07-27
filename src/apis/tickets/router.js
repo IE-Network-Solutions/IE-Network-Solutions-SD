@@ -2,11 +2,12 @@ const router = require("express").Router();
 const TicketController = require("../tickets/controller");
 const validate = require("../../../utils/validator");
 const { createTicketValidator, assignTicket } = require("./validation");
-const { uuidValidator } = require("../../../utils/uuid");
+const uuidValidator = require('../../../utils/uuidValidator');
+// const { uuidValidator } = require("../../../utils/uuid");
 const authorize = require("../../middlewares/auth/authorization");
 
 router.route("/").get(TicketController.getAllTickets);
-router.route("/:id").get(TicketController.getTicketById);
+router.route("/:id").get(uuidValidator, TicketController.getTicketById);
 router
   .route("/")
   .post(validate(createTicketValidator), TicketController.createNewTicket);

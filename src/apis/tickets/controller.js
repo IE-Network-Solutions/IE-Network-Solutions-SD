@@ -32,6 +32,26 @@ exports.getAllTickets = async (req, res, next) => {
   }
 };
 
+exports.getAllJunkTickets = async (req, res, next) => {
+  try {
+    //   get all tickets
+    const ticket = await TicketDAL.getAllJunkTickets();
+
+    // check if tickets are exist
+    if (!ticket) {
+      // return custom error
+      return next(new AppError("No Ticket data found"));
+    }
+
+    // response
+    res.status(200).json({
+      status: "Success",
+      data: ticket,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
 //This method is
 exports.getTicketById = async (req, res, next) => {
   try {
@@ -166,5 +186,25 @@ exports.removeAssigned = async (req, res, next) => {
     });
   } catch (error) {
     throw error;
+  }
+};
+exports.removeDeleteTicket = async (req, res, next) => {
+  try {
+    const ticketId = req.params.id;
+
+   
+    // check ticket
+    const ticket = await TicketDAL.getJunkTicketById(ticketId);
+    if (!ticket) return next(new AppError("ticket does not exist", 404));
+
+    // delete junk ticket
+    const ticketUsers = await TicketDAL.deleteJunkTicket(ticketId);
+
+    res.status(200).json({
+      status: "Success",
+      data: ticketUsers,
+    });
+  } catch (error) {
+    return next(new AppError(`Error with internal server or ${error.message}`, 500));
   }
 };

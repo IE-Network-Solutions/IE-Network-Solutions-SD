@@ -28,6 +28,17 @@
       "group": "potgres",
       "database": "sd",
       "username": "postgres"
+    },
+    {
+      "previewLimit": 50,
+      "server": "localhost",
+      "port": 5433,
+      "askForPassword": true,
+      "driver": "PostgreSQL",
+      "name": "Sd_latest",
+      "group": "Sd_latest",
+      "database": "sd",
+      "username": "postgres"
     }
   ]
 }

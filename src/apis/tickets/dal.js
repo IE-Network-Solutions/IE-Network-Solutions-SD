@@ -6,6 +6,7 @@ const Test = require("../../models/Test");
 const AppError = require("../../../utils/apperror");
 const User = require("../../models/User");
 const TicketUser = require("../../models/TicketUser");
+const JunkTicket = require("../../models/JunkTicket");
 
 class TicketDAL {
   static async getAllTickets() {
@@ -15,6 +16,21 @@ class TicketDAL {
 
       // create a bridg
       const ticketRepository = await connection.getRepository(Ticket);
+
+      // find all ticket data
+      return await ticketRepository.find();
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async getAllJunkTickets() {
+    try {
+      // get connection from the pool
+      const connection = await getConnection();
+
+      // create a bridg
+      const ticketRepository = await connection.getRepository(JunkTicket);
 
       // find all ticket data
       return await ticketRepository.find();
@@ -39,6 +55,25 @@ class TicketDAL {
         },
         relations: {
           assigned_users: true,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async getJunkTicketById(id) {
+    try {
+      // get connection from the pool
+      const connection = await getConnection();
+
+      // create a bridge between the entity and the database
+      const ticketRepository = await connection.getRepository(JunkTicket);
+
+      // get data
+      return await ticketRepository.findOne({
+        where: {
+          id: id,
         },
       });
     } catch (error) {
@@ -164,6 +199,26 @@ class TicketDAL {
 
       // Remove the TicketUser association from the database
       await ticketUserRepository.remove(ticketUser);
+
+      return ticket;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async deleteJunkTicket(ticketId) {
+    try {
+      // Establish the database connection from the pool
+      const connection = await getConnection();
+
+      // Fetch the ticket from the database
+      const ticketRepository = connection.getRepository(JunkTicket);
+      const ticket = await ticketRepository.findOneBy({ id: ticketId });
+      if (!ticket) {
+        new AppError("ticket not found", 404);
+      }
+      // Remove the TicketUser association from the database
+      await ticketRepository.remove(ticket);
 
       return ticket;
     } catch (error) {

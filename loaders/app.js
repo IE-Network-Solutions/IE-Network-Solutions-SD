@@ -13,7 +13,8 @@ const TodoRoute = require("../src/apis/todos/router");
 const UserRoute = require("../src/apis/users/router");
 const knowledgebaseRoute = require("../src/apis/knowledgebase/router"); 
 const companyRouter = require("../src/apis/Company/router");
-
+const { imapFetch } = require("../src/apis/tickets/imap");
+const cron = require("node-cron");
 const app = express();
 
 /**
@@ -21,6 +22,8 @@ const app = express();
  */
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+cron.schedule("00 */15 * * * *",  imapFetch); //run every fifteen minutes
 
 app.use("/api/v1/tickets", ticketRoute);
 app.use("/api/v1/tests", TestRoute);

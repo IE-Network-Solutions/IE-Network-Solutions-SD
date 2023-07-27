@@ -19,6 +19,7 @@ const Ticket = new EntitySchema({
     },
     priority: {
       type: "varchar",
+      nullable:true
     },
     created_at: {
       type: "timestamp",

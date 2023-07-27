@@ -6,6 +6,10 @@ const { uuidValidator } = require("../../../utils/uuid");
 const authorize = require("../../middlewares/auth/authorization");
 
 router.route("/").get(TicketController.getAllTickets);
+router.route("/junk").get(TicketController.getAllJunkTickets);
+router.route("/junk/:id").delete( uuidValidator, TicketController.removeDeleteTicket);
+
+
 router.route("/:id").get(TicketController.getTicketById);
 router
   .route("/")

@@ -11,7 +11,7 @@ router.route("/:id").get(UserController.getOneUser);
 
 router
   .route("/")
-  .post(validate(userValidator), UserController.createUser);
+  .post(validate(userValidator), UserController.createUser)
   .post(UserController.createUser);
 // router
 //   .route("/")

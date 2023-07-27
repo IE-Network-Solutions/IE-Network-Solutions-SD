@@ -53,12 +53,12 @@ exports.createKnowledgebase = async (req, res, next) => {
     const data = req.body; 
 
     //   create new knowledgeBase
-    const knowledgeBase = await KnowledgeBaseDAL.createKnowledgeBase(data);
+    const knowledgeBase = await KnowledgeBaseDAL.createKnowledgebase(data);
 
     //Create knowledge base and return the data
     res.status(201).json({
       status: "Success",
-      data: await KnowledgeBaseDAL.createKnowledgebase(data),   });
+      data: knowledgeBase  });
   } catch (error) {
     throw error;
   }

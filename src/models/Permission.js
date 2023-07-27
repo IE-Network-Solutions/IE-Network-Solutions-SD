@@ -10,15 +10,20 @@ const Permission = new EntitySchema({
     },
     view: {
       type: "boolean",
+      default:false
     },
     create: {
       type: "boolean",
+      default:false
     },
     update: {
       type: "boolean",
+      default:false
     },
     delete: {
       type: "boolean",
+      default:false,
+      nullable:true
     },
     created_at: {
       type: "timestamp",

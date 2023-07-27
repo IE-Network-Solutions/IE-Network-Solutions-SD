@@ -3,7 +3,7 @@ const Role = require("../../models/Role");
 const { validate: isUUID } = require("uuid");
 
 class RoleDAL {
-  static async createOneRole(data) {
+  static async createRole(data) {
     try {
       const { roleName } = data;
 
@@ -55,7 +55,7 @@ class RoleDAL {
     }
   }
 
-  static async findOneRoleById(id) {
+  static async getRoleById(id) {
     try {
       // check the validity of the id format.
       if (!isUUID(id)) {
@@ -74,7 +74,7 @@ class RoleDAL {
     }
   }
 
-  static async updateOneRoleById(id, updatedFields) {
+  static async updateRoleById(id, updatedFields) {
     try {
       // check the validity of the id format.
       if (!isUUID(id)) {
@@ -100,7 +100,7 @@ class RoleDAL {
     }
   }
 
-  static async deleteOneRoleById(id) {
+  static async deleteRoleById(id) {
     try {
       // check the validity of the id format.
       if (!isUUID(id)) {

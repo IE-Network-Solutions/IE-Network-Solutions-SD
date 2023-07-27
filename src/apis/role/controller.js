@@ -1,7 +1,7 @@
 const AppError = require("../../../utils/apperror");
 const RoleDAL = require("./dal");
 
-exports.createOneRole = async (req, res, next) => {
+exports.createRole = async (req, res, next) => {
   try {
     // get input data.
     const data = req.body;
@@ -11,7 +11,7 @@ exports.createOneRole = async (req, res, next) => {
     if (role) return next(new AppError("role name must be unique.", 406));
 
     //   create new role
-    const createdRole = await RoleDAL.createOneRole(data);
+    const createdRole = await RoleDAL.createRole(data);
 
     // Create/give least permission on all seeded resources in the system for newly created role, 
     // then the admin will update it latter as necessary.
@@ -32,25 +32,25 @@ exports.getAllRoles = async (req, res, next) => {
     const roles = await RoleDAL.getAllRole();
 
     // check if Role doesn't exist.
-    if (!roles) { 
+    if (roles.length == 0) { 
       return next(new AppError("No Role data found."));
     }
-
     res.status(200).json({
-      status: "Success",
-      data: roles,
-    });
-  } catch (error) {
-    throw error;
+          status: "Success",
+          data: roles,
+        });
+} catch (error) {
+    console.log(error)
+     return next(new AppError("Server Error", 500));
   }
 };
 
-exports.findOneRoleById = async (req, res, next) => {
+exports.getRoleById = async (req, res, next) => {
   try {
     const id = req.params.id;
 
     // get one role its id.
-    const role = await RoleDAL.findOneRoleById(id);
+    const role = await RoleDAL.getRoleById(id);
 
     if (!role) {
       return next(new AppError("Role with the given id is not found.", 404));
@@ -85,13 +85,13 @@ exports.findOneRoleByName = async (req, res, next) => {
   }
 };
 
-exports.updateOneRoleById = async (req, res, next) => {
+exports.updateRoleById = async (req, res, next) => {
   try {
     const id = req.params.id;
     const updatedFields = req.body;
 
     // check if role with the given id is found or not?
-    const checkRole = await RoleDAL.findOneRoleById(id);
+    const checkRole = await RoleDAL.getRoleById(id);
 
     if (!checkRole) {
       return next(new AppError("Role with the given id is not found.", 404));
@@ -103,11 +103,11 @@ exports.updateOneRoleById = async (req, res, next) => {
     if (checkRole.roleName === updatedFields.roleName) {
       // here we are updating by the same name.
       // So, the roleName will be unique.
-      updatedRole = await RoleDAL.updateOneRoleById(id, updatedFields);
+      updatedRole = await RoleDAL.updateRoleById(id, updatedFields);
     } else {
       const roleExist = await RoleDAL.findOneRoleByName(updatedFields.roleName);
       if (!roleExist ||  !updatedFields.roleName) {
-        updatedRole = await RoleDAL.updateOneRoleById(id, updatedFields);
+        updatedRole = await RoleDAL.updateRoleById(id, updatedFields);
       } else {
         return next(new AppError("Role name must be unique.", 406));
       }
@@ -122,22 +122,22 @@ exports.updateOneRoleById = async (req, res, next) => {
   }
 };
 
-exports.deleteOneRoleById = async (req, res, next) => {
+exports.deleteRoleById = async (req, res, next) => {
   try {
     const id = req.params.id;
 
     // check if Role with the given id is found or not?
-    const checkRole = await RoleDAL.findOneRoleById(id);
+    const checkRole = await RoleDAL.deleteRoleById(id);
 
     if (!checkRole) {
       return next(new AppError("Role with the given id is not found.", 404));
     }
 
-    await RoleDAL.deleteOneRoleById(id);
+    await RoleDAL.deleteRoleById(id);
 
     res.status(200).json({
       status: "Success",
-      data: null,
+      message: "Role is deleted successfully",
     });
   } catch (error) {
     throw error;

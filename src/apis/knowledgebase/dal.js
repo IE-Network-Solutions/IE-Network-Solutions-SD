@@ -9,8 +9,7 @@ class KnowledgeBaseDAL {
     try {
       // Create connection
       const connection = await getConnection();
-      const knowledgeBaseRepository = connection.getRepository(KnowledgeBase);
-
+      
       // Inject knowledge base model
       const knowledgebaseRepository = connection.getRepository(KnowledgeBase);
       

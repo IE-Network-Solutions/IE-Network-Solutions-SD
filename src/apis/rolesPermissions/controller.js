@@ -23,6 +23,42 @@ exports.getAllRolePermission = async (req, res, next)=>{
     }
 }
 
+exports.getRolePermissionById = async (req, res, next)=>{
+    try{
+        const id = req.params.id;
+        const data = await RolePermissionDAL.getRolePermissionById(id);
+        if(!data){
+            return next(new AppError("Role Permission id is Not Found"));
+        }
+        res.status(200).json({
+            status : "Success",
+            message : "List of Role and permission",
+            data : data,
+            statusCode : 200
+        })
+    }
+    catch(error){
+        return next(new AppError("Server Error", 500));
+    }
+}
+
+exports.deleteRolePermissionById = async (req, res, next)=>{
+    try{
+        const id = req.params.id;
+        const data = await RolePermissionDAL.deleteRolePermissionById(id);
+        if(!data){
+            return next(new AppError("Role Permission id is Not Found"));
+        }
+        res.status(200).json({
+            status : "Success",
+            message : "Role and permission is Deleted successfully",
+        })
+    }
+    catch(error){
+        return next(new AppError("Server Error", 500));
+    }
+}
+
 exports.assignPermissionToRole = async (req, res, next)=>{
     try{
         const roleId = req.params.id;
@@ -54,3 +90,25 @@ exports.assignPermissionToRole = async (req, res, next)=>{
         return next(new AppError("Server Error", 500));
     }
 }
+exports.updateRolePermissionById = async (req, res, next)=>{
+    try{
+        const id = req.params.id;
+        const data = req.body;
+        const rolePermission = await RolePermissionDAL.updateRolePermissionBy(id, data);
+        if(!rolePermission){
+            return next(new AppError("Role Permission not found"));
+        }
+        else{
+            res.status(200).json({
+                status :"Success",
+                message : "Role permission is update successfully",
+                data : rolePermission,
+                statusCode : 201
+            })
+        }
+        
+    }catch(error){
+        return next(new AppError("Server error", 500));
+    }
+}
+

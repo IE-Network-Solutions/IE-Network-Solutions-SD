@@ -14,7 +14,27 @@ class RolePermissonDAL {
             throw error;
         }
     }
-     static async assignPermissionToRole(roleId, permissionId){
+    
+    static async getRolePermissionById(id){
+        try{
+            const conneciton = await getConnection();
+            const RolePermissionRepo = await conneciton.getRepository(RolePermission);
+            return await RolePermissionRepo.findOne({where : { id : id}});
+        }catch(error){
+
+        }
+    }
+      static async deleteRolePermissionById(id){
+        try{
+            const conneciton = await getConnection();
+            const RolePermissionRepo = await conneciton.getRepository(RolePermission);
+            return await RolePermissionRepo.delete({where : { id : id}});
+        }catch(error){
+
+        }
+    }
+
+    static async assignPermissionToRole(roleId, permissionId){
         try{
             const connection = await getConnection();
 
@@ -32,14 +52,24 @@ class RolePermissonDAL {
                 })
                 return assignedPermission;
         })
-            // console.log(rolePermission)
-            await RolePermissionRepo.save(rolePermission);
-
-            return rolePermission
+           return await RolePermissionRepo.save(rolePermission);
         }catch(error){
             throw error;
         }
     }
+
+    static async updateRolePermissionBy(id, rolepermission){
+        try{
+                const connection = await getConnection();
+                const PermissionRepo = await connection.getRepository(Permission);
+                const data = await PermissionRepo.findOne({where : {id :id}});
+                const permission = await PermissionRepo.merge(data, rolepermission)
+                return await PermissionRepo.save(permission);
+        }
+        catch(error){
+
+        }
+}
 }
 
 module.exports = RolePermissonDAL;

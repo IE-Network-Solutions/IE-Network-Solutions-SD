@@ -21,7 +21,8 @@ router
 router
   .route("/:id")
   .patch(
-    validate(authorize, updateTicketValidator),
+    authorize,
+    validate(updateTicketValidator),
     TicketController.updateTicket
   );
 router.route("/:id").delete(authorize, TicketController.deleteTicket);

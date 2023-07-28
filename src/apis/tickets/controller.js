@@ -7,6 +7,7 @@ const TypeDAL = require("../type/dal");
 const PriorityDAL = require("../priority/dal");
 const StatusDAL = require("../status/dal");
 const DepartmentDAL = require("../department/dal");
+const ClientDAL = require("../Client/dal");
 
 /**
  *
@@ -49,7 +50,7 @@ exports.getTicketById = async (req, res, next) => {
 
     res.status(200).json({
       status: "Success",
-      data: ticket,
+      data: [ticket],
     });
   } catch (error) {
     throw error;
@@ -59,6 +60,7 @@ exports.getTicketById = async (req, res, next) => {
 exports.createNewTicket = async (req, res, next) => {
   try {
     const data = req.body;
+    console.log(data);
     // get status
     const status = await StatusDAL.getStatus(data.status_id);
     if (!status) {
@@ -87,6 +89,26 @@ exports.createNewTicket = async (req, res, next) => {
       return next(new AppError("such priority does not exist", 404));
     }
     data.priority = priority;
+
+    // get client
+    const client = await ClientDAL.getClientById(data.client_id);
+    console.log(client);
+    if (!client) {
+      return next(new AppError("such client does not exist", 404));
+    }
+    if (client.user_type !== "client") {
+      return next(new AppError("client should be type client", 500));
+    }
+    data.client = client;
+
+    // check client company
+    if (!client.company) {
+      return next(
+        new AppError("the specified client is not in any of the companies", 500)
+      );
+    }
+
+    data.company = client.company;
 
     //   create new ticket
     const newTicket = await TicketDAL.createNewTicket(data);

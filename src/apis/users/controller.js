@@ -63,14 +63,9 @@ exports.createUser = async (req, res, next) => {
       return next(new AppError("user with the given email already exist"));
     }
 
-    // check type of the user type
-    if (user.user_type && user.user_type !== ("employee" || "client")) {
-      return next(new Error("User type is not correct", 500));
-    }
-
     // check if role exist
     if (user.role_id) {
-      const role = await RoleDAL.getSingleRole(user.role_id);
+      const role = await RoleDAL.findOneRoleById(user.role_id);
       if (!role) return next(new AppError("role does not exist"));
       user.role = role;
     }

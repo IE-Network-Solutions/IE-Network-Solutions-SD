@@ -1,7 +1,8 @@
 const AppError = require("../../../utils/apperror");
 const hash = require("../../../utils/hashpassword");
+const PriorityDAL = require("../priority/dal");
+const TypeDAL = require("../type/dal");
 const ClientDAL = require("./dal");
-
 
 exports.allClients = async (req, res, next) => {
   try {
@@ -31,7 +32,8 @@ exports.singleClient = async (req, res, next) => {
     // get client with the given id
     const client = await ClientDAL.getClientById(id);
 
-    if (!client) return next(new AppError("client with the given id not found"));
+    if (!client)
+      return next(new AppError("client with the given id not found"));
 
     res.status(200).json({
       status: "Success",
@@ -45,7 +47,7 @@ exports.singleClient = async (req, res, next) => {
 exports.createClient = async (req, res, next) => {
   try {
     const data = req.body;
-    data.password = hash("%TGBnhy6");    
+    data.password = hash("%TGBnhy6");
     //   create new client
     const client = await ClientDAL.createClient(data);
     res.status(201).json({
@@ -54,7 +56,7 @@ exports.createClient = async (req, res, next) => {
     });
   } catch (error) {
     // throw error;
-    return next(new AppError(error.message , 500))
+    return next(new AppError(error.message, 500));
   }
 };
 
@@ -95,6 +97,82 @@ exports.deleteClient = async (req, res, next) => {
     res.status(200).json({
       status: "Success",
       data: null,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.clientTickets = async (req, res, next) => {
+  try {
+    const user = req.user;
+    console.log(user);
+    if (user.user_type != "client") {
+      return next(new AppError("Unauthorized user"));
+    }
+
+    const tickets = await ClientDAL.getClientTickets(user);
+    res.status(200).json({
+      status: "Success",
+      data: tickets,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.createNewTicket = async (req, res, next) => {
+  try {
+    const data = req.body;
+    const user = req.user;
+
+    if (user.user_type != "client") {
+      return next(new AppError("unauthorized user", 500));
+    }
+
+    // get type
+    const type = await TypeDAL.getOneType(data.type_id);
+    if (!type) {
+      return next(new AppError("type does not exist", 404));
+    }
+    data.type = type;
+
+    // get priority
+    const priority = await PriorityDAL.getPriority(data.priority_id);
+
+    if (!priority) {
+      return next(new AppError("such priority does not exist", 404));
+    }
+    data.priority = priority;
+
+    // get client
+    const client = await ClientDAL.getClientById(user.id);
+    console.log(client);
+    if (!client) {
+      return next(new AppError("such client does not exist", 404));
+    }
+
+    if (client.user_type !== "client") {
+      return next(new AppError("client should be type client", 404));
+    }
+    data.client = client;
+
+    // check client company
+    if (!client.company) {
+      return next(
+        new AppError("the specified client is not in any of the companies", 500)
+      );
+    }
+
+    data.company = client.company;
+
+    //   create new ticket
+    const newTicket = await ClientDAL.createTicket(data);
+
+    res.status(201).json({
+      status: "new Ticket is created Successfully",
+      data: newTicket,
+      statusCode: "201",
     });
   } catch (error) {
     throw error;

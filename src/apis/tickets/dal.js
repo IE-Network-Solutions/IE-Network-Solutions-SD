@@ -10,6 +10,7 @@ const AppError = require("../../../utils/apperror");
 const User = require("../../models/User");
 const TicketUser = require("../../models/TicketUser");
 const Type = require("../../models/Type");
+const UserDAL = require("../users/dal");
 
 class TicketDAL {
   static async getAllTickets() {
@@ -28,10 +29,13 @@ class TicketDAL {
         .leftJoin("ticket.ticket_priority", "priority")
         .leftJoin("ticket.ticket_status", "status")
         .leftJoin("ticket.department", "department")
+        .leftJoin("ticket.client", "client")
+        .leftJoin("ticket.company", "company")
         .select([
           "ticket.id",
           "ticket.subject",
           "ticket.description",
+          "ticket.created_at",
           "types.type",
           "types.id",
           "priority.id",
@@ -48,8 +52,15 @@ class TicketDAL {
           "users.role",
           "users.department",
           "users.user_type",
+          "client.id",
+          "client.email",
+          "client.first_name",
+          "client.last_name",
+          "client.user_type",
+          "company.company_name",
+          "company.description",
+          "company.id",
         ])
-        .addSelect("types.*")
         .getMany();
 
       // return all
@@ -76,10 +87,13 @@ class TicketDAL {
         .leftJoin("ticket.ticket_priority", "priority")
         .leftJoin("ticket.ticket_status", "status")
         .leftJoin("ticket.department", "department")
+        .leftJoin("ticket.client", "client")
+        .leftJoin("ticket.company", "company")
         .select([
           "ticket.id",
           "ticket.subject",
           "ticket.description",
+          "ticket.created_at",
           "types.type",
           "types.id",
           "priority.id",
@@ -96,6 +110,14 @@ class TicketDAL {
           "users.role",
           "users.department",
           "users.user_type",
+          "client.id",
+          "client.email",
+          "client.first_name",
+          "client.last_name",
+          "client.user_type",
+          "company.company_name",
+          "company.description",
+          "company.id",
         ])
         .where("ticket.id = :id", { id })
         .getOne();
@@ -112,7 +134,17 @@ class TicketDAL {
   static async createNewTicket(data) {
     try {
       //Destructure user requests
-      const { status, description, priority, subject, department, type } = data;
+      const {
+        status,
+        description,
+        priority,
+        subject,
+        department,
+        type,
+        client,
+        company,
+        agent_id,
+      } = data;
 
       const id = uuidv4();
 
@@ -130,9 +162,21 @@ class TicketDAL {
         ticket_status: status,
         ticket_type: type,
         department: department,
+        client: client,
+        company: company,
       });
       await ticketRepository.save(newTicket);
 
+      // get agent
+      const user = await UserDAL.getOneUser(agent_id);
+
+      // create ticket_user instance to create the association
+      const ticketUserRepository = connection.getRepository(TicketUser);
+      const userTicket = ticketUserRepository.create({
+        ticket: newTicket,
+        user,
+      });
+      await ticketUserRepository.save(userTicket);
       return newTicket;
     } catch (error) {
       throw error;

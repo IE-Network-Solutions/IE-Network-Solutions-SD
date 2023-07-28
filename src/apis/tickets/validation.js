@@ -4,10 +4,12 @@ const joi = require("joi");
 exports.createTicketValidator = joi.object({
   subject: joi.string().required(),
   description: joi.string().required(),
-  priority_id: joi.string().required(),
-  department_id: joi.string().required(),
-  status_id: joi.string().required(),
-  type_id: joi.string().required(),
+  priority_id: joi.string().guid({ version: "uuidv4" }).required(),
+  department_id: joi.string().guid({ version: "uuidv4" }).required(),
+  status_id: joi.string().guid({ version: "uuidv4" }).required(),
+  type_id: joi.string().guid({ version: "uuidv4" }).required(),
+  client_id: joi.string().guid({ version: "uuidv4" }).required(),
+  agent_id: joi.string().guid({ version: "uuidv4" }).required(),
 });
 
 // Validate update-test api
@@ -18,6 +20,7 @@ exports.updateTicketValidator = joi.object({
   department_id: joi.string().guid({ version: "uuidv4" }),
   status_id: joi.string().guid({ version: "uuidv4" }),
   type_id: joi.string().guid({ version: "uuidv4" }),
+  client_id: joi.string().guid({ version: "uuidv4" }),
 });
 
 exports.assignTicket = joi.object({

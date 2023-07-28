@@ -66,7 +66,7 @@ class RoleDAL {
       const roleRepository = connection.getRepository(Role);
 
       //  find role by the given role id.
-      const role = await roleRepository.findOneBy({ id });
+      const role = await roleRepository.findOne({ where: { id } });
 
       return role;
     } catch (error) {

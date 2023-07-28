@@ -79,6 +79,14 @@ const Ticket = new EntitySchema({
         referencedColumnName: "id",
       },
     },
+    company: {
+      type: "many-to-one",
+      target: "Company",
+      joinColumn: {
+        name: "company_id",
+        referencedColumnName: "id",
+      },
+    },
   },
 });
 

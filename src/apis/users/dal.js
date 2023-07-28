@@ -10,7 +10,11 @@ class UserDAL {
       const userRepository = connection.getRepository(User);
 
       // Get Data
-      const users = await userRepository.find();
+      const users = await userRepository.find({
+        where: { user_type: "employee" },
+        select: ["id", "first_name", "last_name", "email", "user_type"],
+        relations: ["role", "department"],
+      });
       return users;
     } catch (error) {
       throw error;
@@ -28,6 +32,8 @@ class UserDAL {
       // Get Data
       const foundUser = await userRepository.findOne({
         where: { id: id },
+        select: ["id", "email", "first_name", "last_name", "user_type"],
+        relations: ["role", "department"],
       });
       return foundUser;
     } catch (error) {
@@ -55,16 +61,9 @@ class UserDAL {
   static async createUser(data) {
     try {
       // Create User Object
-      const {
-        first_name,
-        last_name,
-        email,
-        password,
-        role,
-        department,
-        user_type,
-      } = data;
-      console.log(role, department);
+      const { first_name, last_name, email, password, role, department } = data;
+      const user_type = "employee";
+
       // Form Connection
       const connection = getConnection();
       const userRepository = connection.getRepository(User);

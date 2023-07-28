@@ -1,8 +1,8 @@
-const joi = require("joi");
+// const joi = require("joi");
 
-exports.roleValidator = joi.object({
-  roleName: joi.string().required(),
-});
+// exports.roleValidator = joi.object({
+//   roleName: joi.string().required(),
+// });
 const joi = require("joi");
 
 // Validate createRole api

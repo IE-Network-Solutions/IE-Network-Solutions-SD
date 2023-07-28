@@ -28,8 +28,8 @@ const Note = new EntitySchema({
         name: "user_id",
         referencedColumnName: "id",
       },
-    }, 
-    created_on: {
+    },
+    ticket: {
       type: "many-to-one",
       target: "Ticket",
       joinColumn: {

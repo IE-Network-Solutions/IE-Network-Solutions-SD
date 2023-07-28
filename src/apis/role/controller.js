@@ -13,7 +13,7 @@ exports.createOneRole = async (req, res, next) => {
     //   create new role
     const createdRole = await RoleDAL.createOneRole(data);
 
-    // Create/give least permission on all seeded resources in the system for newly created role, 
+    // Create/give least permission on all seeded resources in the system for newly created role,
     // then the admin will update it latter as necessary.
     // await RoleDAL.createManyPermissions(createdRole.id);
 
@@ -32,7 +32,7 @@ exports.getAllRoles = async (req, res, next) => {
     const roles = await RoleDAL.getAllRole();
 
     // check if Role doesn't exist.
-    if (!roles) { 
+    if (!roles) {
       return next(new AppError("No Role data found."));
     }
 
@@ -73,7 +73,9 @@ exports.findOneRoleByName = async (req, res, next) => {
     const role = await RoleDAL.findOneRoleByName(roleName);
 
     if (!role) {
-      return next(new AppError("Role with the given roleName is not found.", 404));
+      return next(
+        new AppError("Role with the given roleName is not found.", 404)
+      );
     }
 
     res.status(200).json({
@@ -106,7 +108,7 @@ exports.updateOneRoleById = async (req, res, next) => {
       updatedRole = await RoleDAL.updateOneRoleById(id, updatedFields);
     } else {
       const roleExist = await RoleDAL.findOneRoleByName(updatedFields.roleName);
-      if (!roleExist ||  !updatedFields.roleName) {
+      if (!roleExist || !updatedFields.roleName) {
         updatedRole = await RoleDAL.updateOneRoleById(id, updatedFields);
       } else {
         return next(new AppError("Role name must be unique.", 406));

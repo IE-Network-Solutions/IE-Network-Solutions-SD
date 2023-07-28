@@ -1,9 +1,5 @@
 const AppError = require("../../../utils/apperror");
-const hash = require("../../../utils/hashpassword");
 const companyDAL = require("./dal");
-
-
-
 
 exports.allCompanies = async (req, res, next) => {
   try {
@@ -22,7 +18,7 @@ exports.allCompanies = async (req, res, next) => {
       data: companies,
     });
   } catch (error) {
-    throw error;
+    return next(new AppError(`Error with internal server or ${error.message}` , 500))
   }
 };
 
@@ -40,7 +36,7 @@ exports.singleCompany = async (req, res, next) => {
       data: company,
     });
   } catch (error) {
-    throw error;
+    return next(new AppError(`Error with internal server or ${error.message}` , 500))
   }
 };
 
@@ -48,10 +44,11 @@ exports.createCompany = async (req, res, next) => {
   try {
     const data = req.body;
     const profileImage = req.file ? req.file.path : '';
+    if(!profileImage){
+      return next(new AppError("Please Upload Company Profile image!" , 400))
+    }
     data.company_logo = profileImage
 
-    
-    
     //   create new company
     const company = await companyDAL.createCompany(data);
 
@@ -60,7 +57,7 @@ exports.createCompany = async (req, res, next) => {
       data: company,
     });
   } catch (error) {
-    throw error;
+    return next(new AppError(`Error with internal server or ${error.message}` , 500))
   }
 };
 
@@ -85,14 +82,13 @@ exports.updateCompany = async (req, res, next) => {
       data: company,
     });
   } catch (error) {
-    throw error;
+    return next(new AppError(`Error with internal server or ${error.message}` , 500))
   }
 };
 
 exports.deleteCompany = async (req, res, next) => {
   try {
     const id = req.params.id;
-
     // validate if company exist or not
     const companyData = await companyDAL.getCompanyById(id);
 
@@ -106,6 +102,6 @@ exports.deleteCompany = async (req, res, next) => {
       data: null,
     });
   } catch (error) {
-    throw error;
+    return next(new AppError(`Error with internal server or ${error.message}` , 500))
   }
 };

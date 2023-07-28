@@ -10,7 +10,11 @@ class UserDAL {
       const userRepository = connection.getRepository(User);
 
       // Get Data
-      const users = await userRepository.find();
+      const users = await userRepository.find({
+        where: { user_type: "employee" },
+        select: ["id", "first_name", "last_name", "email", "user_type"],
+        relations: ["role", "department"],
+      });
       return users;
     } catch (error) {
       throw error;
@@ -26,7 +30,11 @@ class UserDAL {
       const userRepository = connection.getRepository(User);
 
       // Get Data
-      const foundUser = await userRepository.findOne({ where: { id: id } });
+      const foundUser = await userRepository.findOne({
+        where: { id: id },
+        select: ["id", "email", "first_name", "last_name", "user_type"],
+        relations: ["role", "department"],
+      });
       return foundUser;
     } catch (error) {
       throw error;
@@ -53,14 +61,29 @@ class UserDAL {
   static async createUser(data) {
     try {
       // Create User Object
-      const user = data;
+      const { first_name, last_name, email, password, role, department } = data;
+      const user_type = "employee";
 
       // Form Connection
       const connection = getConnection();
       const userRepository = connection.getRepository(User);
 
       // Create User
-      const newUser = await userRepository.create(user);
+      const newUser = await userRepository.create({
+        first_name,
+        last_name,
+        email,
+        password,
+        user_type,
+      });
+
+      if (role) {
+        newUser.role = role;
+      }
+
+      if (department) {
+        newUser.department = department;
+      }
       await userRepository.save(newUser);
 
       return newUser;
@@ -138,11 +161,16 @@ class UserDAL {
       const userRepository = connection.getRepository(User);
 
       // get user by email
-      const user = userRepository.findOneBy({ email: email });
+      const user = userRepository.findOne({
+        where: { email: email },
+        // select: ["id", "first_name", "last_name", "role", "email"],
+      });
 
       // return user
       return user;
-    } catch (error) {}
+    } catch (error) {
+      throw error;
+    }
   }
 
   static async findMultipleUsers(userIds) {

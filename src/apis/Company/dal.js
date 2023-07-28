@@ -76,7 +76,6 @@ health_score,
 account_tier,
 company_logo });
       await companyRepository.save(newcompany);
-      // console.log(newTest);
       return newcompany;
     } catch (error) {
       throw error;
@@ -101,25 +100,29 @@ company_logo });
   }
 
   static async deleteCompany(id) {
-    // get connection from the pool
-    const connection = getConnection();
+   try {
+     // get connection from the pool
+     const connection = getConnection();
 
-    // create bridge
-    const companyRepository = connection.getRepository(Company);
-
-    const company=await companyRepository.findOneBy({id})
-    if(!company) {
-    throw new Error("Company with the given id is not found")
-    
-  }
-    const sourceUrls =`${company.company_logo}`
-    const deleLogo= await fs.unlinkSync(`./${sourceUrls}`);
-   const deleteComp= await companyRepository.delete(id);
-     if(!deleteComp && !deleLogo){
-      throw new Error("Error Deleting the Company , try again!")
-     }
-
-    return "Company deleted Successfully";
+     // create bridge
+     const companyRepository = connection.getRepository(Company);
+ 
+     const company=await companyRepository.findOneBy({id})
+     if(!company) {
+     throw new Error("Company with the given id is not found")
+     
+   }
+     const sourceUrls =`${company.company_logo}`
+     const deleLogo= await fs.unlinkSync(`./${sourceUrls}`);
+    const deleteComp= await companyRepository.delete(id);
+      if(!deleteComp && !deleLogo){
+       throw new Error("Error Deleting the Company , try again!")
+      }
+ 
+     return "Company deleted Successfully";
+   } catch (error) {
+    throw error
+   }
   }
 }
 

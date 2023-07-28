@@ -1,6 +1,8 @@
 const AppError = require("../../../utils/apperror");
 const hash = require("../../../utils/hashpassword");
 const { uuidValidator } = require("../../../utils/uuid");
+const PriorityDAL = require("../priority/dal");
+const TypeDAL = require("../type/dal");
 const ClientDAL = require("./dal");
 
 
@@ -33,16 +35,15 @@ exports.singleClient = async (req, res, next) => {
     const client = await ClientDAL.getClientById(id);
     // console.log( "client CLient",client)
 
-    if(!client){
-      return next(new AppError("Client not found catch!" , 404))
-    }
+    if (!client)
+      return next(new AppError("client with the given id not found"));
 
     res.status(200).json({
       status: "Success",
       data: client,
     });
   } catch (error) {
-   return new AppError(`Iternal server error or ${error.message}!` , 500)
+   return new AppError("Iternal server error!" , 500)
   }
 };
 
@@ -57,6 +58,7 @@ exports.createClient = async (req, res, next) => {
       data: client,
     });
   } catch (error) {
+    // throw error;
     return next(new AppError(error.message , 500))
   }
 };
@@ -99,6 +101,83 @@ exports.deleteClient = async (req, res, next) => {
     res.status(200).json({
       status: "Success",
       data: null,
+    });
+  } catch (error) {
+    return next(new AppError(`Internal Server error or ${error.message} ` ,500))
+    
+  }
+};
+
+exports.clientTickets = async (req, res, next) => {
+  try {
+    const user = req.user;
+    console.log(user);
+    if (user.user_type != "client") {
+      return next(new AppError("Unauthorized user"));
+    }
+
+    const tickets = await ClientDAL.getClientTickets(user);
+    res.status(200).json({
+      status: "Success",
+      data: tickets,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.createNewTicket = async (req, res, next) => {
+  try {
+    const data = req.body;
+    const user = req.user;
+
+    if (user.user_type != "client") {
+      return next(new AppError("unauthorized user", 500));
+    }
+
+    // get type
+    const type = await TypeDAL.getOneType(data.type_id);
+    if (!type) {
+      return next(new AppError("type does not exist", 404));
+    }
+    data.type = type;
+
+    // get priority
+    const priority = await PriorityDAL.getPriority(data.priority_id);
+
+    if (!priority) {
+      return next(new AppError("such priority does not exist", 404));
+    }
+    data.priority = priority;
+
+    // get client
+    const client = await ClientDAL.getClientById(user.id);
+    console.log(client);
+    if (!client) {
+      return next(new AppError("such client does not exist", 404));
+    }
+
+    if (client.user_type !== "client") {
+      return next(new AppError("client should be type client", 404));
+    }
+    data.client = client;
+
+    // check client company
+    if (!client.company) {
+      return next(
+        new AppError("the specified client is not in any of the companies", 500)
+      );
+    }
+
+    data.company = client.company;
+
+    //   create new ticket
+    const newTicket = await ClientDAL.createTicket(data);
+
+    res.status(201).json({
+      status: "new Ticket is created Successfully",
+      data: newTicket,
+      statusCode: "201",
     });
   } catch (error) {
     return next(new AppError(`Internal Server error or ${error.message} ` ,500))

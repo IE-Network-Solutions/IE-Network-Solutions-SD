@@ -15,6 +15,7 @@ const knowledgebaseRoute = require("../src/apis/knowledgebase/router");
 const catagory = require('../src/apis/catagories/router');
 const RoleRoutes = require('../src/apis/role/router');
 const PermissionRoute = require('../src/apis/permissions/router');
+const RolePermissionRoute = require('../src/apis/rolesPermissions/router');
 
 const app = express();
 
@@ -32,7 +33,8 @@ app.use("/api/v1/users", UserRoute);
 app.use("/api/v1/knowlegebase", knowledgebaseRoute); 
 app.use("/api/v1/catagory", catagory);
 app.use("/api/v1/role", RoleRoutes);
-app.use("/api/v1/permission",PermissionRoute)
+app.use("/api/v1/permission", PermissionRoute);
+app.use("/api/v1/rolePermission", RolePermissionRoute);
 
 // Unknown URL Error Message
 app.use("*", (req, res, next) => {

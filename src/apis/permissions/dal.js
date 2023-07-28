@@ -17,10 +17,10 @@ static async getPermissionById(id){
     return await PermissionRepo.findOne({where:{id : id }});
 }
 static async createPermission(permissions){
-    const { create, view, update } = permissions;
+    const { name } = permissions;
     const connection = await getConnection();
     const PermissionRepo = await connection.getRepository(Permission);
-    const permission = await PermissionRepo.create({ create, view, update });
+    const permission = await PermissionRepo.create({ name });
     return await PermissionRepo.save(permission);
 
 }
@@ -36,6 +36,15 @@ static async deletePermission(id){
     const PermissionRepo = await connection.getRepository(Permission);
     return await PermissionRepo.delete(id);
 }
+static async getPermissionsId(permissionId) {
+        try {
+            const connection = await getConnection();
+            const PermissionRepo = await connection.getRepository(Permission);
+            return await PermissionRepo.findByIds({permissionId});
+        } catch (error) {
+        throw error;
+        }
+  }
 }
 
 module.exports = PermissionDAL;

@@ -33,7 +33,6 @@ const Ticket = new EntitySchema({
     assigned_users: {
       type: "many-to-many",
       target: "User",
-
       joinTable: {
         name: "ticket_user",
         joinColumn: {

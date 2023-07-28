@@ -8,22 +8,10 @@ const Permission = new EntitySchema({
       type: "uuid",
       generated: "uuid",
     },
-    view: {
-      type: "boolean",
-      default:false
-    },
-    create: {
-      type: "boolean",
-      default:false
-    },
-    update: {
-      type: "boolean",
-      default:false
-    },
-    delete: {
-      type: "boolean",
-      default:false,
-      nullable:true
+    name: {
+      type: "varchar",
+      nullable:true,
+      unique: true
     },
     created_at: {
       type: "timestamp",
@@ -33,25 +21,20 @@ const Permission = new EntitySchema({
       type: "timestamp",
       default: () => "CURRENT_TIMESTAMP",
     },
-  },
-  relations: {
-    given_for: {
-      type: "many-to-one",
-      target: "Role",
-      joinColumn: {
-        name: "role_id",
-        referencedColumnName: "id",
+  }
+  ,
+relations:{
+    roles: {
+      type: 'many-to-many',
+      target: 'Role',
+      joinTable: {
+        name: 'role_permission',
+        joinColumn: { name: 'permission_id', referencedColumnName: 'id' },
+        inverseJoinColumn: { name: 'role_id', referencedColumnName: 'id' },
       },
     },
-    created_on: {
-      type: "many-to-one",
-      target: "Resource",
-      joinColumn: {
-        name: "resource_id",
-        referencedColumnName: "id",
-      },
-    },
-  },
-});
+}
+})
+
 
 module.exports = Permission;

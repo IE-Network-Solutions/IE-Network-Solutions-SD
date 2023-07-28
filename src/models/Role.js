@@ -22,6 +22,15 @@ const Role = new EntitySchema({
     },
   },
   relations: {
+    permissions: {
+      type: 'many-to-many',
+      target: 'Permission',
+      joinTable: {
+        name: 'role_permission',
+        joinColumn: { name: 'role_id', referencedColumnName: 'id' },
+        inverseJoinColumn: { name: 'permission_id', referencedColumnName: 'id' },
+      },
+    },
     users: {
       type: "one-to-many",
       target: "User",

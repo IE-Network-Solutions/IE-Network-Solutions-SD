@@ -1,40 +1,34 @@
-// ticket-user.entity.js
 const { EntitySchema } = require("typeorm");
 
-const RolePermisson = new EntitySchema({
-  name: "RolePermisson",
+const RolePermission = new EntitySchema({
+  name: "RolePermission",
   columns: {
     id :{
-        type:"int",
-        primary:true
+      type: "int",
+      primary:true,
+      generated: true
     },
-    Permission_id: {
-      primary: true,
+    role_id: {
       type: "uuid",
+       primary:true,
     },
-    Role_id: {
-      primary: true,
+     permission_id: {
       type: "uuid",
+      primary:true,
     },
   },
   relations: {
-    permission: {
-      type: "many-to-many",
-      target: "Permission",
-      joinColumn: {
-        name: "permission_id",
-        referencedColumnName: "id",
-      },
-    },
     role: {
-      type: "many-to-many",
-      target: "Role",
-      joinColumn: {
-        name: "role_id",
-        referencedColumnName: "id",
-      },
+      type: 'many-to-one',
+      target: 'Role',
+      joinColumn: { name: 'role_id', referencedColumnName: 'id' },
+    },
+    permission: {
+      type: 'many-to-one',
+      target: 'Permission',
+      joinColumn: { name: 'permission_id', referencedColumnName: 'id' },
     },
   },
 });
 
-module.exports = RolePermisson;
+module.exports = RolePermission;

@@ -1,3 +1,4 @@
+const { compareSync } = require('bcryptjs');
 const AppError = require('../../../utils/apperror');
 const PermissionDAL = require('./dal');
 exports.getAllPermissions = async (req, res, next)=>{
@@ -47,13 +48,19 @@ exports.getPermissionById = async (req, res, next)=>{
 exports.createPermission = async (req, res, next)=>{
      try{
         const data = req.body;
+        const name = req.body.name;
+        const checkPermissions = await PermissionDAL.getAllPermissions();
+        if(checkPermissions.some(permission=> permission.name === name)){
+            return next(new AppError("Permission is Already exist"));
+        }
         const permission = await PermissionDAL.createPermission(data);
-        if(permission.length == 0){
+
+        if(permission.length == 0 ){
             return next(AppError("Permission is Not Created"));
         }
         else{
-            res.status(201).json({
-                status : "Success",
+            res.status(201).json({  
+                status : "Success", 
                 message : "Permission is successfully created",
                 data : permission,
                 statusCode : 201
@@ -118,3 +125,4 @@ exports.deletePermission = async (req, res, next)=>{
         return next(new AppError("Server Error", 500));
     }
 }
+

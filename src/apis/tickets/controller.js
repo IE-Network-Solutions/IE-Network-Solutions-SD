@@ -60,7 +60,6 @@ exports.getTicketById = async (req, res, next) => {
 exports.createNewTicket = async (req, res, next) => {
   try {
     const data = req.body;
-    console.log(data);
     // get status
     const status = await StatusDAL.getStatus(data.status_id);
     if (!status) {
@@ -116,7 +115,6 @@ exports.createNewTicket = async (req, res, next) => {
     res.status(201).json({
       status: "new Ticket is created Successfully",
       data: newTicket,
-      statusCode: "201",
     });
   } catch (error) {
     throw error;

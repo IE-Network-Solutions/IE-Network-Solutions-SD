@@ -16,7 +16,6 @@ const authorize = async (req, res, next) => {
     //   verify the token which returns the payload consisting the user id
     const verifyToken = jwt.verify(token, configs.jwt.secret);
     if (!verifyToken) {
-      console.log("error");
       return next(new AppError("Please Login!", 401));
     }
 

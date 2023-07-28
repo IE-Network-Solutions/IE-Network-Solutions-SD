@@ -61,6 +61,7 @@ class TicketDAL {
           "company.description",
           "company.id",
         ])
+        .orderBy("ticket.created_at", "DESC")
         .getMany();
 
       // return all

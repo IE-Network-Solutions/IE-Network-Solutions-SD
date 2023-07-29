@@ -3,11 +3,6 @@ const { EntitySchema } = require("typeorm");
 const RolePermission = new EntitySchema({
   name: "RolePermission",
   columns: {
-    id :{
-      type: "int",
-      primary:true,
-      generated: true
-    },
     role_id: {
       type: "uuid",
        primary:true,

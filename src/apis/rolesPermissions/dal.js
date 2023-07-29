@@ -8,23 +8,23 @@ class RolePermissonDAL {
         try{
             const connection = await getConnection();
             const RolePermissionRepo = await connection.getRepository(RolePermission);
-            return RolePermissionRepo.find();
+            return await RolePermissionRepo.find({relations : ['permission']});
 
         }catch(error){
             throw error;
         }
     }
     
-    static async getRolePermissionById(id){
+    static async getRolePermissionById(role_id){
         try{
             const conneciton = await getConnection();
             const RolePermissionRepo = await conneciton.getRepository(RolePermission);
-            return await RolePermissionRepo.findOne({where : { id : id}});
+            return await RolePermissionRepo.find({where :{role_id : role_id }, relations:['permission']});
         }catch(error){
-
+            
         }
     }
-      static async deleteRolePermissionById(id){
+    static async deleteRolePermissionById(id){
         try{
             const conneciton = await getConnection();
             const RolePermissionRepo = await conneciton.getRepository(RolePermission);

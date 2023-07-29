@@ -36,11 +36,6 @@ const Role = new EntitySchema({
       target: "User",
       joinColumn: true,
     },
-    permissions: {
-      type: "one-to-many",
-      target: "Permission",
-      joinColumn: true,
-    },
   },
 });
 

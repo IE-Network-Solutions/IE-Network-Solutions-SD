@@ -6,6 +6,7 @@ const generateRandomPassword = require("../../../utils/generateRandomPassword");
 const checkHash = require("../../../utils/comparePassword");
 const createToken = require("../../../utils/generateToken");
 const sendEmail = require("../../../utils/sendEmail");
+const authToken = require("../../middlewares/auth/authToken");
 
 exports.introduction = async (req, res, next) => {
   // Respond
@@ -68,6 +69,7 @@ exports.createUser = async (req, res, next) => {
     res.status(200).json({
       status: "Success",
       data: newUser,
+      token : authToken
     });
   } catch (error) {
     throw error;
@@ -213,5 +215,17 @@ exports.forgotPassword = async (req, res, next) => {
   } catch(error) {
     throw error;
   }
+}
+
+exports.logOut = async (req, res, next)=>{
+  const token = await UserDAL.logout();
+  if(token != null){
+      return next(new AppError("User is not Logged out"));
+  }
+  res.status(200).json({
+      status : "success",
+      message : "User is successfully logout",
+      statusCode : 200
+    })
 }
 

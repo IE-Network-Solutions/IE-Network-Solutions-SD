@@ -5,15 +5,15 @@ const AppError = require('../../../utils/apperror');
 const uuidValidator = require("uuid-validate");
 exports.getAllRolePermission = async (req, res, next)=>{
     try{
-        const rolePermissions = await RolePermissionDAL.getAllRolePermission();
-        if(rolePermissions.length == 0){
+        const data = await RolePermissionDAL.getAllRolePermission();
+        if(data.length == 0){
             return next(new AppError("Role Permission table is Empty"))
         }
         else{
             res.status(200).json({
                 status : "Success",
                 message : "List of Role with permissions",
-                data : rolePermissions,
+                data : groupAllPermissionsByRole(data),
                 statusCode : 200
             })
         }
@@ -33,13 +33,45 @@ exports.getRolePermissionById = async (req, res, next)=>{
         res.status(200).json({
             status : "Success",
             message : "List of Role and permission",
-            data : data,
+            data : groupPermissionsByRoleID(data),
             statusCode : 200
         })
     }
     catch(error){
+        console.log(error)
         return next(new AppError("Server Error", 500));
     }
+}
+
+    const groupAllPermissionsByRole = (data)=> {
+        const groupPermissionsForSingleRole = {};
+        data.map((rolePermission) => {
+            const { role_id, permission } = rolePermission;
+            if (!groupPermissionsForSingleRole[role_id]) {
+                groupPermissionsForSingleRole[role_id] = [];
+            }
+            groupPermissionsForSingleRole[role_id].push(permission);
+        });
+    const changeGroupedPermissionsToArrayObject = Object.keys(groupPermissionsForSingleRole).map((role_id) => ({
+    role_id,
+    permissions: groupPermissionsForSingleRole[role_id],
+  })); 
+  return changeGroupedPermissionsToArrayObject;
+}
+    const groupPermissionsByRoleID = (data)=> {
+        const groupPermissionsForSingleRole = {};
+        data.map((rolePermission) => {
+            const { role_id, permission } = rolePermission;
+            if (!groupPermissionsForSingleRole[role_id]) {
+                groupPermissionsForSingleRole[role_id] = [];
+            }
+            groupPermissionsForSingleRole[role_id].push(permission);
+        });
+    const changeGroupedPermissionsToArrayObject = Object.keys(groupPermissionsForSingleRole).map((role_id) => ({
+    role_id,
+    permissions: groupPermissionsForSingleRole[role_id],
+  })); 
+  return changeGroupedPermissionsToArrayObject;
 }
 
 exports.deleteRolePermissionById = async (req, res, next)=>{
@@ -87,6 +119,7 @@ exports.assignPermissionToRole = async (req, res, next)=>{
             statusCode : 201
         })
     }catch(error){
+        console.log(error)
         return next(new AppError("Server Error", 500));
     }
 }

@@ -27,6 +27,8 @@ relations:{
     roles: {
       type: 'many-to-many',
       target: 'Role',
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
       joinTable: {
         name: 'role_permission',
         joinColumn: { name: 'permission_id', referencedColumnName: 'id' },

@@ -10,7 +10,7 @@ class UserDAL {
       const userRepository = connection.getRepository(User);
 
       // Get Data
-      const users = await userRepository.find();
+      const users = await userRepository.find({relations : ['role.permissions']});
       return users;
     } catch (error) {
       throw error;
@@ -26,8 +26,8 @@ class UserDAL {
       const userRepository = connection.getRepository(User);
 
       // Get Data
-      const foundUser = await userRepository.findOne({ where: { id: id } });
-      return foundUser;
+      return await userRepository.findOne({ where: { id: id },relations :['role.permissions'] });
+
     } catch (error) {
       throw error;
     }
@@ -138,7 +138,7 @@ class UserDAL {
       const userRepository = connection.getRepository(User);
 
       // get user by email
-      const user = userRepository.findOneBy({ email: email });
+      const user = userRepository.findOne({ where:{ email : email }, relations: ['role.permissions']});
 
       // return user
       return user;
@@ -158,6 +158,10 @@ class UserDAL {
     } catch (error) {
       throw error;
     }
+  }
+  
+  static async logout(){
+    return localStorage.removeItem['token'];
   }
 }
 

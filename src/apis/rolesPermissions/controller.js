@@ -77,17 +77,19 @@ exports.getRolePermissionById = async (req, res, next)=>{
 exports.deleteRolePermissionById = async (req, res, next)=>{
     try{
         const id = req.params.id;
-        const data = await RolePermissionDAL.deleteRolePermissionById(id);
-        if(!data){
-            return next(new AppError("Role Permission id is Not Found"));
+        const isExist = await RolePermissionDAL.getRolePermissionById(id);
+        if(isExist.length === 0 ){
+            return next(new AppError("Role Permission is Not Found"))
         }
-        res.status(200).json({
-            status : "Success",
-            message : "Role and permission is Deleted successfully",
-        })
-    }
+         await RolePermissionDAL.deleteRolePermissionById(id);
+                 res.status(200).json({
+                 status : "Success",
+                 message : "Role and permission is Deleted successfully",
+             })
+        }
     catch(error){
-        return next(new AppError("Server Error", 500));
+        console.log(error)
+        return next(new AppError(error, 500));
     }
 }
 
@@ -127,6 +129,11 @@ exports.updateRolePermissionById = async (req, res, next)=>{
     try{
         const id = req.params.id;
         const data = req.body;
+        const isExist = await RolePermissionDAL.getRolePermissionById(id);
+        if(isExist.length === 0){
+            return next(new AppError("Role Permission id is Not Found"));
+        }
+        // if(isExist.name)
         const rolePermission = await RolePermissionDAL.updateRolePermissionBy(id, data);
         if(!rolePermission){
             return next(new AppError("Role Permission not found"));

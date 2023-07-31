@@ -29,7 +29,11 @@ const User = new EntitySchema({
       type: "varchar",
       nullable: true,
     },
-    role: {
+    roleId: {
+      type: "varchar",
+      nullable: true,
+    },
+    permissionId:{
       type: "varchar",
       nullable: true,
     },
@@ -96,6 +100,16 @@ const User = new EntitySchema({
       inverseSide: "clients"
     }
   },
+
+    permissions: {
+      type: 'many-to-many',
+      target: 'Permission',
+      joinTable: {
+        name: 'user_permission',
+        joinColumn: { name: 'user_id', referencedColumnName: 'id' },
+        inverseJoinColumn: { name: 'permission_id', referencedColumnName: 'id' },
+      },
+    },
   
 });
 

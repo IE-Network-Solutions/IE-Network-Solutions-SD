@@ -16,6 +16,7 @@ const catagory = require('../src/apis/catagories/router');
 const RoleRoutes = require('../src/apis/role/router');
 const PermissionRoute = require('../src/apis/permissions/router');
 const RolePermissionRoute = require('../src/apis/rolesPermissions/router');
+const UserPermissionRoute = require('../src/apis/userPermission/router');
 
 const app = express();
 
@@ -24,6 +25,7 @@ const app = express();
  */
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+const cookieParser = require('cookie-parser');
 
 app.use("/api/v1/tickets", ticketRoute);
 app.use("/api/v1/tests", TestRoute);
@@ -35,6 +37,8 @@ app.use("/api/v1/catagory", catagory);
 app.use("/api/v1/role", RoleRoutes);
 app.use("/api/v1/permission", PermissionRoute);
 app.use("/api/v1/rolePermission", RolePermissionRoute);
+app.use("/api/v1/userPermission", UserPermissionRoute);
+
 
 // Unknown URL Error Message
 app.use("*", (req, res, next) => {
@@ -48,6 +52,7 @@ app.use("*", (req, res, next) => {
 
 // use global error handler
 app.use(geh);
+app.use(cookieParser());
 
 // export app
 module.exports = app;

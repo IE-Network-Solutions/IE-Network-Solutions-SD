@@ -5,6 +5,7 @@ const AppError = require("../../../utils/apperror");
  */
 const authToken = (req, next) => {
   let token;
+
   // check if the token exists
   if (
     req.headers.authorization &&

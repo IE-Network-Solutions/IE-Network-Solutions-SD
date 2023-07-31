@@ -15,20 +15,21 @@ class RolePermissonDAL {
         }
     }
     
-    static async getRolePermissionById(role_id){
+    static async getRolePermissionById(id){
         try{
             const conneciton = await getConnection();
             const RolePermissionRepo = await conneciton.getRepository(RolePermission);
-            return await RolePermissionRepo.find({where :{role_id : role_id }, relations:['permission']});
+            return await RolePermissionRepo.find({ where : {role_id : id}, relations : ['permission'] });
         }catch(error){
-            
+            console.log(error)
+            throw error
         }
     }
-    static async deleteRolePermissionById(id){
+    static async deleteRolePermissionById(role_id){
         try{
             const conneciton = await getConnection();
             const RolePermissionRepo = await conneciton.getRepository(RolePermission);
-            return await RolePermissionRepo.delete({where : { id : id}});
+            return await RolePermissionRepo.delete({ role_id : role_id });
         }catch(error){
 
         }

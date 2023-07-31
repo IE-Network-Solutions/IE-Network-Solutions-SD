@@ -27,6 +27,7 @@ exports.getAllUsers = async (req, res, next) => {
       data: users,
     });
   } catch (error) {
+    
     throw error;
   }
 };
@@ -80,19 +81,21 @@ exports.deleteUser = async (req, res, next) => {
   try {
     // Get Req Body
     const id = req.params.id;
-
     const user = await UserDAL.getOneUser(id);
     if (!user) return next(new AppError("user does not exist"));
     // Delete User
     const deletedUser = await UserDAL.deleteUser(id);
-
+    if(deletedUser.affected === 0){
+      return next(new AppError('User is not Deleted'))
+    }
     // Respond
     res.status(200).json({
       status: "Success",
-      data: null,
+      message : "User is successfully deleted"
     });
   } catch (error) {
-    throw error;
+    console.log(error)
+   return next(new AppError('Server Error', 500))
   }
 };
 
@@ -114,11 +117,13 @@ exports.deleteAllUsers = async (req, res, next) => {
 exports.editUser = async (req, res, next) => {
   try {
     // Get Req Body
-    let id = req.body.id;
+    console.log("id")
+    let id = req.params.id;
+    console.log("id")
     let user = req.body;
 
     //   check if user exist or not
-    let chekUser = UserDAL.getOneUser(id);
+    let chekUser = await UserDAL.getOneUser(id);
     if (!chekUser) {
       return next(new AppError("user does not exist", 404));
     }
@@ -132,6 +137,7 @@ exports.editUser = async (req, res, next) => {
       data: editedUser,
     });
   } catch (error) {
+    console.log(error)
     throw error;
   }
 };
@@ -150,6 +156,9 @@ exports.loginUser = async (req, res, next) => {
 
   // Sign JWT
   let token = await createToken({ id: user.id });
+  res.cookie('token', token, { httpOnly: true });
+  console.log(req.headers['authorization'].split(' ')[1])
+  console.log("usersssssssss", token);
 
   // Respond
   res.status(200).json({
@@ -218,8 +227,9 @@ exports.forgotPassword = async (req, res, next) => {
 }
 
 exports.logOut = async (req, res, next)=>{
-  const token = await UserDAL.logout();
-  if(token != null){
+ const userToken = req.token;
+  if(userToken != null){
+    console.log(userToken)
       return next(new AppError("User is not Logged out"));
   }
   res.status(200).json({

@@ -22,11 +22,11 @@ class UserDAL {
     const id = data;
     try {
       // Form Connection
-      const connection = getConnection();
-      const userRepository = connection.getRepository(User);
+      const connection = await getConnection();
+      const userRepository = await connection.getRepository(User);
 
       // Get Data
-      return await userRepository.findOne({ where: { id: id },relations :['role.permissions'] });
+      return await userRepository.findOne({ where: { id: id }, relations :['role.permissions'] });
 
     } catch (error) {
       throw error;
@@ -104,9 +104,7 @@ class UserDAL {
       const userRepository = connection.getRepository(User);
 
       // Delete User
-      const deletedUser = await userRepository.delete({ id: id });
-
-      return "user deleted successfully";
+      return await userRepository.delete({ id: id });
     } catch (error) {
       throw error;
     }
@@ -161,7 +159,7 @@ class UserDAL {
   }
   
   static async logout(){
-    return localStorage.removeItem['token'];
+    return req.token;
   }
 }
 

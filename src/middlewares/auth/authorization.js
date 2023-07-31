@@ -18,9 +18,8 @@ const authorize = async (req, res, next) => {
     if (!verifyToken) return next(new AppError("Please Login!", 401));
     //   fetch user by payload user id
     const user = await UserDAL.getOneUser(verifyToken.id);
-    if (!user) return next(new AppError("user not found", 400));
+    if (!user) return next(new AppError("User Not Found with Requestd Id", 400));
         req.user = user;  
-        console.log("usersss", req.user)
          next();
   } catch (error) {
     return next(new AppError("Please Login!", 401));

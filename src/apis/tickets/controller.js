@@ -60,6 +60,8 @@ exports.getTicketById = async (req, res, next) => {
 exports.createNewTicket = async (req, res, next) => {
   try {
     const data = req.body;
+    const user = req.user;
+
     // get status
     const status = await StatusDAL.getStatus(data.status_id);
     if (!status) {
@@ -89,26 +91,34 @@ exports.createNewTicket = async (req, res, next) => {
     }
     data.priority = priority;
 
-    // get client
-    const client = await ClientDAL.getClientById(data.client_id);
-    console.log(client);
-    if (!client) {
-      return next(new AppError("such client does not exist", 404));
-    }
-    if (client.user_type !== "client") {
-      return next(new AppError("client should be type client", 500));
-    }
-    data.client = client;
+    if (data.client_id) {
+      // get client
+      const client = await ClientDAL.getClientById(data.client_id);
+      console.log(client);
+      if (!client) {
+        return next(new AppError("such client does not exist", 404));
+      }
 
-    // check client company
-    if (!client.company) {
-      return next(
-        new AppError("the specified client is not in any of the companies", 500)
-      );
+      if (client.user_type == "client") {
+      }
+      if (client.user_type !== "client") {
+        return next(new AppError("client should be type client", 500));
+      }
+      data.client = client;
+
+      // check client company
+      if (!client.company) {
+        return next(
+          new AppError(
+            "the specified client is not in any of the companies",
+            500
+          )
+        );
+      }
+      data.company = client.company;
+    } else {
+      data.client = user;
     }
-
-    data.company = client.company;
-
     //   create new ticket
     const newTicket = await TicketDAL.createNewTicket(data);
 

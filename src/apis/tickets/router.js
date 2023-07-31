@@ -25,13 +25,15 @@ router
     validate(updateTicketValidator),
     TicketController.updateTicket
   );
-router.route("/:id").delete(authorize, TicketController.deleteTicket);
+router
+  .route("/:id")
+  .delete(uuidValidator, authorize, TicketController.deleteTicket);
 router
   .route("/assign-user/:id")
   .post(
-    authorize,
     uuidValidator,
     validate(assignTicket),
+    authorize,
     TicketController.assignUserToTicket
   );
 

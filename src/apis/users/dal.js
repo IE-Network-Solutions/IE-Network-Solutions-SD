@@ -41,6 +41,30 @@ class UserDAL {
     }
   }
 
+  // get all admins
+  static async getAllAdmins() {
+    try {
+      const roleName = "Admin";
+      // get connection from the pool
+      const connection = getConnection();
+
+      // create bridge to the db
+      const userRepository = connection.getRepository(User);
+
+      // get all users where role Admin
+      const admins = userRepository
+        .createQueryBuilder("user")
+        .leftJoin("user.role", "role")
+        .select(["user.email"])
+        .where("role.roleName = :roleName", { roleName })
+        .getMany();
+
+      return admins;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   // Get User by User Data
   static async getUserByUserData(data) {
     const userData = data;

@@ -162,9 +162,14 @@ class CommentDAL {
         .createQueryBuilder("comment")
         .leftJoin("comment.created_by", "created_by")
         .leftJoin("comment.ticket", "ticket")
+        .leftJoin("ticket.client", "client")
         .select([
           "ticket.id",
           "ticket.subject",
+          "client.id",
+          "client.first_name",
+          "client.last_name",
+          "client.email",
           "comment.id",
           "comment.title",
           "comment.description",
@@ -178,7 +183,6 @@ class CommentDAL {
         .where("ticket.id = :ticket_id", { ticket_id })
         .orderBy("comment.created_at", "DESC")
         .getMany();
-      console.log(comments);
       //   return all
       return comments;
     } catch (error) {
@@ -198,9 +202,14 @@ class CommentDAL {
         .createQueryBuilder("comment")
         .leftJoin("comment.created_by", "created_by")
         .leftJoin("comment.ticket", "ticket")
+        .leftJoin("ticket.client", "client")
         .select([
           "ticket.id",
           "ticket.subject",
+          "client.id",
+          "client.first_name",
+          "client.last_name",
+          "client.email",
           "comment.id",
           "comment.title",
           "comment.description",

@@ -39,14 +39,17 @@ class DepartmentDAL {
   static async createDepartment(data) {
     try {
       // Create Department Object
-      const department = data;
+      const { type, team_lead } = data;
 
       // Form Connection
       const connection = getConnection();
       const departmentRepository = connection.getRepository(Department);
 
       // Create Department
-      const newDepartment = await departmentRepository.create(department);
+      const newDepartment = await departmentRepository.create({
+        type,
+        team_lead: team_lead,
+      });
       await departmentRepository.save(newDepartment);
       return newDepartment;
     } catch (error) {

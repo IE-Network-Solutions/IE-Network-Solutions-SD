@@ -63,6 +63,11 @@ exports.createNewTicket = async (req, res, next) => {
     const created_by = req.user;
     data.created_by = created_by;
 
+    const admins = await UserDAL.getAllAdmins();
+    console.log(admins);
+
+    const to = admins.map((admin) => admin.email);
+    console.log(to);
     // get status
     const status = await StatusDAL.getStatus(data.status_id);
     if (!status) {

@@ -38,6 +38,14 @@ const Priority = new EntitySchema({
         referencedColumnName: "id",
       },
     },
+    team_lead: {
+      type: "many-to-one",
+      target: "User",
+      joinColumn: {
+        name: "teamlead_id",
+        referencedColumnName: "id",
+      },
+    },
   },
 });
 

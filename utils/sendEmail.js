@@ -2,7 +2,7 @@ const nodemailer = require('nodemailer');
 const configs = require("./configs");
 
 
-const sendEmail = async (from, to, subject, body) => {
+const sendEmail = async (from, to, subject, body, cc) => {
     // You can test with this
     // const testAccount = await nodemailer.createTestAccount();
     // const transporter = nodemailer.createTransport({
@@ -20,7 +20,8 @@ const sendEmail = async (from, to, subject, body) => {
         from: from,
         to: to,
         subject: subject,
-        text: body
+        text: body,
+        cc: cc,
     };
 
     var transporter = nodemailer.createTransport({

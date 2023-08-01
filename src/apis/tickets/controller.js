@@ -60,7 +60,8 @@ exports.getTicketById = async (req, res, next) => {
 exports.createNewTicket = async (req, res, next) => {
   try {
     const data = req.body;
-    const user = req.user;
+    const created_by = req.user;
+    data.created_by = created_by;
 
     // get status
     const status = await StatusDAL.getStatus(data.status_id);
@@ -117,7 +118,7 @@ exports.createNewTicket = async (req, res, next) => {
       }
       data.company = client.company;
     } else {
-      data.client = user;
+      data.client = created_by;
     }
     //   create new ticket
     const newTicket = await TicketDAL.createNewTicket(data);

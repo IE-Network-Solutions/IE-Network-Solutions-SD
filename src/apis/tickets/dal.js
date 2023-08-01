@@ -145,6 +145,7 @@ class TicketDAL {
         client,
         company,
         agent_id,
+        created_by,
       } = data;
 
       const id = uuidv4();
@@ -165,6 +166,7 @@ class TicketDAL {
         department: department,
         client: client,
         company: company,
+        created_by: created_by,
       });
       await ticketRepository.save(newTicket);
 

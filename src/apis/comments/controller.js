@@ -89,6 +89,52 @@ exports.createComment = async (req, res, next) => {
   }
 };
 
+exports.createPrivateComment = async (req, res, next) => {
+  try {
+    // Get Req Body
+    const comment = req.body;
+    const user = req.user;
+    comment.user = user;
+
+    // check if ticket exist or not
+    const ticket = await TicketDAL.getTicketById(comment.ticket_id);
+    if (!ticket) {
+      return next(new AppError("ticket does not exist", 404));
+    }
+    comment.ticket = ticket;
+    assigned_users = ticket.assigned_users;
+
+    // if user is client check there authority
+    if (user.user_type == "client") {
+      return next(
+        new AppError(
+          "unauthorized to comment private replay on the given ticket"
+        )
+      );
+    }
+
+    if (user.user_type == "employee") {
+      // check if the user is valid to comment on the ticket
+      const objectExists = assigned_users.some((item) => item.id === user.id);
+
+      if (!objectExists) {
+        new AppError("unauthorized to comment on the given ticket ");
+      }
+    }
+
+    // Create Comment
+    const newComment = await CommentDAL.createPrivateComment(comment);
+
+    // Respond
+    res.status(200).json({
+      status: "Success",
+      data: newComment,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
 exports.editComment = async (req, res, next) => {
   try {
     // Get Req Body
@@ -154,15 +200,22 @@ exports.deleteAllComments = async (req, res, next) => {
 exports.getCommentByTicket = async (req, res, next) => {
   try {
     const { id } = req.params;
-
+    const user = req.user;
+    let comments = [];
     // check ticket
     const ticket = await TicketDAL.getTicketById(id);
     if (!ticket) {
       return next(new AppError("ticket does not exist", 404));
     }
     console.log(ticket);
-    // get all comments
-    const comments = await CommentDAL.getAllCommentsOnTicket(id);
+
+    if (user.user_type == "client") {
+      // get all comments for client
+      comments = await CommentDAL.getAllClientCommentsOnTicket(id);
+    } else {
+      // get all comments
+      comments = await CommentDAL.getAllCommentsOnTicket(id);
+    }
 
     res.status(200).json({
       status: "Success",

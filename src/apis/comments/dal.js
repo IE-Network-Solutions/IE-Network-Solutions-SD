@@ -61,6 +61,33 @@ class CommentDAL {
     }
   }
 
+  // Create Private Comment
+  static async createPrivateComment(data) {
+    try {
+      // Get User
+      const { user, title, description, ticket } = data;
+
+      // Form Connection
+      const connection = getConnection();
+      const commentRepository = connection.getRepository(Comment);
+
+      // Create Comment
+      const newComment = await commentRepository.create({
+        title,
+        description,
+        is_private: true,
+        ticket: ticket,
+        created_by: user,
+      });
+      await commentRepository.save(newComment);
+
+      // return new comment
+      return newComment;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   // Edit Comment
   static async editUser(id, data) {
     try {
@@ -136,10 +163,13 @@ class CommentDAL {
         .leftJoin("comment.created_by", "created_by")
         .leftJoin("comment.ticket", "ticket")
         .select([
+          "ticket.id",
+          "ticket.subject",
           "comment.id",
           "comment.title",
           "comment.description",
           "comment.created_at",
+          "comment.is_private",
           "created_by.id",
           "created_by.first_name",
           "created_by.last_name",
@@ -149,6 +179,43 @@ class CommentDAL {
         .orderBy("comment.created_at", "DESC")
         .getMany();
       console.log(comments);
+      //   return all
+      return comments;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async getAllClientCommentsOnTicket(ticket_id) {
+    try {
+      const is_private = false;
+      // create connection
+      const connection = getConnection();
+
+      // create bridge
+      const commentRepository = connection.getRepository(Comment);
+      // get comments of the requested ticket
+      const comments = await commentRepository
+        .createQueryBuilder("comment")
+        .leftJoin("comment.created_by", "created_by")
+        .leftJoin("comment.ticket", "ticket")
+        .select([
+          "ticket.id",
+          "ticket.subject",
+          "comment.id",
+          "comment.title",
+          "comment.description",
+          "comment.created_at",
+          "comment.is_private",
+          "created_by.id",
+          "created_by.first_name",
+          "created_by.last_name",
+          "created_by.email",
+        ])
+        .where("ticket.id = :ticket_id", { ticket_id })
+        .andWhere("comment.is_private = :is_private", { is_private })
+        .orderBy("comment.created_at", "DESC")
+        .getMany();
+      // console.log(comments);
       //   return all
       return comments;
     } catch (error) {

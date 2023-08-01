@@ -16,6 +16,10 @@ const Comment = new EntitySchema({
       type: "text",
       nullable: true,
     },
+    is_private: {
+      type: "boolean",
+      default: false,
+    },
     created_at: {
       type: "timestamp",
       default: () => "CURRENT_TIMESTAMP",

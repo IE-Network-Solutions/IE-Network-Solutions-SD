@@ -16,6 +16,14 @@ router
   .route("/")
   .post(authorize, validate(commentValidator), CommentController.createComment);
 
+router
+  .route("/private")
+  .post(
+    authorize,
+    validate(commentValidator),
+    CommentController.createPrivateComment
+  );
+
 router.route("/").patch(authorize, CommentController.editComment);
 
 router.route("/deleteAllComments").delete(CommentController.deleteAllComments);

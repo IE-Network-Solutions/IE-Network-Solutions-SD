@@ -1,3 +1,5 @@
+const configs = require('./configs');
+
 // Log Function
 log = async (message, req, res) => {
     // Get time and date
@@ -31,7 +33,7 @@ log = async (message, req, res) => {
 
     // Write file
     const fs = require('fs');
-    fs.appendFile(process.env.LOG_FILE_PATH, object.toString(), (err) => {
+    fs.appendFile(configs.log.logFilePath, object.toString(), (err) => {
             if(err) {
                 return console.log(err);
             }

@@ -1,4 +1,5 @@
 let nodemailer = require('nodemailer');
+const configs = require("./configs");
 
 exports.sendEmailNotification = async (from, to, subject, body) => {
     var mailOptions = {
@@ -9,17 +10,17 @@ exports.sendEmailNotification = async (from, to, subject, body) => {
     };
 
     var transporter = nodemailer.createTransport({
-        host: process.env.HOST_URL,
-        port: process.env.EMAIL_PORT,
-        secure: process.env.EMAIL_PORT === 465 ? true : false, 
+        host: configs.email.hostURL,
+        port: configs.email.emailPort,
+        secure: configs.email.emailPort === 465 ? true : false, 
         tls: {
             secure: false,
             ignoreTLS: true,
             rejectUnauthorized: false
         },
         auth: {
-            user: process.env.SYSTEM_EMAIL,
-            pass: process.env.SYSTEM_EMAIL_PASSWORD  
+            user: configs.email.systemEmail,
+            pass:configs.email.emailPassword,  
         }
     });      
       

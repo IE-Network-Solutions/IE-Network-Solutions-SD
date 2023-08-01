@@ -1,6 +1,8 @@
-let nodemailer = require('nodemailer');
+const nodemailer = require('nodemailer');
+const configs = require("./configs");
 
-const sendEmail = async (from, to, subject, body) => {
+
+const sendEmail = async (from, to, subject, body, cc) => {
     // You can test with this
     // const testAccount = await nodemailer.createTestAccount();
     // const transporter = nodemailer.createTransport({
@@ -18,21 +20,22 @@ const sendEmail = async (from, to, subject, body) => {
         from: from,
         to: to,
         subject: subject,
-        text: body
+        text: body,
+        cc: cc,
     };
 
     var transporter = nodemailer.createTransport({
-        host: process.env.HOST_URL,
-        port: process.env.EMAIL_PORT,
-        secure: process.env.EMAIL_PORT === 465 ? true : false, 
+        host: configs.email.hostURL,
+        port: configs.email.emailPort,
+        secure: configs.email.emailPort === 465 ? true : false, 
         tls: {
             secure: false,
             ignoreTLS: true,
             rejectUnauthorized: false
         },
         auth: {
-            user: process.env.SYSTEM_EMAIL,
-            pass: process.env.SYSTEM_EMAIL_PASSWORD  
+            user: configs.email.systemEmail,
+            pass:configs.email.emailPassword,  
         }
     });      
       

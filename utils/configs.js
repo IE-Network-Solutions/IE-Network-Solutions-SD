@@ -19,12 +19,22 @@ const config = {
       idleTimeOut: process.env.PG_IDLE_TIMEOUT,
       connTimeOut: process.env.PG_CONN_TIMEOUT,
       maxConn: process.env.PG_MAX_CONN,
+      
     },
   },
   jwt: {
     secret: process.env.JWT_SECRET,
     expiresIn: process.env.JWT_EXPIRES_IN,
   },
+  email: {
+    hostURL: process.env.HOST_URL,
+    emailPort: process.env.EMAIL_PORT,
+    systemEmail: process.env.SYSTEM_EMAIL,
+    emailPassword: process.env.SYSTEM_EMAIL_PASSWORD,
+  },
+  log: { 
+    logFilePath: process.env.LOG_FILE_PATH,
+  }
 };
 
 module.exports = config;

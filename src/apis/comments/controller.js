@@ -50,6 +50,9 @@ exports.createComment = async (req, res, next) => {
     const comment = req.body;
     const user = req.user;
     comment.user = user;
+    const emailTo = comment.emailTo;
+    const emailCc = comment.emailCc;
+    const from = config.company_email;
 
     // check if ticket exist or not
     const ticket = await TicketDAL.getTicketById(comment.ticket_id);
@@ -80,7 +83,13 @@ exports.createComment = async (req, res, next) => {
 
     // Create Comment
     const newComment = await CommentDAL.createComment(comment);
-
+    const sendmail = await sendEmail(
+      from,
+      emailTo,
+      newComment.title,
+      newComment.description,
+      emailCc
+    );
     // Respond
     res.status(200).json({
       status: "Success",
@@ -97,8 +106,9 @@ exports.createPrivateComment = async (req, res, next) => {
     const comment = req.body;
     const user = req.user;
     comment.user = user;
-    const notifyTo = comment.notifyTo;
-    const ccNotification = comment.ccNotification;
+    const emailTo = comment.emailTo;
+    const emailCc = comment.emailCc;
+    const from = config.company_email;
 
     // check if ticket exist or not
     const ticket = await TicketDAL.getTicketById(comment.ticket_id);
@@ -128,7 +138,13 @@ exports.createPrivateComment = async (req, res, next) => {
 
     // Create Comment
     const newComment = await CommentDAL.createPrivateComment(comment);
-
+    const sendmail = await sendEmail(
+      from,
+      emailTo,
+      newComment.title,
+      newComment.description,
+      emailCc
+    );
     // Respond
     res.status(200).json({
       status: "Success",

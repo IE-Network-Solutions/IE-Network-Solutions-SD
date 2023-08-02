@@ -14,6 +14,10 @@ const Ticket = new EntitySchema({
     description: {
       type: "text",
     },
+    closed: {
+      type: "boolean",
+      default: false,
+    },
     created_at: {
       type: "timestamp",
       default: () => "CURRENT_TIMESTAMP",

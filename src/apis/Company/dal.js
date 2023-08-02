@@ -1,7 +1,7 @@
 const { getConnection } = require("typeorm");
 const Company = require("../../models/Company");
-const {v4: uuidv4} = require('uuid');
-var fs = require('fs');
+const { v4: uuidv4 } = require("uuid");
+var fs = require("fs");
 const AppError = require("../../../utils/apperror");
 
 class CompanyDAL {
@@ -15,8 +15,8 @@ class CompanyDAL {
 
       // find all company data
       const company = await companyRepository.find();
-      if(!company){
-        throw new Error("Error to fetch companies , try again!")
+      if (!company) {
+        throw new Error("Error to fetch companies , try again!");
       }
 
       // return all fetched data
@@ -35,12 +35,10 @@ class CompanyDAL {
       const companyRepository = await connection.getRepository(Company);
       // const fetchedCompany = await connection.manager.findOne(Company, 1, { relations: ['users'] });
       // get data
-      const company = await companyRepository.findOne(
-       {
-        where:{id},
+      const company = await companyRepository.findOne({
+        where: { id },
         relations: ["clients"],
-       }
-        );
+      });
 
       // return single data
       return company;
@@ -54,27 +52,27 @@ class CompanyDAL {
       const id = uuidv4();
       const {
         company_name,
-description,
-notes,
-health_score,
-account_tier,
-company_logo
-
-} = data;
+        description,
+        notes,
+        health_score,
+        account_tier,
+        company_logo,
+      } = data;
       // get connection from the pool
       const connection = getConnection();
       // create bridge
       const companyRepository = connection.getRepository(Company);
 
       // create company
-      const newcompany = await companyRepository.create({ 
+      const newcompany = await companyRepository.create({
         id,
         company_name,
-description,
-notes,
-health_score,
-account_tier,
-company_logo });
+        description,
+        notes,
+        health_score,
+        account_tier,
+        company_logo,
+      });
       await companyRepository.save(newcompany);
       // console.log(newTest);
       return newcompany;
@@ -94,7 +92,7 @@ company_logo });
       throw new Error("company not found");
     }
 
-   companyRepository.merge(company, updatedFields);
+    companyRepository.merge(company, updatedFields);
     await companyRepository.save(company);
 
     return company;
@@ -107,17 +105,16 @@ company_logo });
     // create bridge
     const companyRepository = connection.getRepository(Company);
 
-    const company=await companyRepository.findOneBy({id})
-    if(!company) {
-    throw new Error("Company with the given id is not found")
-    
-  }
-    const sourceUrls =`${company.company_logo}`
-    const deleLogo= await fs.unlinkSync(`./${sourceUrls}`);
-   const deleteComp= await companyRepository.delete(id);
-     if(!deleteComp && !deleLogo){
-      throw new Error("Error Deleting the Company , try again!")
-     }
+    const company = await companyRepository.findOneBy({ id });
+    if (!company) {
+      throw new Error("Company with the given id is not found");
+    }
+    const sourceUrls = `${company.company_logo}`;
+    const deleLogo = await fs.unlinkSync(`./${sourceUrls}`);
+    const deleteComp = await companyRepository.delete(id);
+    if (!deleteComp && !deleLogo) {
+      throw new Error("Error Deleting the Company , try again!");
+    }
 
     return "Company deleted Successfully";
   }

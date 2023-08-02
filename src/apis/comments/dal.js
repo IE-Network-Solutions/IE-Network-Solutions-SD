@@ -40,7 +40,7 @@ class CommentDAL {
   static async createComment(data) {
     try {
       // Get User
-      const { user, title, description, ticket } = data;
+      const { user, title, description, ticket, emailTo, emailCc } = data;
 
       // Form Connection
       const connection = getConnection();
@@ -52,6 +52,8 @@ class CommentDAL {
         description,
         ticket: ticket,
         created_by: user,
+        emailTo: emailTo,
+        emailCc: emailCc,
       });
       await commentRepository.save(newComment);
 
@@ -66,7 +68,7 @@ class CommentDAL {
   static async createPrivateComment(data) {
     try {
       // Get User
-      const { user, title, description, ticket } = data;
+      const { user, title, description, ticket, emailTo, emailCc } = data;
 
       // Form Connection
       const connection = getConnection();
@@ -79,6 +81,8 @@ class CommentDAL {
         is_private: true,
         ticket: ticket,
         created_by: user,
+        emailTo: emailTo,
+        emailCc: emailCc,
       });
       await commentRepository.save(newComment);
 
@@ -206,7 +210,9 @@ class CommentDAL {
           "comment.description",
           "comment.created_at",
           "comment.is_private",
+          "comment.is_escalation",
           "comment.emailTo",
+          "comment.emailCc",
           "comment.emailCc",
           "created_by.id",
           "created_by.first_name",
@@ -226,6 +232,7 @@ class CommentDAL {
   static async getAllClientCommentsOnTicket(ticket_id) {
     try {
       const is_private = false;
+      const is_escalation = false;
       // create connection
       const connection = getConnection();
 
@@ -249,6 +256,7 @@ class CommentDAL {
           "comment.description",
           "comment.created_at",
           "comment.is_private",
+          "comment.is_escalation",
           "comment.emailTo",
           "comment.emailCc",
           "created_by.id",
@@ -258,6 +266,7 @@ class CommentDAL {
         ])
         .where("ticket.id = :ticket_id", { ticket_id })
         .andWhere("comment.is_private = :is_private", { is_private })
+        .andWhere("comment.is_escalation = :is_escalation", { is_escalation })
         .orderBy("comment.created_at", "DESC")
         .getMany();
       // console.log(comments);
@@ -295,6 +304,7 @@ class CommentDAL {
           "comment.description",
           "comment.created_at",
           "comment.is_private",
+          "comment.is_escalation",
           "comment.emailTo",
           "comment.emailCc",
           "created_by.id",

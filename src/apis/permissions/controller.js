@@ -1,6 +1,7 @@
 const { compareSync } = require('bcryptjs');
 const AppError = require('../../../utils/apperror');
 const PermissionDAL = require('./dal');
+const UserDAL = require('../users/dal');
 exports.getAllPermissions = async (req, res, next)=>{
     try{
        
@@ -102,27 +103,36 @@ exports.updatePermission = async (req, res, next)=>{
 exports.deletePermission = async (req, res, next)=>{
      try{
         const id = req.params.id;
-        const checkPermission = await PermissionDAL.getPermissionById(id);
-        if(!checkPermission){
-            return next(new AppError("Permission is Not Found", 404))
+        const permission = await PermissionDAL.getPermissionById(id);
+        if(!permission){
+            return next(new AppError("Permission not found"))
         }
-        else{
-            const permission = await PermissionDAL.deletePermission(id);
-            if(!permission){
-                return next(new AppError("Permission is Not Deleted"))
-            }
-            else{
+        await PermissionDAL.deletePermission(id);
                 res.status(200).json({
                     status : 200,
                     message : "Permission is Deleted Successfully",
                     statusCode : 200
                 })
             }
-        }
-    }
     catch(error){
         console.log(error)
         return next(new AppError("Server Error", 500));
+    }
+}
+
+exports.deleteSpecificUserPermission = async (req, res, next)=>{
+    try{
+        const userId = req.params.userId;
+        const permissionId = req.params.permissionId;
+        const users = await UserDAL.deletePermissionForSpecificUser(userId, permissionId);
+        res.status(200).json({
+            status:"Success",
+            message : "User permission is deleted successfully"
+        })
+
+    }
+    catch(error){
+        console.log(error);
     }
 }
 

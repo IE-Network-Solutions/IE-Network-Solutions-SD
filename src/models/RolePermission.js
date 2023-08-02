@@ -22,6 +22,8 @@ const RolePermission = new EntitySchema({
       type: 'many-to-one',
       target: 'Permission',
       joinColumn: { name: 'permission_id', referencedColumnName: 'id' },
+      onDelete: "SET NULL",
+      onUpdate: 'CASCADE'
     },
   },
 });

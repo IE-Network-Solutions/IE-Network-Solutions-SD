@@ -80,12 +80,30 @@ exports.getUserPermissionById = async (req, res, next)=>{
 exports.deleteUserPermissionById = async (req, res, next)=>{
     try{
         const id = req.params.id;
-        const isExist = await UserPermissionDAL.getUserPermissionById(id);
-        if(!isExist ){
+        const permission = await UserPermissionDAL.deleteUserPermissionById(id);
+        if(!permission ){
             return next(new AppError("User Permission is Not Found"))
         }
-         await UserPermissionDAL.deleteUserPermissionById(id);
-                 res.status(200).json({
+            res.status(200).json({
+                 status : "Success",
+                 message : "User and permission is Deleted successfully",
+             })
+        }
+    catch(error){
+        console.log(error)
+        return next(new AppError(error, 500));
+    }
+}
+
+exports.deleteSpecificUserPermissionById = async (req, res, next)=>{
+    try{
+        const { userId, id } = req.params;
+        console.log(userId, id)
+        const user = await UserDAL.deleteSpecificUserPermissionById(userId, id);
+        if(!user){
+            return next(new AppError("User permission not found"));
+        }
+        res.status(200).json({
                  status : "Success",
                  message : "User and permission is Deleted successfully",
              })

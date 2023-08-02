@@ -9,5 +9,6 @@ router.route("/:id").get(uuidValidator, PermissionController.getPermissionById);
 router.route("/").post(validator(createPermissionValidator), PermissionController.createPermission);
 router.route('/:id').patch(uuidValidator, validator(createPermissionValidator), PermissionController.updatePermission);
 router.route("/:id").delete(PermissionController.deletePermission);
+router.route("/user/:userId/permission/:permissionId").delete(PermissionController.deleteSpecificUserPermission);
  
 module.exports = router;

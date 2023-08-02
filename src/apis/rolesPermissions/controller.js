@@ -3,6 +3,7 @@ const RoleDAL = require('../role/dal');
 const PermissionDAL = require('../permissions/dal');
 const AppError = require('../../../utils/apperror');
 const uuidValidator = require("uuid-validate");
+
 exports.getAllRolePermission = async (req, res, next)=>{
     try{
         const data = await RolePermissionDAL.getAllRolePermission();
@@ -74,25 +75,6 @@ exports.getRolePermissionById = async (req, res, next)=>{
   return changeGroupedPermissionsToArrayObject;
 }
 
-exports.deleteRolePermissionById = async (req, res, next)=>{
-    try{
-        const id = req.params.id;
-        const isExist = await RolePermissionDAL.getRolePermissionById(id);
-        if(isExist.length === 0 ){
-            return next(new AppError("Role Permission is Not Found"))
-        }
-         await RolePermissionDAL.deleteRolePermissionById(id);
-                 res.status(200).json({
-                 status : "Success",
-                 message : "Role and permission is Deleted successfully",
-             })
-        }
-    catch(error){
-        console.log(error)
-        return next(new AppError(error, 500));
-    }
-}
-
 exports.assignPermissionToRole = async (req, res, next)=>{
     try{
         const roleId = req.params.id;
@@ -125,30 +107,3 @@ exports.assignPermissionToRole = async (req, res, next)=>{
         return next(new AppError("Server Error", 500));
     }
 }
-exports.updateRolePermissionById = async (req, res, next)=>{
-    try{
-        const id = req.params.id;
-        const data = req.body;
-        const isExist = await RolePermissionDAL.getRolePermissionById(id);
-        if(isExist.length === 0){
-            return next(new AppError("Role Permission id is Not Found"));
-        }
-        // if(isExist.name)
-        const rolePermission = await RolePermissionDAL.updateRolePermissionBy(id, data);
-        if(!rolePermission){
-            return next(new AppError("Role Permission not found"));
-        }
-        else{
-            res.status(200).json({
-                status :"Success",
-                message : "Role permission is update successfully",
-                data : rolePermission,
-                statusCode : 201
-            })
-        }
-        
-    }catch(error){
-        return next(new AppError("Server error", 500));
-    }
-}
-

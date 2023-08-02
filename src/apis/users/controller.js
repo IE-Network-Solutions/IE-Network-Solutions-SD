@@ -35,8 +35,8 @@ exports.getAllUsers = async (req, res, next) => {
 exports.getOneUser = async (req, res, next) => {
   try {
     // Get ID
-    let id = req.params.id;
-    let user = await UserDAL.getOneUser(id);
+    const id = req.params.id;
+    const user = await UserDAL.getOneUser(id);
 
     //   return if user does not exist
     if (!user) return next(new AppError("user does not exist", 404));
@@ -47,6 +47,7 @@ exports.getOneUser = async (req, res, next) => {
       data: user,
     });
   } catch (error) {
+    console.log(error)
     throw error;
   }
 };
@@ -70,10 +71,9 @@ exports.createUser = async (req, res, next) => {
     res.status(200).json({
       status: "Success",
       data: newUser,
-      token : authToken
     });
   } catch (error) {
-    throw error;
+    return next(new AppError("Role id is must be unique"))
   }
 };
 
@@ -81,9 +81,6 @@ exports.deleteUser = async (req, res, next) => {
   try {
     // Get Req Body
     const id = req.params.id;
-    const user = await UserDAL.getOneUser(id);
-    if (!user) return next(new AppError("user does not exist"));
-    // Delete User
     const deletedUser = await UserDAL.deleteUser(id);
     if(deletedUser.affected === 0){
       return next(new AppError('User is not Deleted'))

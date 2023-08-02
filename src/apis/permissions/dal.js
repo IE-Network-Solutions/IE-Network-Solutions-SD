@@ -1,5 +1,7 @@
 const Permission = require('../../models/Permission');
 const { getConnection } = require("typeorm");
+const User = require('../../models/User');
+const UserDAL = require('../users/dal');
 
 class PermissionDAL  {
     static async getAllPermissions(){
@@ -34,13 +36,23 @@ static async updatePermission(id, permissions){
 static async deletePermission(id){
     const connection = await getConnection();
     const PermissionRepo = await connection.getRepository(Permission);
-    return await PermissionRepo.delete(id);
+    const permission = await PermissionRepo.find({where : { id : id}});
+    return await PermissionRepo.remove(permission);
 }
 static async getPermissionsId(permissionId) {
         try {
             const connection = await getConnection();
             const PermissionRepo = await connection.getRepository(Permission);
             return await PermissionRepo.findByIds({permissionId});
+        } catch (error) {
+        throw error;
+        }
+  }
+
+  static async deletePermissionForSpecificUser(userId) {
+        try {
+            const user = await UserDAL.getOneUser(userId);
+            
         } catch (error) {
         throw error;
         }

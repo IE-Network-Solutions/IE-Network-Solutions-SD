@@ -1,5 +1,5 @@
 const Permissions = {
-     userPermissions : ['view-user', 'delete-users', 'update-user', 'create-user'],
+     userPermissions : ['view-user', 'delete-user', 'update-user', 'create-user'],
      rolePermissions : ['view-role', 'delete-role', 'update-role', 'create-role'],
      permissionPermissions : ['view-permission', 'delete-permission', 'update-permission', 'create-permission'],
      ticketPermissions : ['view-ticket', 'delete-ticket', 'update-ticket', 'create-ticket'],

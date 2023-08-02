@@ -4,10 +4,11 @@ const rolePermissionMiddleware = (requiredPermission)=>{
       return  (req, res, next) => {
         try{
       const user = req.user; 
+      console.log(user)
       if (!user) {
         return next(new AppError( "User is Not Authorized Please Login first", 401));
     }
-    const hasRequiredPermission = user.role.permissions.every(permission =>
+    const hasRequiredPermission = user.permissions.every(permission =>
         requiredPermission.includes(permission.name)
   );
   

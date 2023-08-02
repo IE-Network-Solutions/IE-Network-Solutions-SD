@@ -30,11 +30,15 @@ const Role = new EntitySchema({
         joinColumn: { name: 'role_id', referencedColumnName: 'id' },
         inverseJoinColumn: { name: 'permission_id', referencedColumnName: 'id' },
       },
+      onDelete: "SET NULL",
+      onUpdate: 'CASCADE'
     },
     users: {
       type: "one-to-many",
       target: "User",
-      joinColumn: true,
+      joinColumn:true,
+      cascade : false,
+      inverseSide: "role",
     },
   },
 });

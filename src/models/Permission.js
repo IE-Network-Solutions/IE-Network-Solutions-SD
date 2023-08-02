@@ -27,13 +27,13 @@ relations:{
     roles: {
       type: 'many-to-many',
       target: 'Role',
-      onDelete: 'CASCADE',
-      onUpdate: 'CASCADE',
       joinTable: {
         name: 'role_permission',
         joinColumn: { name: 'permission_id', referencedColumnName: 'id' },
         inverseJoinColumn: { name: 'role_id', referencedColumnName: 'id' },
       },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
 
      user: {

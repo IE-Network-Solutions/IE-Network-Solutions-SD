@@ -10,13 +10,12 @@ class UserDAL {
       const userRepository = connection.getRepository(User);
 
       // Get Data
-      const users = await userRepository.find({relations : ['role.permissions']});
-      return users;
+      return await userRepository.find({relations : ['role.permissions', 'permissions']});
     } catch (error) {
       throw error;
     }
   }
-
+ 
   // Get One User
   static async getOneUser(data) {
     const id = data;
@@ -26,7 +25,7 @@ class UserDAL {
       const userRepository = await connection.getRepository(User);
 
       // Get Data
-      return await userRepository.findOne({ where: { id: id }, relations :['role.permissions'] });
+      return await userRepository.findOne({ where: { id: id }, relations :['role.permissions','permissions'] });
 
     } catch (error) {
       throw error;
@@ -100,11 +99,13 @@ class UserDAL {
   static async deleteUser(id) {
     try {
       // Form Connection
-      const connection = getConnection();
-      const userRepository = connection.getRepository(User);
-
-      // Delete User
-      return await userRepository.delete({ id: id });
+      const connection = await getConnection();
+      const userRepository = await connection.getRepository(User);
+      const user = await userRepository.find({where:{id:id}, relations: ['permissions']});
+      if(!user){
+        return;
+      }
+      return await userRepository.remove(user);
     } catch (error) {
       throw error;
     }
@@ -158,8 +159,20 @@ class UserDAL {
     }
   }
   
-  static async logout(){
-    return req.token;
+  static async deletePermissionForSpecificUser(userId, permissionId) {
+        try {
+          const connecition = await getConnection();
+          const userRepository = await connecition.getRepository(User);
+          const user = await userRepository.findOne({where: { id : userId },relations :['permissions']})
+            if(!user){
+              return;
+            }
+        user.permissions = user.permissions.filter(permission => permission.id !== permissionId)
+        return await userRepository.save(user);
+            
+        } catch (error) {
+        throw error;
+        }
   }
 }
 

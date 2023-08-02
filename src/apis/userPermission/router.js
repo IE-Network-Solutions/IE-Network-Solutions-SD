@@ -7,6 +7,7 @@ router.route("/").get(UserPermissionController.getAllUserPermission);
 router.route("/:id").get(uuidValidator, UserPermissionController.getUserPermissionById);
 router.route("/:id").post(validator(createUserPermissionValidator), UserPermissionController.assignPermissionToUser);
 router.route("/:id").delete(UserPermissionController.deleteUserPermissionById);
+router.route("/:userId/:id").delete(UserPermissionController.deleteSpecificUserPermissionById);
 router.route("/:id").patch(UserPermissionController.updateUserPermissionById);
 
 

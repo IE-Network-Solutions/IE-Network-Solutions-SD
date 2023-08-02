@@ -29,11 +29,11 @@ const User = new EntitySchema({
       type: "varchar",
       nullable: true,
     },
-    roleId: {
+    role_id: {
       type: "varchar",
       nullable: true,
     },
-    permissionId:{
+    permission_id:{
       type: "varchar",
       nullable: true,
     },
@@ -92,15 +92,15 @@ const User = new EntitySchema({
         name: "role_id",
         referencedColumnName: "id",
       },
+      onDelete: "SET NULL",
+      onUpdate: 'CASCADE'
     },
    
     company: {
       type: "many-to-one",
       target: "Company",
       inverseSide: "clients"
-    }
-  },
-
+    },
     permissions: {
       type: 'many-to-many',
       target: 'Permission',
@@ -109,8 +109,10 @@ const User = new EntitySchema({
         joinColumn: { name: 'user_id', referencedColumnName: 'id' },
         inverseJoinColumn: { name: 'permission_id', referencedColumnName: 'id' },
       },
+      onDelete: "SET NULL",
+      onUpdate: 'CASCADE'
     },
-  
+  },
 });
 
 module.exports = User;

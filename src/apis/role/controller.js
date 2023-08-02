@@ -92,33 +92,20 @@ exports.updateRoleById = async (req, res, next) => {
 
     // check if role with the given id is found or not?
     const checkRole = await RoleDAL.getRoleById(id);
+    console.log(checkRole)
 
     if (!checkRole) {
       return next(new AppError("Role with the given id is not found.", 404));
     }
 
-    let updatedRole;
-
-    // check for the uniqueness of the role name.
-    if (checkRole.roleName === updatedFields.roleName) {
-      // here we are updating by the same name.
-      // So, the roleName will be unique.
-      updatedRole = await RoleDAL.updateRoleById(id, updatedFields);
-    } else {
-      const roleExist = await RoleDAL.findOneRoleByName(updatedFields.roleName);
-      if (!roleExist ||  !updatedFields.roleName) {
-        updatedRole = await RoleDAL.updateRoleById(id, updatedFields);
-      } else {
-        return next(new AppError("Role name must be unique.", 406));
-      }
-    }
-
+    const role = await RoleDAL.updateRoleById(id, updatedFields);
     res.status(200).json({
       status: "Success",
-      data: updatedRole,
+      message : "Role is Successfully updated",
+      data: role,
     });
   } catch (error) {
-    throw error;
+    return next(new AppError("Server error", 500))
   }
 };
 
@@ -127,14 +114,12 @@ exports.deleteRoleById = async (req, res, next) => {
     const id = req.params.id;
 
     // check if Role with the given id is found or not?
-    const checkRole = await RoleDAL.deleteRoleById(id);
-
-    if (!checkRole) {
-      return next(new AppError("Role with the given id is not found.", 404));
+    const role = await RoleDAL.getRoleById(id);
+    if (!role) {
+        return next(new AppError("Role with the given id is not found.", 404));
     }
 
-    await RoleDAL.deleteRoleById(id);
-
+    const deletedRole = await RoleDAL.deleteRoleById(id);    
     res.status(200).json({
       status: "Success",
       message: "Role is deleted successfully",

@@ -17,21 +17,25 @@ class UserPermissonDAL {
         }
     }
     
-    static async getUserPermissionById(id){
+    static async getUserPermissionById( id){
         try{
-            const conneciton = await getConnection();
-            const UserPermissionRepo = await conneciton.getRepository(UserPermission);
-            return await UserPermissionRepo.find({ where : { user_id : id}, relations : ['permission'] });
+            const connecition = await getConnection();
+            const UserPermissionRepo = await connecition.getRepository(UserPermission);
+            return await UserPermissionRepo.find( { where : { user_id : id }, relations : ['permission'] });
         }catch(error){
             console.log(error)
             throw error
         }
     }
-    static async deleteUserPermissionById(user_id){
+    static async deleteUserPermissionById(id){
         try{
             const conneciton = await getConnection();
             const UserPermissionRepo = await conneciton.getRepository(UserPermissonDAL);
-            return await UserPermissionRepo.delete({ user_id : user_id });
+            const permission = UserPermissionRepo.find({where : {pemission_id:id}});
+            if(!permission){
+                return;
+            }
+            return await UserPermissionRepo.remove(permission);
         }catch(error){
 
         }

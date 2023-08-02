@@ -8,6 +8,7 @@ const PriorityDAL = require("../priority/dal");
 const StatusDAL = require("../status/dal");
 const DepartmentDAL = require("../department/dal");
 const ClientDAL = require("../Client/dal");
+const sendEmail = require("../../../utils/sendEmail");
 
 /**
  *
@@ -67,6 +68,8 @@ exports.createNewTicket = async (req, res, next) => {
     console.log(admins);
 
     const to = admins.map((admin) => admin.email);
+    const from = req.user.email;
+
     console.log(to);
     // get status
     const status = await StatusDAL.getStatus(data.status_id);
@@ -127,6 +130,17 @@ exports.createNewTicket = async (req, res, next) => {
     }
     //   create new ticket
     const newTicket = await TicketDAL.createNewTicket(data);
+
+    // when new ticket is created email will be send to the admins
+    let subject = "New Ticket created";
+    let body = `Please follow the ticket progress through the following link`;
+    const sendmail = await sendEmail(
+      from,
+      to,
+      subject,
+      newTicket.description,
+      to
+    );
 
     res.status(201).json({
       status: "new Ticket is created Successfully",

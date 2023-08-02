@@ -3,6 +3,8 @@ const AppError = require("../../../utils/apperror");
 const UserDAL = require("../../apis/users/dal");
 const Comment = require("../../models/Comment");
 const TicketDAL = require("../tickets/dal");
+const config = require("../../../utils/configs");
+const sendEmail = require("../../../utils/sendEmail");
 
 exports.introduction = async (req, res, next) => {
   // Respond
@@ -95,6 +97,8 @@ exports.createPrivateComment = async (req, res, next) => {
     const comment = req.body;
     const user = req.user;
     comment.user = user;
+    const notifyTo = comment.notifyTo;
+    const ccNotification = comment.ccNotification;
 
     // check if ticket exist or not
     const ticket = await TicketDAL.getTicketById(comment.ticket_id);
@@ -124,6 +128,65 @@ exports.createPrivateComment = async (req, res, next) => {
 
     // Create Comment
     const newComment = await CommentDAL.createPrivateComment(comment);
+
+    // Respond
+    res.status(200).json({
+      status: "Success",
+      data: newComment,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+// create escalation on a ticket
+exports.createEscalation = async (req, res, next) => {
+  try {
+    // Get Req Body
+    const comment = req.body;
+    const user = req.user;
+    comment.user = user;
+    const emailTo = comment.emailTo;
+    const emailCc = comment.emailCc;
+    const from = config.company_email;
+
+    console.log(emailTo, emailCc, "emailllllllllllllllllllll");
+    // check if ticket exist or not
+    const ticket = await TicketDAL.getTicketById(comment.ticket_id);
+    if (!ticket) {
+      return next(new AppError("ticket does not exist", 404));
+    }
+
+    comment.ticket = ticket;
+    assigned_users = ticket.assigned_users;
+
+    // if user is client check there authority
+    if (user.user_type == "client") {
+      return next(
+        new AppError(
+          "unauthorized to comment private replay on the given ticket"
+        )
+      );
+    }
+
+    if (user.user_type == "employee") {
+      // check if the user is valid to comment on the ticket
+      const objectExists = assigned_users.some((item) => item.id === user.id);
+
+      if (!objectExists) {
+        new AppError("unauthorized to comment on the given ticket ");
+      }
+    }
+
+    // Create Comment
+    const newComment = await CommentDAL.createEscalationComment(comment);
+    const sendmail = await sendEmail(
+      from,
+      emailTo,
+      newComment.title,
+      newComment.description,
+      emailCc
+    );
 
     // Respond
     res.status(200).json({

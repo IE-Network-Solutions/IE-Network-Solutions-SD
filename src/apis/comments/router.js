@@ -24,6 +24,14 @@ router
     CommentController.createPrivateComment
   );
 
+router
+  .route("/escalate")
+  .post(
+    authorize,
+    validate(commentValidator),
+    CommentController.createEscalation
+  );
+
 router.route("/").patch(authorize, CommentController.editComment);
 
 router.route("/deleteAllComments").delete(CommentController.deleteAllComments);

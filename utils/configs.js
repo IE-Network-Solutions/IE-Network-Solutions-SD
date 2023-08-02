@@ -19,7 +19,6 @@ const config = {
       idleTimeOut: process.env.PG_IDLE_TIMEOUT,
       connTimeOut: process.env.PG_CONN_TIMEOUT,
       maxConn: process.env.PG_MAX_CONN,
-      
     },
   },
   jwt: {
@@ -32,9 +31,10 @@ const config = {
     systemEmail: process.env.SYSTEM_EMAIL,
     emailPassword: process.env.SYSTEM_EMAIL_PASSWORD,
   },
-  log: { 
+  log: {
     logFilePath: process.env.LOG_FILE_PATH,
-  }
+  },
+  company_email: process.env.COMP_EMAIL,
 };
 
 module.exports = config;

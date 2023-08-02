@@ -2,6 +2,7 @@ const { getConnection } = require("typeorm");
 const Comment = require("../../models/Comment");
 const UserDAL = require("../users/dal");
 const AppError = require("../../../utils/apperror");
+const sendEmail = require("../../../utils/sendEmail");
 
 class CommentDAL {
   // Get All Comments
@@ -88,6 +89,35 @@ class CommentDAL {
     }
   }
 
+  // Create escalation
+  static async createEscalationComment(data) {
+    try {
+      // Get User
+      const { user, title, description, ticket, emailTo, emailCc } = data;
+
+      // Form Connection
+      const connection = getConnection();
+      const commentRepository = connection.getRepository(Comment);
+
+      // Create Comment
+      const newComment = await commentRepository.create({
+        title,
+        description,
+        is_escalation: true,
+        ticket: ticket,
+        created_by: user,
+        emailTo: emailTo,
+        emailCc: emailCc,
+      });
+      await commentRepository.save(newComment);
+
+      // return new comment
+      return newComment;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   // Edit Comment
   static async editUser(id, data) {
     try {
@@ -150,6 +180,7 @@ class CommentDAL {
     }
   }
 
+  // get all comments
   static async getAllCommentsOnTicket(ticket_id) {
     try {
       // create connection
@@ -175,6 +206,8 @@ class CommentDAL {
           "comment.description",
           "comment.created_at",
           "comment.is_private",
+          "comment.emailTo",
+          "comment.emailCc",
           "created_by.id",
           "created_by.first_name",
           "created_by.last_name",
@@ -183,12 +216,13 @@ class CommentDAL {
         .where("ticket.id = :ticket_id", { ticket_id })
         .orderBy("comment.created_at", "DESC")
         .getMany();
-      //   return all
       return comments;
     } catch (error) {
       throw error;
     }
   }
+
+  // get all comments except private ones
   static async getAllClientCommentsOnTicket(ticket_id) {
     try {
       const is_private = false;
@@ -215,6 +249,8 @@ class CommentDAL {
           "comment.description",
           "comment.created_at",
           "comment.is_private",
+          "comment.emailTo",
+          "comment.emailCc",
           "created_by.id",
           "created_by.first_name",
           "created_by.last_name",
@@ -226,6 +262,50 @@ class CommentDAL {
         .getMany();
       // console.log(comments);
       //   return all
+      return comments;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // get only escalations
+  static async getAllTicketEscalations(ticket_id) {
+    try {
+      const is_escalation = true;
+      // create connection
+      const connection = getConnection();
+
+      // create bridge
+      const commentRepository = connection.getRepository(Comment);
+      // get comments of the requested ticket
+      const comments = await commentRepository
+        .createQueryBuilder("comment")
+        .leftJoin("comment.created_by", "created_by")
+        .leftJoin("comment.ticket", "ticket")
+        .leftJoin("ticket.client", "client")
+        .select([
+          "ticket.id",
+          "ticket.subject",
+          "client.id",
+          "client.first_name",
+          "client.last_name",
+          "client.email",
+          "comment.id",
+          "comment.title",
+          "comment.description",
+          "comment.created_at",
+          "comment.is_private",
+          "comment.emailTo",
+          "comment.emailCc",
+          "created_by.id",
+          "created_by.first_name",
+          "created_by.last_name",
+          "created_by.email",
+        ])
+        .where("ticket.id = :ticket_id", { ticket_id })
+        .andWhere("comment.is_escalation = :is_escalation", { is_escalation })
+        .orderBy("comment.created_at", "DESC")
+        .getMany();
       return comments;
     } catch (error) {
       throw error;

@@ -88,6 +88,7 @@ class TicketDAL {
         .leftJoin("ticket.ticket_priority", "priority")
         .leftJoin("ticket.ticket_status", "status")
         .leftJoin("ticket.department", "department")
+        .leftJoin("department.team_lead", "team_lead")
         .leftJoin("ticket.client", "client")
         .leftJoin("ticket.company", "company")
         .select([

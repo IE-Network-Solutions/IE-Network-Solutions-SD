@@ -1,4 +1,4 @@
-const { EntitySchema } = require("typeorm"); 
+const { EntitySchema } = require("typeorm");
 
 const KnowledgeBase = new EntitySchema({
   name: "KnowledgeBase",
@@ -16,6 +16,18 @@ const KnowledgeBase = new EntitySchema({
     },
     description: {
       type: "text",
+      nullable: true,
+    },
+    likers: {
+      type: "uuid",
+      array: true,
+      nullable: true,
+    },
+    comments: {
+      // type: "jsonb",
+      type: "json",
+      array: true,
+      nullable: true,
     },
     created_at: {
       type: "timestamp",

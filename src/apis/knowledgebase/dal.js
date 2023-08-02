@@ -78,10 +78,10 @@ class KnowledgeBaseDAL {
       // // update
       // knowledgeBaseRepository.merge(knowledgeBase, updatedFields);
       // await knowledgeBaseRepository.save(knowledgeBase);
- 
+
       const updatedKnowledgeBase = await knowledgeBaseRepository.update({
         id: id,
-      }, updatedFields) 
+      }, updatedFields)
 
       // return updated knowledgeBase data.
       return updatedKnowledgeBase;
@@ -107,6 +107,66 @@ class KnowledgeBaseDAL {
       throw error;
     }
   }
+
+  static async likeKnowledgeBase(knowledgeBaseID, userID) {
+    try {
+      // Form connection
+      const connection = getConnection();
+      const knowledgeBaseRepository = connection.getRepository(KnowledgeBase);
+
+      // Get the current likers array
+      const knowledgeBase = await knowledgeBaseRepository.findOneBy({ id: knowledgeBaseID });
+
+      let likers = knowledgeBase.likers;
+      if (!likers) {
+        likers = [];
+      }
+
+      // Remove the UUID to the likers array
+      likers.push(userID);
+      knowledgeBase.likers = likers;
+
+      // Save the knowledge base
+      await knowledgeBaseRepository.save(knowledgeBase);
+
+      return "KnowledgeBase updated Successfully.";
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async unlikeKnowledgeBase(knowledgeBaseID, userID) {
+    try {
+      // Form connection
+      const connection = getConnection();
+      const knowledgeBaseRepository = connection.getRepository(KnowledgeBase);
+
+      // Get the current likers array
+      const knowledgeBase = await knowledgeBaseRepository.findOneBy({ id: knowledgeBaseID });
+
+      let likers = knowledgeBase.likers;
+      if (!likers) {
+        likers = [];
+      }
+
+      // Remove the UUID to the likers array
+      const index = likers.indexOf(userID);
+      if (index !== -1) {
+        likers.splice(index, 1);
+      }
+      knowledgeBase.likers = likers;
+
+      // Save the knowledge base
+      await knowledgeBaseRepository.save(knowledgeBase);
+
+      return "KnowledgeBase updated Successfully.";
+    } catch (error) {
+      throw error;
+    }
+  }
+
+
+
 }
 
 module.exports = KnowledgeBaseDAL;

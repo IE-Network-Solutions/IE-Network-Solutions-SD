@@ -5,7 +5,7 @@ const notificationValidator = require("./validation")
 const { uuidValidator } = require("../../../utils/uuid");
 const authorize = require("../../middlewares/auth/authorization");
 
-router.route("/").get(NotificationController.getAllNotifications);
+router.route("/").get(NotificationController.introduction);
 router.route("/userNotifications").get(NotificationController.getAllUserNotifications);
 router.route("/systemNotifications").get(NotificationController.getAllSystemNotifications);
 router.route("/:id").get(uuidValidator, NotificationController.getOneNotification);

@@ -1,7 +1,6 @@
 const { getConnection } = require("typeorm");
 const Role = require("../../models/Role");
 const { validate: isUUID } = require("uuid");
-const User = require("../../models/User");
 
 class RoleDAL {
   static async createRole(data) {
@@ -67,7 +66,7 @@ class RoleDAL {
       const roleRepository = connection.getRepository(Role);
 
       //  find role by the given role id.
-      const role = await roleRepository.findOneBy({id:id});
+      const role = await roleRepository.findOneBy({ id: id });
 
       return role;
     } catch (error) {
@@ -106,23 +105,14 @@ class RoleDAL {
       }
       const connection = await getConnection();
       const roleRepository = await connection.getRepository(Role);
-      const role = await roleRepository.findOne({where:{id:id}});
+      const role = await roleRepository.findOne({ where: { id: id } });
       await roleRepository.remove(role);
 
-     return "role deleted successfully";
+      return "role deleted successfully";
     } catch (error) {
       throw error;
     }
   }
-
-  // create default permissions for newly created role.
-  // static async createManyPermissions(roleId) {
-  //   try {
-
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
 }
 
 module.exports = RoleDAL;

@@ -1,7 +1,5 @@
 const router = require("express").Router();
 const RoleController = require("./controller");
-const createRoleValidator = require("./validation");
-const validate = require("../../../utils/validator");
 
 router.route("/").get(RoleController.getAllRoles);
 router.route("/:id").get(RoleController.getRoleById);

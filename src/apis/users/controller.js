@@ -27,7 +27,7 @@ exports.getAllUsers = async (req, res, next) => {
       data: users,
     });
   } catch (error) {
-    
+
     throw error;
   }
 };
@@ -82,17 +82,17 @@ exports.deleteUser = async (req, res, next) => {
     // Get Req Body
     const id = req.params.id;
     const deletedUser = await UserDAL.deleteUser(id);
-    if(deletedUser.affected === 0){
+    if (deletedUser.affected === 0) {
       return next(new AppError('User is not Deleted'))
     }
     // Respond
     res.status(200).json({
       status: "Success",
-      message : "User is successfully deleted"
+      message: "User is successfully deleted"
     });
   } catch (error) {
     console.log(error)
-   return next(new AppError('Server Error', 500))
+    return next(new AppError('Server Error', 500))
   }
 };
 
@@ -177,7 +177,7 @@ exports.resetPassword = async (req, res, next) => {
 
     // Check User Existence
     let user = await UserDAL.getUserByEmail(email);
-    if(!user) return next(new AppError("User Not Found!", 404));
+    if (!user) return next(new AppError("User Not Found!", 404));
 
     // Reset Password
     user.password = password;
@@ -185,10 +185,10 @@ exports.resetPassword = async (req, res, next) => {
 
     // Respond
     res.status(200).json({
-        status: "Success",
-        data: passwordResetUser,
+      status: "Success",
+      data: passwordResetUser,
     });
-  } catch(error) {
+  } catch (error) {
     throw error;
   }
 }
@@ -203,7 +203,7 @@ exports.forgotPassword = async (req, res, next) => {
 
     // Check User Existence
     let user = await UserDAL.getUserByEmail(email);
-    if(!user) return next(new AppError("User Not Found!", 404));
+    if (!user) return next(new AppError("User Not Found!", 404));
 
     // Reset Password
     user.password = newPassword;
@@ -215,24 +215,24 @@ exports.forgotPassword = async (req, res, next) => {
 
     // Respond
     res.status(200).json({
-        status: "Success",
-        data: passwordChangedUser,
+      status: "Success",
+      data: passwordChangedUser,
     });
-  } catch(error) {
+  } catch (error) {
     throw error;
   }
 }
 
-exports.logOut = async (req, res, next)=>{
- const userToken = req.token;
-  if(userToken != null){
+exports.logOut = async (req, res, next) => {
+  const userToken = req.token;
+  if (userToken != null) {
     console.log(userToken)
-      return next(new AppError("User is not Logged out"));
+    return next(new AppError("User is not Logged out"));
   }
   res.status(200).json({
-      status : "success",
-      message : "User is successfully logout",
-      statusCode : 200
-    })
+    status: "success",
+    message: "User is successfully logout",
+    statusCode: 200
+  })
 }
 

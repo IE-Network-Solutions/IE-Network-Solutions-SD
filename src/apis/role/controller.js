@@ -32,16 +32,16 @@ exports.getAllRoles = async (req, res, next) => {
     const roles = await RoleDAL.getAllRole();
 
     // check if Role doesn't exist.
-    if (roles.length == 0) { 
+    if (roles.length == 0) {
       return next(new AppError("No Role data found."));
     }
     res.status(200).json({
-          status: "Success",
-          data: roles,
-        });
-} catch (error) {
+      status: "Success",
+      data: roles,
+    });
+  } catch (error) {
     console.log(error)
-     return next(new AppError("Server Error", 500));
+    return next(new AppError("Server Error", 500));
   }
 };
 
@@ -101,7 +101,7 @@ exports.updateRoleById = async (req, res, next) => {
     const role = await RoleDAL.updateRoleById(id, updatedFields);
     res.status(200).json({
       status: "Success",
-      message : "Role is Successfully updated",
+      message: "Role is Successfully updated",
       data: role,
     });
   } catch (error) {
@@ -116,15 +116,15 @@ exports.deleteRoleById = async (req, res, next) => {
     // check if Role with the given id is found or not?
     const role = await RoleDAL.getRoleById(id);
     if (!role) {
-        return next(new AppError("Role with the given id is not found.", 404));
+      return next(new AppError("Role with the given id is not found.", 404));
     }
-
-    const deletedRole = await RoleDAL.deleteRoleById(id);    
+    const deletedRole = await RoleDAL.deleteRoleById(id);
+    console.log(deletedRole);
     res.status(200).json({
       status: "Success",
       message: "Role is deleted successfully",
     });
   } catch (error) {
-    throw error;
+    return next(new AppError("Server Error"));
   }
 };

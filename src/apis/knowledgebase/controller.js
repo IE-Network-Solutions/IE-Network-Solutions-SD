@@ -108,3 +108,60 @@ exports.deleteOneKnowledgeBase = async (req, res, next) => {
     throw error;
   }
 };
+
+exports.likeKnowledgeBase = async (req, res, next) => {
+  try {
+    // Get Body
+    let userID = req.body.userID;
+    let knowledgeBaseID = req.body.knowledgeBaseID;
+
+    // Check KnowledgeBase Existence
+    const checkKnowledgeBase = await KnowledgeBaseDAL.getKnowledgeBaseById(knowledgeBaseID);
+    if (!checkKnowledgeBase) {
+      return next(
+        new AppError("KnowledgeBase Doesn't Exist!.", 404)
+      );
+    }
+    // Like
+    await KnowledgeBaseDAL.likeKnowledgeBase(knowledgeBaseID, userID);
+
+    // Respond
+    res.status(200).json({
+      status: "Success",
+      data: "Knowledge Base Liked Succesfully!",
+    });
+  } catch (error) {
+    throw error;
+  }
+}
+
+exports.unlikeKnowledgeBase = async (req, res, next) => {
+  try {
+    // Get Body
+    let userID = req.body.userID;
+    let knowledgeBaseID = req.body.knowledgeBaseID;
+
+    // Check KnowledgeBase Existence
+    const checkKnowledgeBase = await KnowledgeBaseDAL.getKnowledgeBaseById(knowledgeBaseID);
+    if (!checkKnowledgeBase) {
+      return next(
+        new AppError("KnowledgeBase Doesn't Exist!.", 404)
+      );
+    }
+    // Like
+    await KnowledgeBaseDAL.unlikeKnowledgeBase(knowledgeBaseID, userID);
+
+    // Respond
+    res.status(200).json({
+      status: "Success",
+      data: "Knowledge Base Unliked Succesfully!",
+    });
+  } catch (error) {
+    throw error;
+  }
+}
+
+
+
+
+

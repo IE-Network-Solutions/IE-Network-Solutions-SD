@@ -1,3 +1,56 @@
+### ------------------------------------------------------------ KNOWLEDGE BASE
+
+GET http://localhost:3001/api/v1/knowledgeBase/
+
+### 
+
+POST http://localhost:3001/api/v1/knowledgeBase/like
+content-type: application/json
+
+{
+    "knowledgeBaseID": "77eff53a-36e4-4de4-bb86-68072cb3c5e8",
+    "userID": "396aa025-6e77-4a83-b67e-c7b375c7d811"
+}
+
+### 
+
+POST http://localhost:3001/api/v1/knowledgeBase/comment
+content-type: application/json
+
+{
+    "knowledgeBaseID": "77eff53a-36e4-4de4-bb86-68072cb3c5e8",
+    "userID": "396aa025-6e77-4a83-b67e-c7b375c7d811",
+    "comment": "YOOO"
+}
+
+### 
+
+POST http://localhost:3001/api/v1/knowledgeBase/unlike
+content-type: application/json
+
+{
+    "knowledgeBaseID": "77eff53a-36e4-4de4-bb86-68072cb3c5e8",
+    "userID": "396aa025-6e77-4a83-b67e-c7b375c7d810"
+}
+
+### 
+
+GET http://localhost:3001/api/v1/knowledgeBase/77eff53a-36e4-4de4-bb86-68072cb3c5e8
+
+###
+
+POST http://localhost:3001/api/v1/knowledgeBase/ HTTP/1.1
+content-type: application/json
+
+{
+    "title": "First Blog",
+    "category": "news",
+    "description": "This's the first blog"
+}
+
+
+### ------------------------------------------------------------ NOTIFICATION
+
 GET http://localhost:3001/api/v1/notifications/
 
 ### ------------------------------------------------------------ TYPE
@@ -245,7 +298,6 @@ content-type: application/json
     "first_name": "Dagmawi",
     "last_name": "Babi",
     "email": "babii@gmail.com",
-    "department": "SASS",
     "user_type": "employee"
 }
 

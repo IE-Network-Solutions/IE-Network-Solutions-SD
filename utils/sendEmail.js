@@ -27,7 +27,7 @@ const sendEmail = async (from, to, subject, body, cc) => {
     var transporter = nodemailer.createTransport({
         host: configs.email.hostURL,
         port: configs.email.emailPort,
-        secure: configs.email.emailPort === 465 ? true : false, 
+        secure: configs.email.emailPort === 465 ? true : false,
         tls: {
             secure: false,
             ignoreTLS: true,
@@ -35,11 +35,11 @@ const sendEmail = async (from, to, subject, body, cc) => {
         },
         auth: {
             user: configs.email.systemEmail,
-            pass:configs.email.emailPassword,  
+            pass: configs.email.emailPassword,
         }
-    });      
-      
-    await transporter.sendMail(mailOptions, function(error, info){
+    });
+
+    await transporter.sendMail(mailOptions, function (error, info) {
         if (error) {
             console.log(error);
             return false;
@@ -47,7 +47,7 @@ const sendEmail = async (from, to, subject, body, cc) => {
             console.log('Email sent: ' + info.response);
             return true;
         }
-    }); 
+    });
 }
 
 

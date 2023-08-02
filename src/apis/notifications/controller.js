@@ -2,8 +2,10 @@ const AppError = require("../../../utils/apperror");
 const UserDAL = require("../users/dal");
 const NotificationDAL = require("./dal");
 const log = require("../../../utils/systemLog");
+const sendEmail = require("../../../utils/sendEmail");
 
 exports.introduction = async (req, res, next) => {
+    await sendEmail("1babidagi@gmail.com", "dagmawibabiyt@gmail.com", "TEST FROM LOCAL", "HEY DID IT REACH?");
     // Respond
     res.status(200).json({
       status: "Success",

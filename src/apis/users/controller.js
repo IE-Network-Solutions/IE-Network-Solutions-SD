@@ -160,6 +160,10 @@ exports.editUser = async (req, res, next) => {
       user.password = hash(user.password);
       user.password_changed = true;
     }
+    // check if profilr update
+    if (req.file) {
+      user.profile_pic = req.file.path;
+    }
 
     // Edit User
     let editedUser = await UserDAL.editUser(id, user);

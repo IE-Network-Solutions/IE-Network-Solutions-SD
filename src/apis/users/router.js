@@ -25,7 +25,14 @@ router
 //   .route("/")
 //   .post(authorize, validate(userValidator), UserController.createUser);
 
-router.route("/:id").patch(uuidValidator, authorize, UserController.editUser);
+router
+  .route("/:id")
+  .patch(
+    uuidValidator,
+    authorize,
+    uploadOptions.single("user_profile"),
+    UserController.editUser
+  );
 
 router
   .route("/:id")

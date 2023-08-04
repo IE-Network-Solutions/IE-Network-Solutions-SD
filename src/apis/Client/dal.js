@@ -55,8 +55,16 @@ class ClientDAL {
   static async createClient(data) {
     try {
       const id = uuidv4();
-      const { first_name, last_name, password, email, department, company_id } =
-        data;
+      const {
+        first_name,
+        last_name,
+        password,
+        email,
+        department,
+        company_id,
+        user_profile,
+        phone_number,
+      } = data;
       // get connection from the pool
       const connection = getConnection();
       // create bridge for user
@@ -84,6 +92,8 @@ class ClientDAL {
         password,
         email,
         company: company,
+        profile_pic: user_profile,
+        phone_number,
       });
       const clientCreated = await clientRepository.save(newClient);
       if (!clientCreated) {
@@ -122,12 +132,13 @@ class ClientDAL {
       const clientRepository = connection.getRepository(Ticket);
 
       const client_tickets = clientRepository.find({
-        where: { client: client },
+        where: { client: client, is_deleted: false },
         relations: [
           "ticket_status",
           "ticket_type",
           "ticket_priority",
           "department",
+          "comments",
         ],
       });
       return client_tickets;

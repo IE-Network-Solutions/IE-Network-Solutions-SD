@@ -14,7 +14,15 @@ const Ticket = new EntitySchema({
     description: {
       type: "text",
     },
+    due_date: {
+      type: "date",
+      nullable: true,
+    },
     closed: {
+      type: "boolean",
+      default: false,
+    },
+    is_deleted: {
       type: "boolean",
       default: false,
     },
@@ -98,6 +106,11 @@ const Ticket = new EntitySchema({
         name: "company_id",
         referencedColumnName: "id",
       },
+    },
+    comments: {
+      type: "one-to-many",
+      target: "Comment",
+      inverseSide: "ticket",
     },
   },
 });

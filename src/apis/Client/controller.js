@@ -1,8 +1,9 @@
 const AppError = require("../../../utils/apperror");
 const hash = require("../../../utils/hashpassword");
 const PriorityDAL = require("../priority/dal");
-const TypeDAL = require("../type/dal");
 const ClientDAL = require("./dal");
+
+const TypeDAL = require("../type/dal");
 
 exports.allClients = async (req, res, next) => {
   try {
@@ -47,6 +48,8 @@ exports.singleClient = async (req, res, next) => {
 exports.createClient = async (req, res, next) => {
   try {
     const data = req.body;
+    const user_profile = req.file ? req.file.path : null;
+    data.user_profile = user_profile;
     data.password = hash("%TGBnhy6");
     //   create new client
     const client = await ClientDAL.createClient(data);

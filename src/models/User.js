@@ -34,7 +34,23 @@ const User = new EntitySchema({
       type: "varchar",
       nullable: true,
     },
+    phone_number: {
+      type: "varchar",
+      nullable: true,
+    },
+    profile_pic: {
+      type: "varchar",
+      nullable: true,
+    },
+    password: {
+      type: "varchar",
+      nullable: true,
+    },
     department: {
+      type: "varchar",
+      nullable: true,
+    },
+    manager_id: {
       type: "varchar",
       nullable: true,
     },
@@ -128,6 +144,22 @@ const User = new EntitySchema({
       target: "Status",
       joinColumn: {
         name: "status_id",
+        referencedColumnName: "id",
+      },
+    },
+    client_tickets: {
+      type: "many-to-one",
+      target: "Ticket",
+      joinColumn: {
+        name: "ticket_id",
+        referencedColumnName: "id",
+      },
+    },
+    manager: {
+      type: "many-to-one",
+      target: "User",
+      joinColumn: {
+        name: "manager_id",
         referencedColumnName: "id",
       },
     },

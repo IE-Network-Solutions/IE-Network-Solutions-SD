@@ -13,7 +13,7 @@ class UserDAL {
       const users = await userRepository.find({
         where: { user_type: "employee" },
         select: ["id", "first_name", "last_name", "email", "user_type"],
-        relations: ["role", "department"],
+        relations: ["role", "department", "manager"],
       });
       return users;
     } catch (error) {
@@ -33,7 +33,7 @@ class UserDAL {
       const foundUser = await userRepository.findOne({
         where: { id: id },
         select: ["id", "email", "first_name", "last_name", "user_type"],
-        relations: ["role", "department"],
+        relations: ["role", "department", "manager"],
       });
       return foundUser;
     } catch (error) {
@@ -85,7 +85,15 @@ class UserDAL {
   static async createUser(data) {
     try {
       // Create User Object
-      const { first_name, last_name, email, password, role, department } = data;
+      const {
+        first_name,
+        last_name,
+        email,
+        password,
+        role,
+        department,
+        manager_id,
+      } = data;
       const user_type = "employee";
 
       // Form Connection
@@ -99,6 +107,7 @@ class UserDAL {
         email,
         password,
         user_type,
+        manager_id: manager_id,
       });
 
       if (role) {

@@ -288,3 +288,54 @@ exports.removeAssigned = async (req, res, next) => {
     throw error;
   }
 };
+
+exports.applyFilterOnTickets = async (req, res, next) => {
+  try {
+    const data = req.query;
+    const filterData = {};
+    // check and assign the priority
+    if (data.priority) {
+      const priority = await PriorityDAL.getPriority(data.priority);
+      if (!priority) {
+        return next(new AppError("no such priority", 404));
+      }
+      filterData.ticket_priority = priority.id;
+    }
+
+    // check and assign the status
+    if (data.status) {
+      const status = await StatusDAL.getStatus(data.status);
+      if (!status) {
+        return next(new AppError("no such status", 404));
+      }
+      filterData.ticket_status = status.id;
+    }
+
+    // check and assign the type
+    if (data.type) {
+      const type = await TypeDAL.getOneType(data.type);
+      if (!type) {
+        return next(new AppError("no such ticket type", 404));
+      }
+      filterData.ticket_type = type.id;
+    }
+
+    // check and assign the status
+    if (data.department) {
+      const department = await DepartmentDAL.getDepartment(data.department);
+      if (!department) {
+        return next(new AppError("no such department", 404));
+      }
+      filterData.department = department.id;
+    }
+
+    const tickets = await TicketDAL.filterTicket(filterData);
+
+    res.status(200).json({
+      status: "Success",
+      data: tickets,
+    });
+  } catch (error) {
+    throw error;
+  }
+};

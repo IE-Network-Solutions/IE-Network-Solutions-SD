@@ -15,6 +15,7 @@ const UserDAL = require("../users/dal");
 class TicketDAL {
   static async getAllTickets() {
     try {
+      const is_deleted = false;
       // get connection from the pool
       const connection = await getConnection();
 
@@ -31,11 +32,14 @@ class TicketDAL {
         .leftJoin("ticket.department", "department")
         .leftJoin("ticket.client", "client")
         .leftJoin("ticket.company", "company")
+        .leftJoin("ticket.comments", "comments")
         .select([
           "ticket.id",
           "ticket.subject",
           "ticket.description",
           "ticket.created_at",
+          "ticket.due_date",
+          "ticket.closed",
           "types.type",
           "types.id",
           "priority.id",
@@ -60,7 +64,18 @@ class TicketDAL {
           "company.company_name",
           "company.description",
           "company.id",
+          "company.id",
+          "comments.id",
+          "comments.title",
+          "comments.description",
+          "comments.is_private",
+          "comments.emailTo",
+          "comments.emailCc",
+          "comments.is_escalation",
+          "comments.created_at",
+          "comments.updated_at",
         ])
+        .where("ticket.is_deleted = :is_deleted", { is_deleted })
         .orderBy("ticket.created_at", "DESC")
         .getMany();
 
@@ -74,6 +89,7 @@ class TicketDAL {
   //This method implemenets to get ticket by id
   static async getTicketById(id) {
     try {
+      const is_deleted = false;
       // get connection from the pool
       const connection = await getConnection();
 
@@ -91,11 +107,14 @@ class TicketDAL {
         .leftJoin("department.team_lead", "team_lead")
         .leftJoin("ticket.client", "client")
         .leftJoin("ticket.company", "company")
+        .leftJoin("ticket.comments", "comments")
         .select([
           "ticket.id",
           "ticket.subject",
           "ticket.description",
           "ticket.created_at",
+          "ticket.due_date",
+          "ticket.closed",
           "types.type",
           "types.id",
           "priority.id",
@@ -120,8 +139,18 @@ class TicketDAL {
           "company.company_name",
           "company.description",
           "company.id",
+          "comments.id",
+          "comments.title",
+          "comments.description",
+          "comments.is_private",
+          "comments.emailTo",
+          "comments.emailCc",
+          "comments.is_escalation",
+          "comments.created_at",
+          "comments.updated_at",
         ])
         .where("ticket.id = :id", { id })
+        .andWhere("ticket.is_deleted = :is_deleted", { is_deleted })
         .getOne();
 
       return ticket;
@@ -311,6 +340,50 @@ class TicketDAL {
     } catch (error) {
       throw error;
     }
+  }
+
+  // filter by any query
+  static async filterTicket(data) {
+    const { ticket_priority, ticket_status, ticket_type, department } = data;
+    const filteredData = data;
+
+    // get connection from the pool
+    const connection = getConnection();
+
+    // create bridge to the db
+    const ticketRepository = connection.getRepository(Ticket);
+    const queryBuilder = await ticketRepository.createQueryBuilder("ticket");
+
+    // prepare filter conditions based on the parameters sent
+    const filterConditions = {};
+
+    // check and assign ticket priority
+    if (ticket_priority) {
+      queryBuilder
+        .innerJoin("ticket.ticket_priority", "priority")
+        .where("priority.id = :ticket_priority", { ticket_priority });
+    }
+    // check and assign ticket status
+    if (ticket_status) {
+      queryBuilder
+        .innerJoin("ticket.ticket_status", "status")
+        .andWhere("status.id = :ticket_status", { ticket_status });
+    }
+    // check and assign ticket type
+    if (ticket_type) {
+      queryBuilder
+        .innerJoin("ticket.ticket_type", "type")
+        .andWhere("type.id = :ticket_type", { ticket_type });
+    }
+    // check and assign ticket department
+    if (department) {
+      queryBuilder
+        .innerJoin("ticket.department", "department")
+        .andWhere("department.id = :department", { department });
+    }
+
+    const tickets = await queryBuilder.getMany();
+    return tickets;
   }
 }
 

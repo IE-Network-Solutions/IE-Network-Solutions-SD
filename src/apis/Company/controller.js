@@ -2,9 +2,6 @@ const AppError = require("../../../utils/apperror");
 const hash = require("../../../utils/hashpassword");
 const companyDAL = require("./dal");
 
-
-
-
 exports.allCompanies = async (req, res, next) => {
   try {
     //   get all companies
@@ -13,7 +10,7 @@ exports.allCompanies = async (req, res, next) => {
     // check if companies data exist
     if (!companies) {
       // return custom error
-      return next(new AppError("No company data found" ));
+      return next(new AppError("No company data found"));
     }
 
     // response
@@ -33,7 +30,8 @@ exports.singleCompany = async (req, res, next) => {
     // get company with the given id
     const company = await companyDAL.getCompanyById(id);
 
-    if (!company) return next(new AppError("company with the given id not found"));
+    if (!company)
+      return next(new AppError("company with the given id not found"));
 
     res.status(200).json({
       status: "Success",
@@ -47,11 +45,9 @@ exports.singleCompany = async (req, res, next) => {
 exports.createCompany = async (req, res, next) => {
   try {
     const data = req.body;
-    const profileImage = req.file ? req.file.path : '';
-    data.company_logo = profileImage
+    const profileImage = req.file ? req.file.path : null;
+    data.company_logo = profileImage;
 
-    
-    
     //   create new company
     const company = await companyDAL.createCompany(data);
 
@@ -66,12 +62,12 @@ exports.createCompany = async (req, res, next) => {
 
 exports.updateCompany = async (req, res, next) => {
   try {
-    const {id} = req.params;
+    const { id } = req.params;
 
     const updatedFields = req.body;
-    const profileImage = req.file ? req.file.path : '';
+    const profileImage = req.file ? req.file.path : "";
 
-    updatedFields.company_logo = profileImage
+    updatedFields.company_logo = profileImage;
     // check if company exist or not
     const companyData = await companyDAL.getCompanyById(id);
 

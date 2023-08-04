@@ -6,6 +6,7 @@ const {
   createTicketValidator,
 } = require("./validation");
 const authorize = require("../../middlewares/auth/authorization");
+const { uploadOptions } = require("../../../utils/imageUpload");
 
 clientRouter.route("/").get(ClientController.allClients);
 clientRouter.route("/tickets").get(authorize, ClientController.clientTickets);
@@ -19,7 +20,12 @@ clientRouter
 
 clientRouter
   .route("/")
-  .post(validate(createClientValidator), ClientController.createClient);
+  .post(
+    authorize,
+    uploadOptions.single("user_profile"),
+    validate(createClientValidator),
+    ClientController.createClient
+  );
 clientRouter.route("/:id").get(ClientController.singleClient);
 clientRouter.route("/:id").patch(ClientController.updateClient);
 clientRouter.route("/:id").delete(ClientController.deleteClient);

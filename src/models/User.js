@@ -54,6 +54,10 @@ const User = new EntitySchema({
       type: "varchar",
       nullable: true,
     },
+    is_deleted: {
+      type: "boolean",
+      default: false,
+    },
     user_type: {
       type: "enum",
       enum: Object.values(UserType),
@@ -164,12 +168,9 @@ const User = new EntitySchema({
       },
     },
     client_tickets: {
-      type: "many-to-one",
+      type: "one-to-many",
       target: "Ticket",
-      joinColumn: {
-        name: "ticket_id",
-        referencedColumnName: "id",
-      },
+      inverseSide: "client",
     },
   },
 });

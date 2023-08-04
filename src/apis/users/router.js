@@ -7,15 +7,15 @@ const authorize = require("../../middlewares/auth/authorization");
 const { uuidValidator } = require("../../../utils/uuid");
 
 router.route("/").get(UserController.getAllUsers);
-router.route("/:id").get(UserController.getOneUser);
+router.route("/user-data").get(authorize, UserController.getLoggedUserData);
 
-router
-  .route("/")
-  .post(UserController.createUser);
+router.route("/:id").get(authorize, uuidValidator, UserController.getOneUser);
+
+router.route("/").post(UserController.createUser);
 // router
 //   .route("/")
 //   .post(authorize, validate(userValidator), UserController.createUser);
-  
+
 router.route("/:id").patch(uuidValidator, authorize, UserController.editUser);
 
 router

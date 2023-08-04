@@ -50,6 +50,24 @@ exports.getOneUser = async (req, res, next) => {
     throw error;
   }
 };
+exports.getLoggedUserData = async (req, res, next) => {
+  try {
+    // Get ID
+    // let id = req.params.id;
+    let user = req.user;
+
+    //   return if user does not exist
+    if (!user) return next(new AppError("user does not exist", 404));
+
+    // Respond
+    res.status(200).json({
+      status: "Success",
+      data: user,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
 
 exports.createUser = async (req, res, next) => {
   try {

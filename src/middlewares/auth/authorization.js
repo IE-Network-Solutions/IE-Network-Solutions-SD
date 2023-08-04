@@ -21,7 +21,8 @@ const authorize = async (req, res, next) => {
 
     //   fetch user by payload user id
     const user = await UserDAL.getOneUser(verifyToken.id);
-    if (!user) return next(new AppError("user not found", 400));
+    if (!user || user.is_deleted == true)
+      return next(new AppError("user not found", 400));
     req.user = user;
     next();
   } catch (error) {

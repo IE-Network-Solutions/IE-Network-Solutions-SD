@@ -10,7 +10,9 @@ class PriorityDAL {
       const priorityRepository = connection.getRepository(Priority);
 
       // Get Data
-      const priorities = await priorityRepository.find();
+      const priorities = await priorityRepository.find({
+        where: { is_deleted: false },
+      });
       return priorities;
     } catch (error) {
       throw error;
@@ -27,7 +29,7 @@ class PriorityDAL {
 
       // Get Data
       const foundPriority = await priorityRepository.findOne({
-        where: { id: id },
+        where: { id: id, is_deleted: false },
       });
       return foundPriority;
     } catch (error) {

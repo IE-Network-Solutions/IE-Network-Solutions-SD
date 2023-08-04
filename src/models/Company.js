@@ -33,6 +33,10 @@ const Company = new EntitySchema({
       type: "varchar",
       enum: ["Basic", "Premium"],
     },
+    is_deleted: {
+      type: "boolean",
+      default: false,
+    },
 
     company_logo: {
       type: "varchar",

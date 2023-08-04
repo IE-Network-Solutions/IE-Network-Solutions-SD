@@ -8,6 +8,7 @@ const Ticket = require("../../models/Ticket");
 class ClientDAL {
   static async getClient() {
     try {
+      const user_type = "client";
       // get connection from the pool
       const connection = await getConnection();
 
@@ -16,7 +17,7 @@ class ClientDAL {
 
       // find all client data
       const clients = await clientRepository.find({
-        where: { user_type: "client" },
+        where: { user_type: "client", is_deleted: false },
         select: ["id", "first_name", "last_name", "email", "user_type"],
         relations: ["company"],
       });
@@ -33,6 +34,7 @@ class ClientDAL {
 
   static async getClientById(id) {
     try {
+      const is_deleted = false;
       // get connection from the pool
       const connection = await getConnection();
 
@@ -40,10 +42,64 @@ class ClientDAL {
       const clientRepository = await connection.getRepository(User);
 
       // get data
-      const client = await clientRepository.findOne({
-        where: { id },
-        relations: ["company"],
-      });
+      const client = await clientRepository
+        .createQueryBuilder("user")
+        .leftJoin("user.client_tickets", "tickets")
+        .leftJoin("tickets.ticket_type", "types")
+        .leftJoin("tickets.ticket_priority", "priority")
+        .leftJoin("tickets.ticket_status", "status")
+        .leftJoin("tickets.department", "department")
+        .leftJoin("department.team_lead", "team_lead")
+        .leftJoin("tickets.client", "client")
+        .leftJoin("tickets.comments", "comments")
+        .leftJoin("user.company", "company")
+        .leftJoin("tickets.assigned_users", "users")
+        .where("user.id = :id", { id })
+        .andWhere("user.is_deleted = :is_deleted", { is_deleted })
+        .select([
+          "user.id",
+          "user.first_name",
+          "user.last_name",
+          "user.email",
+          "company.id",
+          "company.company_name",
+          "company.description",
+          "tickets.id",
+          "tickets.subject",
+          "tickets.description",
+          "tickets.created_at",
+          "tickets.due_date",
+          "tickets.closed",
+          "types.type",
+          "types.id",
+          "priority.id",
+          "priority.type",
+          "status.id",
+          "status.type",
+          "status.status_color",
+          "department.id",
+          "department.type",
+          "users.id",
+          "users.email",
+          "users.first_name",
+          "users.last_name",
+          "users.role",
+          "users.department",
+          "users.user_type",
+          "company.company_name",
+          "company.description",
+          "company.id",
+          "comments.id",
+          "comments.title",
+          "comments.description",
+          "comments.is_private",
+          "comments.emailTo",
+          "comments.emailCc",
+          "comments.is_escalation",
+          "comments.created_at",
+          "comments.updated_at",
+        ])
+        .getOne();
 
       // return single data
       return client;

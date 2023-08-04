@@ -10,7 +10,7 @@ class TypeDAL {
       const typeRepository = connection.getRepository(Type);
 
       // Get Data
-      const types = await typeRepository.find();
+      const types = await typeRepository.find({ where: { is_deleted: false } });
       return types;
     } catch (error) {
       throw error;
@@ -26,7 +26,9 @@ class TypeDAL {
       const typeRepository = connection.getRepository(Type);
 
       // Get Data
-      const foundType = await typeRepository.findOne({ where: { id: id } });
+      const foundType = await typeRepository.findOne({
+        where: { id: id, is_deleted: false },
+      });
       return foundType;
     } catch (error) {
       throw error;

@@ -24,14 +24,17 @@ const Company = new EntitySchema({
     },
     notes: {
       type: "varchar",
+      nullable: true,
     },
     health_score: {
       type: "varchar",
       enum: ["Happy", "Not Happy"],
+      nullable: true,
     },
     account_tier: {
       type: "varchar",
       enum: ["Basic", "Premium"],
+      nullable: true,
     },
     is_deleted: {
       type: "boolean",

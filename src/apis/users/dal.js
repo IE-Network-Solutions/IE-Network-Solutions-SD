@@ -93,6 +93,7 @@ class UserDAL {
         role,
         department,
         manager_id,
+        profile_pic,
       } = data;
       const user_type = "employee";
 
@@ -108,6 +109,7 @@ class UserDAL {
         password,
         user_type,
         manager_id: manager_id,
+        profile_pic,
       });
 
       if (role) {

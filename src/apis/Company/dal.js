@@ -178,6 +178,7 @@ class CompanyDAL {
         account_tier,
         company_logo,
       } = data;
+      console.log(company_logo);
       // get connection from the pool
       const connection = getConnection();
       // create bridge

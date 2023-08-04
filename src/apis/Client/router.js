@@ -32,7 +32,12 @@ clientRouter
   .get(uuidValidator, authorize, ClientController.singleClient);
 clientRouter
   .route("/:id")
-  .patch(uuidValidator, authorize, ClientController.updateClient);
+  .patch(
+    uuidValidator,
+    uploadOptions.single("user_profile"),
+    authorize,
+    ClientController.updateClient
+  );
 clientRouter
   .route("/:id")
   .delete(uuidValidator, authorize, ClientController.deleteClient);

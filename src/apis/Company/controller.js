@@ -65,9 +65,11 @@ exports.updateCompany = async (req, res, next) => {
     const { id } = req.params;
 
     const updatedFields = req.body;
-    const profileImage = req.file ? req.file.path : "";
+    if (req.file) {
+      const profileImage = req.file.path;
+      updatedFields.company_logo = profileImage;
+    }
 
-    updatedFields.company_logo = profileImage;
     // check if company exist or not
     const companyData = await companyDAL.getCompanyById(id);
 

@@ -5,13 +5,22 @@ const { userValidator, loginValidator } = require("./validation");
 const auth = require("../../middlewares/auth");
 const authorize = require("../../middlewares/auth/authorization");
 const { uuidValidator } = require("../../../utils/uuid");
+const { uploadOptions } = require("../../../utils/imageUpload");
 
 router.route("/").get(UserController.getAllUsers);
-router.route("/user-data").get(authorize, UserController.getLoggedUserData);
+router
+  .route("/user-data")
+  .get(
+    authorize,
+    uploadOptions.single("user_profile"),
+    UserController.getLoggedUserData
+  );
 
 router.route("/:id").get(authorize, uuidValidator, UserController.getOneUser);
 
-router.route("/").post(UserController.createUser);
+router
+  .route("/")
+  .post(uploadOptions.single("user_profile"), UserController.createUser);
 // router
 //   .route("/")
 //   .post(authorize, validate(userValidator), UserController.createUser);

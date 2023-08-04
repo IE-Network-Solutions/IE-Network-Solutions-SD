@@ -4,6 +4,7 @@ const PriorityDAL = require("../priority/dal");
 const ClientDAL = require("./dal");
 
 const TypeDAL = require("../type/dal");
+const CompanyDAL = require("../Company/dal");
 
 exports.allClients = async (req, res, next) => {
   try {
@@ -67,13 +68,26 @@ exports.updateClient = async (req, res, next) => {
   try {
     const id = req.params.id;
     const updatedFields = req.body;
-
+    console.log(req.body);
     // check if client exist or not
     const clientData = await ClientDAL.getClientById(id);
 
     if (!clientData)
       return next(new AppError("client with the given id not found"));
 
+    // check if profilr update
+    if (req.file) {
+      updatedFields.profile_pic = req.file.path;
+    }
+    // check if company is on the update
+    if (updatedFields.company_id) {
+      const company = await CompanyDAL.getCompanyById(updatedFields.company_id);
+      if (!company) {
+        return next(new AppError("company with the given id not found"));
+      }
+      updatedFields.company = company;
+    }
+    console.log(updatedFields, "suraaaaaaaaaaa");
     const client = await ClientDAL.updateClient(id, updatedFields);
 
     res.status(200).json({

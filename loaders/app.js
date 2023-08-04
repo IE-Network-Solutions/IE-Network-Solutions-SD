@@ -36,7 +36,9 @@ app.use(express.json({ limit: "50mb" }));
 
 app.use(express.urlencoded({ extended: false }));
 
-// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// a way to get static files
+app.use("/api/v1/uploads", express.static("uploads"));
+
 app.use("/api/v1/tickets", ticketRoute);
 app.use("/api/v1/tests", TestRoute);
 app.use("/api/v1/client", clientRouter);

@@ -73,6 +73,8 @@ exports.createUser = async (req, res, next) => {
   try {
     // Get Req Body
     let user = req.body;
+    const user_profile = req.file ? req.file.path : null;
+    user.profile_pic = user_profile;
     user.password = hash("%TGBnhy6");
 
     // check if email exsist or not
@@ -177,6 +179,9 @@ exports.loginUser = async (req, res, next) => {
 
   if (!user) return next(new AppError("User Not Found!", 404));
 
+  if (user.password_changed == false) {
+    return next(new AppError("please change your password"));
+  }
   // validate user credential
   if (!checkHash(password, user.password))
     return next(new AppError("please check your credential"));

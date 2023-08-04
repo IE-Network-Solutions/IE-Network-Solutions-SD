@@ -156,6 +156,10 @@ exports.editUser = async (req, res, next) => {
     if (!chekUser) {
       return next(new AppError("user does not exist", 404));
     }
+    if (user.password) {
+      user.password = hash(user.password);
+      user.password_changed = true;
+    }
 
     // Edit User
     let editedUser = await UserDAL.editUser(id, user);

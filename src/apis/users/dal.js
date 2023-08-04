@@ -138,14 +138,11 @@ class UserDAL {
       const connection = getConnection();
       const userRepository = connection.getRepository(User);
 
-      const user = await userRepository.findOneBy({ id: idUser });
+      const user = await userRepository.findOne({ where: { id: idUser } });
       // Update User
       // Update only the specified fields in the updatedFields object
-      Object.keys(updatedFields).forEach((field) => {
-        if (field in user) {
-          user[field] = updatedFields[field];
-        }
-      });
+      userRepository.merge(user, updatedFields);
+
       await userRepository.save(user);
 
       return user;

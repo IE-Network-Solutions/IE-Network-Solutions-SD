@@ -79,6 +79,10 @@ exports.updateClient = async (req, res, next) => {
     if (req.file) {
       updatedFields.profile_pic = req.file.path;
     }
+    if (updatedFields.password) {
+      updatedFields.password = hash(updatedFields.password);
+      updatedFields.password_changed = true;
+    }
     // check if company is on the update
     if (updatedFields.company_id) {
       const company = await CompanyDAL.getCompanyById(updatedFields.company_id);

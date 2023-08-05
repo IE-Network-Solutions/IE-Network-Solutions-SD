@@ -5,6 +5,11 @@ const Company = require("./Company");
  * Entitiy model for user table
  */
 
+const UserType = {
+  Client: "client",
+  Employee: "employee",
+};
+
 const User = new EntitySchema({
   name: "User",
   columns: {
@@ -29,11 +34,15 @@ const User = new EntitySchema({
       type: "varchar",
       nullable: true,
     },
-    role_id: {
+    phone_number: {
       type: "varchar",
       nullable: true,
     },
-    permission_id:{
+    profile_pic: {
+      type: "varchar",
+      nullable: true,
+    },
+    password: {
       type: "varchar",
       nullable: true,
     },
@@ -41,15 +50,24 @@ const User = new EntitySchema({
       type: "varchar",
       nullable: true,
     },
-    user_type: {
+    manager_id: {
       type: "varchar",
       nullable: true,
     },
-    company_id:{
-      type: "uuid",
-      nullable:true
-     },
-   
+    is_deleted: {
+      type: "boolean",
+      default: false,
+    },
+    user_type: {
+      type: "enum",
+      enum: Object.values(UserType),
+      default: UserType.Client,
+    },
+    password_changed: {
+      type: "boolean",
+      default: false,
+    },
+
     created_at: {
       type: "timestamp",
       default: () => "CURRENT_TIMESTAMP",
@@ -95,7 +113,6 @@ const User = new EntitySchema({
       onDelete: "SET NULL",
       onUpdate: 'CASCADE'
     },
-   
     company: {
       type: "many-to-one",
       target: "Company",
@@ -110,7 +127,64 @@ const User = new EntitySchema({
         inverseJoinColumn: { name: 'permission_id', referencedColumnName: 'id' },
       },
       onDelete: "SET NULL",
-      onUpdate: 'CASCADE'
+      onUpdate: 'CASCADE',
+      joinColumn: {
+        name: "company_id",
+        referencedColumnName: "id",
+      },
+    },
+    department: {
+      type: "many-to-one",
+      target: "Department",
+      joinColumn: {
+        name: "department_id",
+        referencedColumnName: "id",
+      },
+    },
+    ticket_type: {
+      type: "many-to-one",
+      target: "Type",
+      joinColumn: {
+        name: "type_id",
+        referencedColumnName: "id",
+      },
+    },
+    ticket_priority: {
+      type: "many-to-one",
+      target: "Department",
+      joinColumn: {
+        name: "priority_id",
+        referencedColumnName: "id",
+      },
+    },
+    ticket_status: {
+      type: "many-to-one",
+      target: "Status",
+      joinColumn: {
+        name: "status_id",
+        referencedColumnName: "id",
+      },
+    },
+    client_tickets: {
+      type: "many-to-one",
+      target: "Ticket",
+      joinColumn: {
+        name: "ticket_id",
+        referencedColumnName: "id",
+      },
+    },
+    manager: {
+      type: "many-to-one",
+      target: "User",
+      joinColumn: {
+        name: "manager_id",
+        referencedColumnName: "id",
+      },
+    },
+    client_tickets: {
+      type: "one-to-many",
+      target: "Ticket",
+      inverseSide: "client",
     },
   },
 });

@@ -13,7 +13,7 @@ exports.createRole = async (req, res, next) => {
     //   create new role
     const createdRole = await RoleDAL.createRole(data);
 
-    // Create/give least permission on all seeded resources in the system for newly created role, 
+    // Create/give least permission on all seeded resources in the system for newly created role,
     // then the admin will update it latter as necessary.
     // await RoleDAL.createManyPermissions(createdRole.id);
 
@@ -32,7 +32,8 @@ exports.getAllRoles = async (req, res, next) => {
     const roles = await RoleDAL.getAllRole();
 
     // check if Role doesn't exist.
-    if (roles.length == 0) {
+
+    if (!roles) {
       return next(new AppError("No Role data found."));
     }
     res.status(200).json({
@@ -73,7 +74,9 @@ exports.findOneRoleByName = async (req, res, next) => {
     const role = await RoleDAL.findOneRoleByName(roleName);
 
     if (!role) {
-      return next(new AppError("Role with the given roleName is not found.", 404));
+      return next(
+        new AppError("Role with the given roleName is not found.", 404)
+      );
     }
 
     res.status(200).json({
@@ -99,6 +102,22 @@ exports.updateRoleById = async (req, res, next) => {
     }
 
     const role = await RoleDAL.updateRoleById(id, updatedFields);
+    let updatedRole;
+
+    // check for the uniqueness of the role name.
+    if (checkRole.roleName === updatedFields.roleName) {
+      // here we are updating by the same name.
+      // So, the roleName will be unique.
+      updatedRole = await RoleDAL.updateOneRoleById(id, updatedFields);
+    } else {
+      const roleExist = await RoleDAL.findOneRoleByName(updatedFields.roleName);
+      if (!roleExist || !updatedFields.roleName) {
+        updatedRole = await RoleDAL.updateOneRoleById(id, updatedFields);
+      } else {
+        return next(new AppError("Role name must be unique.", 406));
+      }
+    }
+
     res.status(200).json({
       status: "Success",
       message: "Role is Successfully updated",

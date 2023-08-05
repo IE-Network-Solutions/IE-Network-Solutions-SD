@@ -25,6 +25,16 @@ const config = {
     secret: process.env.JWT_SECRET,
     expiresIn: process.env.JWT_EXPIRES_IN,
   },
+  email: {
+    hostURL: process.env.HOST_URL,
+    emailPort: process.env.EMAIL_PORT,
+    systemEmail: process.env.SYSTEM_EMAIL,
+    emailPassword: process.env.SYSTEM_EMAIL_PASSWORD,
+  },
+  log: {
+    logFilePath: process.env.LOG_FILE_PATH,
+  },
+  company_email: process.env.COMP_EMAIL,
 };
 
 module.exports = config;

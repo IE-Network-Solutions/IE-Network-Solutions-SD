@@ -10,7 +10,12 @@ class UserDAL {
       const userRepository = connection.getRepository(User);
 
       // Get Data
-      return await userRepository.find({ relations: ['role.permissions', 'permissions'] });
+      const users = await userRepository.find({
+        where: { user_type: "employee" },
+        select: ["id", "first_name", "last_name", "email", "user_type"],
+        relations: ["department", "manager",'role.permissions', 'permissions'],
+      });
+      return users;
     } catch (error) {
       throw error;
     }
@@ -25,8 +30,36 @@ class UserDAL {
       const userRepository = await connection.getRepository(User);
 
       // Get Data
-      return await userRepository.findOne({ where: { id: id }, relations: ['role.permissions', 'permissions'] });
+      const foundUser = await userRepository.findOne({
+        where: { id: id },
+        select: ["id", "email", "first_name", "last_name", "user_type"],
+        relations: ["department", "manager",'role.permissions', 'permissions'],
+      });
+      return foundUser;
+    } catch (error) {
+      throw error;
+    }
+  }
 
+  // get all admins
+  static async getAllAdmins() {
+    try {
+      const roleName = "Admin";
+      // get connection from the pool
+      const connection = getConnection();
+
+      // create bridge to the db
+      const userRepository = connection.getRepository(User);
+
+      // get all users where role Admin
+      const admins = userRepository
+        .createQueryBuilder("user")
+        .leftJoin("user.role", "role")
+        .select(["user.email"])
+        .where("role.roleName = :roleName", { roleName })
+        .getMany();
+
+      return admins;
     } catch (error) {
       throw error;
     }
@@ -52,14 +85,40 @@ class UserDAL {
   static async createUser(data) {
     try {
       // Create User Object
-      const user = data;
+      const {
+        first_name,
+        last_name,
+        email,
+        password,
+        role,
+        department,
+        manager_id,
+        profile_pic,
+      } = data;
+      const user_type = "employee";
 
       // Form Connection
       const connection = getConnection();
       const userRepository = connection.getRepository(User);
 
       // Create User
-      const newUser = await userRepository.create(user);
+      const newUser = await userRepository.create({
+        first_name,
+        last_name,
+        email,
+        password,
+        user_type,
+        manager_id: manager_id,
+        profile_pic,
+      });
+
+      if (role) {
+        newUser.role = role;
+      }
+
+      if (department) {
+        newUser.department = department;
+      }
       await userRepository.save(newUser);
 
       return newUser;
@@ -79,14 +138,11 @@ class UserDAL {
       const connection = getConnection();
       const userRepository = connection.getRepository(User);
 
-      const user = await userRepository.findOneBy({ id: idUser });
+      const user = await userRepository.findOne({ where: { id: idUser } });
       // Update User
       // Update only the specified fields in the updatedFields object
-      Object.keys(updatedFields).forEach((field) => {
-        if (field in user) {
-          user[field] = updatedFields[field];
-        }
-      });
+      userRepository.merge(user, updatedFields);
+
       await userRepository.save(user);
 
       return user;
@@ -141,7 +197,9 @@ class UserDAL {
 
       // return user
       return user;
-    } catch (error) { }
+    } catch (error) {
+      throw error;
+    }
   }
 
   static async findMultipleUsers(userIds) {

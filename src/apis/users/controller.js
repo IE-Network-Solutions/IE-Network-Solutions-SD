@@ -1,5 +1,7 @@
 const AppError = require("../../../utils/apperror");
 const UserDAL = require("./dal");
+const RoleDAL = require("../role/dal");
+const DepartmentDAL = require("../department/dal");
 const jwt = require("../../middlewares/auth");
 const hash = require("../../../utils/hashpassword");
 const generateRandomPassword = require("../../../utils/generateRandomPassword");
@@ -51,17 +53,51 @@ exports.getOneUser = async (req, res, next) => {
     throw error;
   }
 };
+exports.getLoggedUserData = async (req, res, next) => {
+  try {
+    // Get ID
+    // let id = req.params.id;
+    let user = req.user;
+
+    //   return if user does not exist
+    if (!user) return next(new AppError("user does not exist", 404));
+
+    // Respond
+    res.status(200).json({
+      status: "Success",
+      data: user,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
 
 exports.createUser = async (req, res, next) => {
   try {
     // Get Req Body
     let user = req.body;
+    const user_profile = req.file ? req.file.path : null;
+    user.profile_pic = user_profile;
     user.password = hash("%TGBnhy6");
 
     // check if email exsist or not
     const checkUser = await UserDAL.getUserByEmail(user.email);
     if (checkUser) {
       return next(new AppError("user with the given email already exist"));
+    }
+
+    // check if role exist
+    if (user.role_id) {
+      const role = await RoleDAL.findOneRoleById(user.role_id);
+      if (!role) return next(new AppError("role does not exist"));
+      user.role = role;
+    }
+
+    // check if department exist
+    if (user.department_id) {
+      const department = await DepartmentDAL.getDepartment(user.department_id);
+      if (!department) return next(new AppError("department does not exist"));
+      user.department = department;
     }
 
     // Create New User
@@ -124,6 +160,14 @@ exports.editUser = async (req, res, next) => {
     if (!chekUser) {
       return next(new AppError("user does not exist", 404));
     }
+    if (user.password) {
+      user.password = hash(user.password);
+      user.password_changed = true;
+    }
+    // check if profilr update
+    if (req.file) {
+      user.profile_pic = req.file.path;
+    }
 
     // Edit User
     let editedUser = await UserDAL.editUser(id, user);
@@ -145,8 +189,12 @@ exports.loginUser = async (req, res, next) => {
 
   // Check User Existence by email
   let user = await UserDAL.getUserByEmail(email);
+
   if (!user) return next(new AppError("User Not Found!", 404));
 
+  if (user.password_changed == false) {
+    return next(new AppError("please change your password"));
+  }
   // validate user credential
   if (!checkHash(password, user.password))
     return next(new AppError("please check your credential"));
@@ -157,11 +205,19 @@ exports.loginUser = async (req, res, next) => {
   console.log(req.headers['authorization'].split(' ')[1])
   console.log("usersssssssss", token);
 
+  // filter password
+  const filteredData = {};
+  for (const key in user) {
+    if (key !== "password") {
+      filteredData[key] = user[key];
+    }
+  }
+  console.log(filteredData);
   // Respond
   res.status(200).json({
     status: "Success",
     data: {
-      user: user,
+      user: filteredData,
       token: token,
     },
   });
@@ -191,7 +247,7 @@ exports.resetPassword = async (req, res, next) => {
   } catch (error) {
     throw error;
   }
-}
+};
 
 exports.forgotPassword = async (req, res, next) => {
   try {
@@ -211,7 +267,12 @@ exports.forgotPassword = async (req, res, next) => {
 
     // Email New Password To User
     let newPass = "Your new password is: " + newPassword;
-    await sendEmail(process.env.SYSTEM_EMAIL, email, "Forgot Password", newPass);
+    await sendEmail(
+      process.env.SYSTEM_EMAIL,
+      email,
+      "Forgot Password",
+      newPass
+    );
 
     // Respond
     res.status(200).json({
@@ -235,4 +296,4 @@ exports.logOut = async (req, res, next) => {
     statusCode: 200
   })
 }
-
+};

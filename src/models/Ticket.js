@@ -14,11 +14,17 @@ const Ticket = new EntitySchema({
     description: {
       type: "text",
     },
-    status: {
-      type: "varchar",
+    due_date: {
+      type: "date",
+      nullable: true,
     },
-    priority: {
-      type: "varchar",
+    closed: {
+      type: "boolean",
+      default: false,
+    },
+    is_deleted: {
+      type: "boolean",
+      default: false,
     },
     created_at: {
       type: "timestamp",
@@ -46,6 +52,68 @@ const Ticket = new EntitySchema({
       },
     },
   }, 
+    ticket_priority: {
+      type: "many-to-one",
+      target: "Priority",
+      joinColumn: {
+        name: "priority_id",
+        referencedColumnName: "id",
+      },
+    },
+    created_by: {
+      type: "many-to-one",
+      target: "User",
+      joinColumn: {
+        name: "created_by",
+        referencedColumnName: "id",
+      },
+    },
+    ticket_status: {
+      type: "many-to-one",
+      target: "Status",
+      joinColumn: {
+        name: "status_id",
+        referencedColumnName: "id",
+      },
+    },
+    ticket_type: {
+      type: "many-to-one",
+      target: "Type",
+      joinColumn: {
+        name: "type_id",
+        referencedColumnName: "id",
+      },
+    },
+    department: {
+      type: "many-to-one",
+      target: "Department",
+      joinColumn: {
+        name: "department_id",
+        referencedColumnName: "id",
+      },
+    },
+    client: {
+      type: "many-to-one",
+      target: "User",
+      joinColumn: {
+        name: "client_id",
+        referencedColumnName: "id",
+      },
+    },
+    company: {
+      type: "many-to-one",
+      target: "Company",
+      joinColumn: {
+        name: "company_id",
+        referencedColumnName: "id",
+      },
+    },
+    comments: {
+      type: "one-to-many",
+      target: "Comment",
+      inverseSide: "ticket",
+    },
+  },
 });
 
 module.exports = Ticket;

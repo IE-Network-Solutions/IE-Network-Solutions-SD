@@ -9,12 +9,38 @@ const rolePermissionMiddleware = require('../../middlewares/rolePermissionMiddle
 const Permission = require('../../apis/permissionList/pemissions');
 const tokenBlacklist = require('../../middlewares/blackList');
 
-router.route("/").get(authorize, rolePermissionMiddleware([...Permission.userPermissions]), UserController.getAllUsers);
-router.route("/:id").get(authorize, rolePermissionMiddleware([...Permission.userPermissions]), UserController.getOneUser);
-router.route("/").post(validate(userValidator), UserController.createUser);
-router.route("/:id").patch(uuidValidator, authorize, rolePermissionMiddleware([...Permission.userPermissions]), UserController.editUser);
-router.route("/:id").delete(uuidValidator, authorize, rolePermissionMiddleware([...Permission.userPermissions]), UserController.deleteUser);
-router.route("/deleteAllUsers/:id").delete(uuidValidator, authorize, rolePermissionMiddleware([...Permission.userPermissions]), UserController.deleteAllUsers);
+const { uploadOptions } = require("../../../utils/imageUpload");
+
+router.route("/").get(UserController.getAllUsers);
+router
+  .route("/user-data")
+  .get(
+    authorize,
+    uploadOptions.single("user_profile"),
+    UserController.getLoggedUserData
+  );
+
+router.route("/:id").get(authorize, uuidValidator, UserController.getOneUser);
+
+router
+  .route("/")
+  .post(uploadOptions.single("user_profile"), UserController.createUser);
+
+router
+  .route("/:id")
+  .patch(
+    uuidValidator,
+    authorize,
+    uploadOptions.single("user_profile"),
+    UserController.editUser
+  );
+
+router
+  .route("/:id")
+  .delete(uuidValidator, authorize, UserController.deleteUser);
+router
+  .route("/deleteAllUsers/:id")
+  .delete(uuidValidator, authorize, UserController.deleteAllUsers);
 router.route("/login").post(validate(loginValidator), UserController.loginUser);
 router.route("/resetPassword").post(authorize, authorize, rolePermissionMiddleware([...Permission.userPermissions]), UserController.resetPassword);
 router.route("/forgotPassword").post(authorize, rolePermissionMiddleware([...Permission.userPermissions]), UserController.forgotPassword);
@@ -24,10 +50,6 @@ router.route("/logout").post(async (req, res, next) => {
   if (token) {
     return res.status(400).json({ message: 'Token not provided.' });
   }
-
-  // Add the token to the blacklist 
-  //   tokenBlacklist.add(token);
-
   res.json({ message: 'Logged out successfully.' });
 });
 module.exports = router;

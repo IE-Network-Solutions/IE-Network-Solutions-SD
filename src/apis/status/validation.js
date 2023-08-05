@@ -1,6 +1,6 @@
 const joi = require("joi");
 
 exports.statusValidator = joi.object({
-    id: joi.string(),
-    type: joi.string().required(),
+  type: joi.string().required(),
+  status_color: joi.string().required(),
 });

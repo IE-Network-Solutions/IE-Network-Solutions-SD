@@ -1,22 +1,32 @@
 const { EntitySchema } = require("typeorm");
 
-const Priority = new EntitySchema({
-  name: "Status",
+const Notification = new EntitySchema({
+  name: "Notification",
   columns: {
     id: {
       primary: true,
       type: "uuid",
       generated: "uuid",
     },
+    // Whether the notification is from system or users
     type: {
-      type: "varchar",
-      nullable: false,
+      type: "text",
+      nullable: true,
     },
-    status_color: {
-      type: "varchar",
-      nullable: false,
+    // If user then this will be the UserUUID and if not it will be SYSTEM
+    from: {
+      type: "text",
+      nullable: true,
     },
-    is_deleted: {
+    // The notification message
+    message: {
+      type: "text",
+    },
+    read_at: {
+      type: "date",
+      nullable: true,
+    },
+    dont_forget: {
       type: "boolean",
       default: false,
     },
@@ -31,22 +41,14 @@ const Priority = new EntitySchema({
   },
   relations: {
     created_by: {
-      type: "one-to-many",
+      type: "many-to-one",
       target: "User",
       joinColumn: {
         name: "user_id",
         referencedColumnName: "id",
       },
     },
-    created_on: {
-      type: "one-to-many",
-      target: "Ticket",
-      joinColumn: {
-        name: "ticket_id",
-        referencedColumnName: "id",
-      },
-    },
   },
 });
 
-module.exports = Priority;
+module.exports = Notification;

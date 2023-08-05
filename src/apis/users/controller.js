@@ -156,21 +156,49 @@ exports.editUser = async (req, res, next) => {
 
     //   check if user exist or not
     let chekUser = await UserDAL.getOneUser(id);
+    if (!chekUser) {
+      return next(new AppError("user does not exist", 404));
+    }
+
+    // check if profilr update
+    if (req.file) {
+      user.profile_pic = req.file.path;
+    }
+
+    // Edit User
+    let editedUser = await UserDAL.editUser(id, user);
+
+    // Respond
+    res.status(200).json({
+      status: "Success",
+      data: editedUser,
+    });
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+exports.editPassword = async (req, res, next) => {
+  try {
+    // Get Req Body
+    console.log("id");
+    let id = req.params.id;
+    console.log("id");
+    let user = req.body;
+
+    //   check if user exist or not
+    let chekUser = await UserDAL.getOneUser(id);
     console.log(chekUser.password);
     if (!chekUser) {
       return next(new AppError("user does not exist", 404));
     }
-    if (user.password) {
-      // validate user credential
-      if (!user.old_password) {
-        return next(new AppError("plese provide your old password"));
-      }
-      console.log();
-      if (!checkHash(user.old_password, chekUser.password))
-        return next(new AppError("please check your old credential"));
-      user.password = hash(user.password);
-      user.password_changed = true;
-    }
+    // validate user credential
+    if (!checkHash(user.old_password, chekUser.password))
+      return next(new AppError("please check your old credential"));
+
+    user.password = hash(user.password);
+    user.password_changed = true;
+
     // check if profilr update
     if (req.file) {
       user.profile_pic = req.file.path;
@@ -205,7 +233,7 @@ exports.loginUser = async (req, res, next) => {
 
     return await res.status(200).json({
       Status: "Success",
-      data: user,
+      data: { user: user },
     });
   }
   // validate user credential

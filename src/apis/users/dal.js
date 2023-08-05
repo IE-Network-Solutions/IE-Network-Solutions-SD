@@ -11,7 +11,7 @@ class UserDAL {
 
       // Get Data
       const users = await userRepository.find({
-        where: { user_type: "employee" },
+        where: { user_type: "employee", is_deleted: false },
         select: ["id", "first_name", "last_name", "email", "user_type"],
         relations: ["department", "manager", "role.permissions", "permissions"],
       });
@@ -31,7 +31,7 @@ class UserDAL {
 
       // Get Data
       const foundUser = await userRepository.findOne({
-        where: { id: id },
+        where: { id: id, is_deleted: false },
         select: [
           "id",
           "email",

@@ -31,7 +31,7 @@ class RoleDAL {
       const roleRepository = connection.getRepository(Role);
 
       // Get all roles.
-      const roles = await roleRepository.find();
+      const roles = await roleRepository.find({ relations: ["permissions"] });
 
       // return all fetched data.
       return roles;

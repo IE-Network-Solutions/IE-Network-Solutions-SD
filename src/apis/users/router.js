@@ -1,7 +1,11 @@
 const router = require("express").Router();
 const UserController = require("./controller");
 const validate = require("../../../utils/validator");
-const { userValidator, loginValidator } = require("./validation");
+const {
+  userValidator,
+  loginValidator,
+  change_password,
+} = require("./validation");
 const auth = require("../../middlewares/auth");
 const authorize = require("../../middlewares/auth/authorization");
 const { uuidValidator } = require("../../../utils/uuid");
@@ -33,6 +37,9 @@ router
     uploadOptions.single("user_profile"),
     UserController.editUser
   );
+router
+  .route("/change-password/:id")
+  .patch(uuidValidator, validate(change_password), UserController.editUser);
 
 router
   .route("/:id")

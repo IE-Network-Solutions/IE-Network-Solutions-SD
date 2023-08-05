@@ -9,7 +9,6 @@ const createToken = (payload) => {
   const token = jwt.sign(payloadValues, configs.jwt.secret, {
     expiresIn: configs.jwt.expiresIn,
   });
-
   // Return the token
   return token;
 };

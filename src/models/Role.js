@@ -21,15 +21,23 @@ const Role = new EntitySchema({
     },
   },
   relations: {
+    permissions: {
+      type: 'many-to-many',
+      target: 'Permission',
+      joinTable: {
+        name: 'role_permission',
+        joinColumn: { name: 'role_id', referencedColumnName: 'id' },
+        inverseJoinColumn: { name: 'permission_id', referencedColumnName: 'id' },
+      },
+      onDelete: "SET NULL",
+      onUpdate: 'CASCADE'
+    },
     users: {
       type: "one-to-many",
       target: "User",
-      joinColumn: true,
-    },
-    permissions: {
-      type: "one-to-many",
-      target: "Permission",
-      joinColumn: true,
+      joinColumn:true,
+      cascade : false,
+      inverseSide: "role",
     },
   },
 });

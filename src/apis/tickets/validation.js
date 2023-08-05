@@ -27,5 +27,5 @@ exports.updateTicketValidator = joi.object({
 });
 
 exports.assignTicket = joi.object({
-  users: joi.array().required(),
+  users: joi.array().required()
 });

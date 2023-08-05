@@ -8,6 +8,7 @@ const generateRandomPassword = require("../../../utils/generateRandomPassword");
 const checkHash = require("../../../utils/comparePassword");
 const createToken = require("../../../utils/generateToken");
 const sendEmail = require("../../../utils/sendEmail");
+const authToken = require("../../middlewares/auth/authToken");
 
 exports.introduction = async (req, res, next) => {
   // Respond
@@ -28,6 +29,7 @@ exports.getAllUsers = async (req, res, next) => {
       data: users,
     });
   } catch (error) {
+
     throw error;
   }
 };
@@ -35,8 +37,8 @@ exports.getAllUsers = async (req, res, next) => {
 exports.getOneUser = async (req, res, next) => {
   try {
     // Get ID
-    let id = req.params.id;
-    let user = await UserDAL.getOneUser(id);
+    const id = req.params.id;
+    const user = await UserDAL.getOneUser(id);
 
     //   return if user does not exist
     if (!user) return next(new AppError("user does not exist", 404));
@@ -47,6 +49,7 @@ exports.getOneUser = async (req, res, next) => {
       data: user,
     });
   } catch (error) {
+    console.log(error)
     throw error;
   }
 };
@@ -106,7 +109,7 @@ exports.createUser = async (req, res, next) => {
       data: newUser,
     });
   } catch (error) {
-    throw error;
+    return next(new AppError("Role id is must be unique"))
   }
 };
 
@@ -114,19 +117,18 @@ exports.deleteUser = async (req, res, next) => {
   try {
     // Get Req Body
     const id = req.params.id;
-
-    const user = await UserDAL.getOneUser(id);
-    if (!user) return next(new AppError("user does not exist"));
-    // Delete User
     const deletedUser = await UserDAL.deleteUser(id);
-
+    if (deletedUser.affected === 0) {
+      return next(new AppError('User is not Deleted'))
+    }
     // Respond
     res.status(200).json({
       status: "Success",
-      data: null,
+      message: "User is successfully deleted"
     });
   } catch (error) {
-    throw error;
+    console.log(error)
+    return next(new AppError('Server Error', 500))
   }
 };
 
@@ -148,11 +150,13 @@ exports.deleteAllUsers = async (req, res, next) => {
 exports.editUser = async (req, res, next) => {
   try {
     // Get Req Body
-    let id = req.body.id;
+    console.log("id")
+    let id = req.params.id;
+    console.log("id")
     let user = req.body;
 
     //   check if user exist or not
-    let chekUser = UserDAL.getOneUser(id);
+    let chekUser = await UserDAL.getOneUser(id);
     if (!chekUser) {
       return next(new AppError("user does not exist", 404));
     }
@@ -174,6 +178,7 @@ exports.editUser = async (req, res, next) => {
       data: editedUser,
     });
   } catch (error) {
+    console.log(error)
     throw error;
   }
 };
@@ -196,6 +201,9 @@ exports.loginUser = async (req, res, next) => {
 
   // Sign JWT
   let token = await createToken({ id: user.id });
+  res.cookie('token', token, { httpOnly: true });
+  console.log(req.headers['authorization'].split(' ')[1])
+  console.log("usersssssssss", token);
 
   // filter password
   const filteredData = {};
@@ -274,4 +282,18 @@ exports.forgotPassword = async (req, res, next) => {
   } catch (error) {
     throw error;
   }
+}
+
+exports.logOut = async (req, res, next) => {
+  const userToken = req.token;
+  if (userToken != null) {
+    console.log(userToken)
+    return next(new AppError("User is not Logged out"));
+  }
+  res.status(200).json({
+    status: "success",
+    message: "User is successfully logout",
+    statusCode: 200
+  })
+}
 };

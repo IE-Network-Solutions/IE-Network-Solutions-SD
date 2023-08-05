@@ -13,7 +13,7 @@ class UserDAL {
       const users = await userRepository.find({
         where: { user_type: "employee" },
         select: ["id", "first_name", "last_name", "email", "user_type"],
-        relations: ["role", "department", "manager"],
+        relations: ["department", "manager",'role.permissions', 'permissions'],
       });
       return users;
     } catch (error) {
@@ -26,14 +26,14 @@ class UserDAL {
     const id = data;
     try {
       // Form Connection
-      const connection = getConnection();
-      const userRepository = connection.getRepository(User);
+      const connection = await getConnection();
+      const userRepository = await connection.getRepository(User);
 
       // Get Data
       const foundUser = await userRepository.findOne({
         where: { id: id },
         select: ["id", "email", "first_name", "last_name", "user_type"],
-        relations: ["role", "department", "manager"],
+        relations: ["department", "manager",'role.permissions', 'permissions'],
       });
       return foundUser;
     } catch (error) {
@@ -155,13 +155,13 @@ class UserDAL {
   static async deleteUser(id) {
     try {
       // Form Connection
-      const connection = getConnection();
-      const userRepository = connection.getRepository(User);
-
-      // Delete User
-      const deletedUser = await userRepository.delete({ id: id });
-
-      return "user deleted successfully";
+      const connection = await getConnection();
+      const userRepository = await connection.getRepository(User);
+      const user = await userRepository.find({ where: { id: id }, relations: ['permissions'] });
+      if (!user) {
+        return;
+      }
+      return await userRepository.remove(user);
     } catch (error) {
       throw error;
     }
@@ -193,10 +193,7 @@ class UserDAL {
       const userRepository = connection.getRepository(User);
 
       // get user by email
-      const user = userRepository.findOne({
-        where: { email: email },
-        // select: ["id", "first_name", "last_name", "role", "email"],
-      });
+      const user = userRepository.findOne({ where: { email: email }, relations: ['role.permissions'] });
 
       // return user
       return user;
@@ -215,6 +212,22 @@ class UserDAL {
 
       // return users
       return users;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async deletePermissionForSpecificUser(userId, permissionId) {
+    try {
+      const connecition = await getConnection();
+      const userRepository = await connecition.getRepository(User);
+      const user = await userRepository.findOne({ where: { id: userId }, relations: ['permissions'] })
+      if (!user) {
+        return;
+      }
+      user.permissions = user.permissions.filter(permission => permission.id !== permissionId)
+      return await userRepository.save(user);
+
     } catch (error) {
       throw error;
     }

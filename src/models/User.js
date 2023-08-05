@@ -96,7 +96,7 @@ const User = new EntitySchema({
     knowledgeBase: {
       type: "one-to-many",
       target: "KnowledgeBase",
-      inverseSide: "created_by",
+      inverseSide: "createdBy",
     },
     todos: {
       type: "one-to-many",
@@ -110,10 +110,24 @@ const User = new EntitySchema({
         name: "role_id",
         referencedColumnName: "id",
       },
+      onDelete: "SET NULL",
+      onUpdate: 'CASCADE'
     },
     company: {
       type: "many-to-one",
       target: "Company",
+      inverseSide: "clients"
+    },
+    permissions: {
+      type: 'many-to-many',
+      target: 'Permission',
+      joinTable: {
+        name: 'user_permission',
+        joinColumn: { name: 'user_id', referencedColumnName: 'id' },
+        inverseJoinColumn: { name: 'permission_id', referencedColumnName: 'id' },
+      },
+      onDelete: "SET NULL",
+      onUpdate: 'CASCADE',
       joinColumn: {
         name: "company_id",
         referencedColumnName: "id",

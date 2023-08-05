@@ -2,7 +2,7 @@ const { EntitySchema } = require("typeorm");
 
 const Ticket = new EntitySchema({
   name: "Ticket",
-  
+
   columns: {
     id: {
       primary: true,
@@ -45,13 +45,12 @@ const Ticket = new EntitySchema({
           name: "ticket_id",
           referencedColumnName: "id",
         },
-        inverseJoinColumn: { 
+        inverseJoinColumn: {
           name: "user_id",
-          referencedColumnName: "id", 
+          referencedColumnName: "id",
         },
       },
     },
-  }, 
     ticket_priority: {
       type: "many-to-one",
       target: "Priority",

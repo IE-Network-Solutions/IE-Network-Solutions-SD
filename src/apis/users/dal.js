@@ -13,7 +13,7 @@ class UserDAL {
       const users = await userRepository.find({
         where: { user_type: "employee" },
         select: ["id", "first_name", "last_name", "email", "user_type"],
-        relations: ["department", "manager",'role.permissions', 'permissions'],
+        relations: ["department", "manager", "role.permissions", "permissions"],
       });
       return users;
     } catch (error) {
@@ -32,8 +32,15 @@ class UserDAL {
       // Get Data
       const foundUser = await userRepository.findOne({
         where: { id: id },
-        select: ["id", "email", "first_name", "last_name", "user_type"],
-        relations: ["department", "manager",'role.permissions', 'permissions'],
+        select: [
+          "id",
+          "email",
+          "first_name",
+          "last_name",
+          "user_type",
+          "password",
+        ],
+        relations: ["department", "manager", "role.permissions", "permissions"],
       });
       return foundUser;
     } catch (error) {
@@ -157,7 +164,10 @@ class UserDAL {
       // Form Connection
       const connection = await getConnection();
       const userRepository = await connection.getRepository(User);
-      const user = await userRepository.find({ where: { id: id }, relations: ['permissions'] });
+      const user = await userRepository.find({
+        where: { id: id },
+        relations: ["permissions"],
+      });
       if (!user) {
         return;
       }
@@ -193,7 +203,10 @@ class UserDAL {
       const userRepository = connection.getRepository(User);
 
       // get user by email
-      const user = userRepository.findOne({ where: { email: email }, relations: ['role.permissions'] });
+      const user = userRepository.findOne({
+        where: { email: email },
+        relations: ["role.permissions"],
+      });
 
       // return user
       return user;
@@ -221,13 +234,17 @@ class UserDAL {
     try {
       const connecition = await getConnection();
       const userRepository = await connecition.getRepository(User);
-      const user = await userRepository.findOne({ where: { id: userId }, relations: ['permissions'] })
+      const user = await userRepository.findOne({
+        where: { id: userId },
+        relations: ["permissions"],
+      });
       if (!user) {
         return;
       }
-      user.permissions = user.permissions.filter(permission => permission.id !== permissionId)
+      user.permissions = user.permissions.filter(
+        (permission) => permission.id !== permissionId
+      );
       return await userRepository.save(user);
-
     } catch (error) {
       throw error;
     }

@@ -5,9 +5,11 @@ exports.userValidator = joi.object({
   last_name: joi.string().required(),
   email: joi.string().email().required(),
   user_type: joi.string().required(),
-  role_id : joi.string().guid(),
-  permission_id : joi.string().guid(),
+  role_id: joi.string().guid(),
+  permission_id: joi.string().guid(),
   department_id: joi.string(),
+  password: joi.string(),
+  old_password: joi.string(),
 });
 
 exports.loginValidator = joi.object({

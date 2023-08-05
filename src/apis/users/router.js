@@ -21,9 +21,6 @@ router.route("/:id").get(authorize, uuidValidator, UserController.getOneUser);
 router
   .route("/")
   .post(uploadOptions.single("user_profile"), UserController.createUser);
-// router
-//   .route("/")
-//   .post(authorize, validate(userValidator), UserController.createUser);
 
 router
   .route("/:id")

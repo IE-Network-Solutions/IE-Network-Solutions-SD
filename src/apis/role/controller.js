@@ -41,7 +41,7 @@ exports.getAllRoles = async (req, res, next) => {
       data: roles,
     });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return next(new AppError("Server Error", 500));
   }
 };
@@ -95,7 +95,7 @@ exports.updateRoleById = async (req, res, next) => {
 
     // check if role with the given id is found or not?
     const checkRole = await RoleDAL.getRoleById(id);
-    console.log(checkRole)
+    console.log(checkRole);
 
     if (!checkRole) {
       return next(new AppError("Role with the given id is not found.", 404));
@@ -108,14 +108,13 @@ exports.updateRoleById = async (req, res, next) => {
     if (checkRole.roleName === updatedFields.roleName) {
       // here we are updating by the same name.
       // So, the roleName will be unique.
-      updatedRole = await RoleDAL.updateOneRoleById(id, updatedFields);
+      updatedRole = await RoleDAL.updateRoleById(id, updatedFields);
     } else {
       const roleExist = await RoleDAL.findOneRoleByName(updatedFields.roleName);
-      if (!roleExist || !updatedFields.roleName) {
-        updatedRole = await RoleDAL.updateOneRoleById(id, updatedFields);
-      } else {
+      if (roleExist) {
         return next(new AppError("Role name must be unique.", 406));
       }
+      updatedRole = await RoleDAL.updateRoleById(id, updatedFields);
     }
 
     res.status(200).json({
@@ -124,7 +123,7 @@ exports.updateRoleById = async (req, res, next) => {
       data: role,
     });
   } catch (error) {
-    return next(new AppError("Server error", 500))
+    return next(new AppError("Server error", 500));
   }
 };
 

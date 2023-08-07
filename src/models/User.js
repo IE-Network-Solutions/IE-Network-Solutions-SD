@@ -46,10 +46,6 @@ const User = new EntitySchema({
       type: "varchar",
       nullable: true,
     },
-    department: {
-      type: "varchar",
-      nullable: true,
-    },
     manager_id: {
       type: "varchar",
       nullable: true,
@@ -111,23 +107,26 @@ const User = new EntitySchema({
         referencedColumnName: "id",
       },
       onDelete: "SET NULL",
-      onUpdate: 'CASCADE'
+      onUpdate: "CASCADE",
     },
     company: {
       type: "many-to-one",
       target: "Company",
-      inverseSide: "clients"
+      inverseSide: "clients",
     },
     permissions: {
-      type: 'many-to-many',
-      target: 'Permission',
+      type: "many-to-many",
+      target: "Permission",
       joinTable: {
-        name: 'user_permission',
-        joinColumn: { name: 'user_id', referencedColumnName: 'id' },
-        inverseJoinColumn: { name: 'permission_id', referencedColumnName: 'id' },
+        name: "user_permission",
+        joinColumn: { name: "user_id", referencedColumnName: "id" },
+        inverseJoinColumn: {
+          name: "permission_id",
+          referencedColumnName: "id",
+        },
       },
       onDelete: "SET NULL",
-      onUpdate: 'CASCADE',
+      onUpdate: "CASCADE",
       joinColumn: {
         name: "company_id",
         referencedColumnName: "id",

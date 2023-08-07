@@ -205,7 +205,7 @@ class UserDAL {
       // get user by email
       const user = userRepository.findOne({
         where: { email: email },
-        relations: ["role.permissions"],
+        relations: ["role", "permissions"],
       });
 
       // return user

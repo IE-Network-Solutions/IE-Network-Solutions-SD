@@ -11,7 +11,6 @@ const authorize = require("../../middlewares/auth/authorization");
 const { uuidValidator } = require("../../../utils/uuid");
 const rolePermissionMiddleware = require("../../middlewares/rolePermissionMiddleware");
 const Permission = require("../../apis/permissionList/pemissions");
-const tokenBlacklist = require("../../middlewares/blackList");
 
 const { uploadOptions } = require("../../../utils/imageUpload");
 
@@ -30,20 +29,25 @@ router
   .route("/")
   .post(uploadOptions.single("user_profile"), UserController.createUser);
 
-router
-  .route("/:id")
-  .patch(
-    uuidValidator,
-    uploadOptions.single("user_profile"),
-    UserController.editUser
-  );
+router.route("/:id").patch(
+  authorize,
+  uuidValidator,
+  // rolePermissionMiddleware(["edit-user"]),
+  uploadOptions.single("user_profile"),
+  UserController.editUser
+);
 router
   .route("/change-password/:id")
-  .patch(uuidValidator, validate(change_password), UserController.editUser);
+  .patch(uuidValidator, validate(change_password), UserController.editPassword);
 
 router
   .route("/:id")
-  .delete(uuidValidator, authorize, UserController.deleteUser);
+  .delete(
+    uuidValidator,
+    authorize,
+    rolePermissionMiddleware(["delete-user"]),
+    UserController.deleteUser
+  );
 router
   .route("/deleteAllUsers/:id")
   .delete(uuidValidator, authorize, UserController.deleteAllUsers);

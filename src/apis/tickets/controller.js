@@ -19,8 +19,18 @@ const sendEmail = require("../../../utils/sendEmail");
  */
 exports.getAllTickets = async (req, res, next) => {
   try {
-    //   get all tickets
-    const ticket = await TicketDAL.getAllTickets();
+    const user = req.user;
+    const roleName = user.role.roleName;
+    const department = user.department;
+
+    let ticket;
+    if (roleName == "Admin") {
+      //   get all tickets
+      ticket = await TicketDAL.getAllTickets();
+    } else {
+      // get tickets filtered by department
+      ticket = await TicketDAL.filterTicket(department);
+    }
 
     // check if tickets are exist
     if (!ticket) {
@@ -156,6 +166,11 @@ exports.updateTicket = async (req, res, next) => {
   try {
     const id = req.params.id;
     const updatedFields = req.body;
+    const user = req.user;
+    // check if the user updating is the one who created or the admin
+    if (!(user.id == user.created_by) || !(user.role.roleName == "Admin")) {
+      return next(new AppError("Unauthorized to update this ticket"));
+    }
 
     // check if ticket exist or not
     const ticketData = await TicketDAL.getTicketById(id);

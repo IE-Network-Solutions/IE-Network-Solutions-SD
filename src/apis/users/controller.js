@@ -160,6 +160,11 @@ exports.editUser = async (req, res, next) => {
       return next(new AppError("user does not exist", 404));
     }
 
+    if (user.role_id) {
+      const role = await RoleDAL.getRoleById(user.role_id);
+      user.role = role;
+    }
+
     // check if profilr update
     if (req.file) {
       user.profile_pic = req.file.path;

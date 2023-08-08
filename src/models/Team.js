@@ -1,16 +1,21 @@
 const { EntitySchema } = require("typeorm");
 
-const Priority = new EntitySchema({
-  name: "Department",
+const Team = new EntitySchema({
+  name: "Team",
   columns: {
     id: {
       primary: true,
       type: "uuid",
       generated: "uuid",
     },
-    type: {
+    name: {
       type: "varchar",
       nullable: false,
+      unique: true,
+    },
+    is_deleted: {
+      type: "varchar",
+      default: false,
     },
     created_at: {
       type: "timestamp",
@@ -23,10 +28,10 @@ const Priority = new EntitySchema({
   },
   relations: {
     created_by: {
-      type: "one-to-many",
+      type: "many-to-one",
       target: "User",
       joinColumn: {
-        name: "user_id",
+        name: "createdBy_id",
         referencedColumnName: "id",
       },
     },
@@ -57,4 +62,4 @@ const Priority = new EntitySchema({
   },
 });
 
-module.exports = Priority;
+module.exports = Team;

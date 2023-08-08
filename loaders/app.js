@@ -26,6 +26,7 @@ const PriorititesRoute = require("../src/apis/priority/router");
 const StatusesRoute = require("../src/apis/status/router");
 const DepartmentRoute = require("../src/apis/department/router");
 const TypeRoute = require("../src/apis/type/router");
+const TeamRoute = require("../src/apis/team/router");
 const app = express();
 
 /**
@@ -62,6 +63,7 @@ app.use("/api/v1/priorities", PriorititesRoute);
 app.use("/api/v1/statuses", StatusesRoute);
 app.use("/api/v1/departments", DepartmentRoute);
 app.use("/api/v1/types", TypeRoute);
+app.use("/api/v1/teams", TeamRoute);
 
 // Unknown URL Error Message
 app.use("*", (req, res, next) => {

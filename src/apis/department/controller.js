@@ -44,13 +44,13 @@ exports.createDepartment = async (req, res, next) => {
   try {
     // Get Req Body
     let department = req.body;
-    let team_lead = await UserDAL.getOneUser(department.team_lead);
-    department.team_lead = team_lead;
+    let department_lead = await UserDAL.getOneUser(department.team_lead);
 
     //   chek if user exist or not
-    if (!team_lead) {
+    if (!department_lead) {
       return next(new AppError("the team lead you choose does not exist"));
     }
+    department.department_lead = department_lead;
 
     // Create department
     let newDepartment = await DepartmentDAL.createDepartment(department);

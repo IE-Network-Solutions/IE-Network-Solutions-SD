@@ -26,7 +26,6 @@ const authorize = async (req, res, next) => {
       return next(new AppError("user not found", 400));
 
     req.user = user;
-    console.log(user, "suraaaaaaaaaaaaaaaaaaaaaa");
     next();
   } catch (error) {
     return next(new AppError("Please Login!", 401));

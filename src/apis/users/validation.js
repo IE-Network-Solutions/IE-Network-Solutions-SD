@@ -7,7 +7,7 @@ exports.userValidator = joi.object({
   user_type: joi.string().required(),
   role_id: joi.string().guid(),
   permission_id: joi.string().guid(),
-  department_id: joi.string(),
+  team_id: joi.string(),
   password: joi.string(),
   old_password: joi.string(),
   is_deleted: joi.boolean(),

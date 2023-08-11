@@ -9,6 +9,7 @@ const checkHash = require("../../../utils/comparePassword");
 const createToken = require("../../../utils/generateToken");
 const sendEmail = require("../../../utils/sendEmail");
 const authToken = require("../../middlewares/auth/authToken");
+const teamDAL = require("../team/dal");
 
 exports.introduction = async (req, res, next) => {
   // Respond
@@ -93,10 +94,10 @@ exports.createUser = async (req, res, next) => {
     }
 
     // check if department exist
-    if (user.department_id) {
-      const department = await DepartmentDAL.getDepartment(user.department_id);
-      if (!department) return next(new AppError("department does not exist"));
-      user.department = department;
+    if (user.team_id) {
+      const team = await teamDAL.getTeam(user.team_id);
+      if (!team) return next(new AppError("team does not exist"));
+      user.team = team;
     }
 
     // Create New User

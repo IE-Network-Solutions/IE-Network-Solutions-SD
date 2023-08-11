@@ -27,6 +27,8 @@ exports.getAllTickets = async (req, res, next) => {
     if (roleName == "Admin") {
       //   get all tickets
       ticket = await TicketDAL.getAllTickets();
+    } else if (roleName == "Manager") {
+    } else if (roleName == "Team Lead") {
     } else {
       // get tickets filtered by department
       ticket = await TicketDAL.filterTicket(department);

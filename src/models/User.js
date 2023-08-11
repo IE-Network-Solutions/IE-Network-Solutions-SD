@@ -132,11 +132,11 @@ const User = new EntitySchema({
         referencedColumnName: "id",
       },
     },
-    department: {
+    team: {
       type: "many-to-one",
-      target: "Department",
+      target: "Team",
       joinColumn: {
-        name: "department_id",
+        name: "team_id",
         referencedColumnName: "id",
       },
     },
@@ -164,14 +164,6 @@ const User = new EntitySchema({
         referencedColumnName: "id",
       },
     },
-    client_tickets: {
-      type: "many-to-one",
-      target: "Ticket",
-      joinColumn: {
-        name: "ticket_id",
-        referencedColumnName: "id",
-      },
-    },
     manager: {
       type: "many-to-one",
       target: "User",
@@ -184,6 +176,21 @@ const User = new EntitySchema({
       type: "one-to-many",
       target: "Ticket",
       inverseSide: "client",
+    },
+    teams_access: {
+      type: "many-to-many",
+      target: "Team",
+      joinTable: {
+        name: "team_user",
+        joinColumn: {
+          name: "user_id",
+          referencedColumnName: "id",
+        },
+        inverseJoinColumn: {
+          name: "team_id",
+          referencedColumnName: "id",
+        },
+      },
     },
   },
 });

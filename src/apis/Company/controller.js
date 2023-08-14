@@ -63,7 +63,7 @@ exports.createCompany = async (req, res, next) => {
 exports.updateCompany = async (req, res, next) => {
   try {
     const { id } = req.params;
-
+    console.log("testtttttttt");
     const updatedFields = req.body;
     if (req.file) {
       const profileImage = req.file.path;
@@ -75,7 +75,7 @@ exports.updateCompany = async (req, res, next) => {
 
     if (!companyData)
       return next(new AppError("company with the given id not found"));
-
+    console.log(updatedFields, "kirubelllllllllllll");
     const company = await companyDAL.updateCompany(id, updatedFields);
 
     res.status(200).json({

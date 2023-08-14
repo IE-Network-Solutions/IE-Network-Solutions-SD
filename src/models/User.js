@@ -137,7 +137,6 @@ const User = new EntitySchema({
       target: "Team",
       joinColumn: {
         name: "team_id",
-        referencedColumnName: "id",
       },
     },
     ticket_type: {
@@ -184,11 +183,9 @@ const User = new EntitySchema({
         name: "team_user",
         joinColumn: {
           name: "user_id",
-          referencedColumnName: "id",
         },
         inverseJoinColumn: {
           name: "team_id",
-          referencedColumnName: "id",
         },
       },
     },

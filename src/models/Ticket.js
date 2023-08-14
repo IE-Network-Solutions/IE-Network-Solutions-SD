@@ -7,6 +7,7 @@ const Ticket = new EntitySchema({
     id: {
       primary: true,
       type: "uuid",
+      generated: "uuid",
     },
     subject: {
       type: "varchar",
@@ -83,11 +84,11 @@ const Ticket = new EntitySchema({
         referencedColumnName: "id",
       },
     },
-    department: {
+    team: {
       type: "many-to-one",
-      target: "Department",
+      target: "Team",
       joinColumn: {
-        name: "department_id",
+        name: "team_id",
         referencedColumnName: "id",
       },
     },

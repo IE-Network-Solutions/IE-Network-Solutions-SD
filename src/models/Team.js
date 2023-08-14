@@ -38,10 +38,7 @@ const Team = new EntitySchema({
     tickets: {
       type: "one-to-many",
       target: "Ticket",
-      joinColumn: {
-        name: "ticket_id",
-        referencedColumnName: "id",
-      },
+      inverseSide: "team",
     },
     department: {
       type: "many-to-one",

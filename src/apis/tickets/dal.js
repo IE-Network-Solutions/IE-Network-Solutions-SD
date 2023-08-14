@@ -29,7 +29,7 @@ class TicketDAL {
         .leftJoin("ticket.ticket_type", "types")
         .leftJoin("ticket.ticket_priority", "priority")
         .leftJoin("ticket.ticket_status", "status")
-        .leftJoin("ticket.department", "department")
+        // .leftJoin("ticket.department", "department")
         .leftJoin("ticket.client", "client")
         .leftJoin("ticket.company", "company")
         .leftJoin("ticket.comments", "comments")
@@ -47,14 +47,14 @@ class TicketDAL {
           "status.id",
           "status.type",
           "status.status_color",
-          "department.id",
-          "department.type",
+          // "department.id",
+          // "department.type",
           "users.id",
           "users.email",
           "users.first_name",
           "users.last_name",
           "users.role",
-          "users.department",
+          // "users.department",
           "users.user_type",
           "client.id",
           "client.email",
@@ -86,6 +86,36 @@ class TicketDAL {
     }
   }
 
+  static async getTicketBasedOnTeamAccess(id) {
+    try {
+      const is_deleted = false;
+      // get connection from the pool
+      const connection = getConnection();
+
+      // create a bridg
+      const userRepository = connection.getRepository(User);
+      const tickets = userRepository.findOne({
+        where: { id: id },
+        relations: [
+          "teams_access",
+          "teams_access.tickets",
+          "teams_access.tickets.assigned_users",
+          "teams_access.tickets.ticket_type",
+          "teams_access.tickets.ticket_priority",
+          "teams_access.tickets.ticket_status",
+          "teams_access.tickets.team",
+          "teams_access.tickets.team.team_lead",
+          "teams_access.tickets.client",
+          "teams_access.tickets.company",
+          "teams_access.tickets.comments",
+        ],
+      });
+
+      return tickets;
+    } catch (error) {
+      throw error;
+    }
+  }
   //This method implemenets to get ticket by id
   static async getTicketById(id) {
     try {
@@ -103,8 +133,8 @@ class TicketDAL {
         .leftJoin("ticket.ticket_type", "types")
         .leftJoin("ticket.ticket_priority", "priority")
         .leftJoin("ticket.ticket_status", "status")
-        .leftJoin("ticket.department", "department")
-        .leftJoin("department.team_lead", "team_lead")
+        .leftJoin("ticket.team", "team")
+        .leftJoin("team.team_lead", "team_lead")
         .leftJoin("ticket.client", "client")
         .leftJoin("ticket.company", "company")
         .leftJoin("ticket.comments", "comments")
@@ -122,14 +152,14 @@ class TicketDAL {
           "status.id",
           "status.type",
           "status.status_color",
-          "department.id",
-          "department.type",
+          "team.id",
+          "team.name",
           "users.id",
           "users.email",
           "users.first_name",
           "users.last_name",
           "users.role",
-          "users.department",
+          "users.team",
           "users.user_type",
           "client.id",
           "client.email",
@@ -170,7 +200,7 @@ class TicketDAL {
         description,
         priority,
         subject,
-        department,
+        team,
         type,
         client,
         company,
@@ -193,7 +223,7 @@ class TicketDAL {
         ticket_priority: priority,
         ticket_status: status,
         ticket_type: type,
-        department: department,
+        team: team,
         client: client,
         company: company,
         created_by: created_by,
@@ -302,7 +332,7 @@ class TicketDAL {
       });
       await ticketUserRepository.save(ticketUsers);
 
-      //   return ticket users
+      // return ticket users
       return ticketUsers;
     } catch (error) {
       throw error;

@@ -22,8 +22,8 @@ class CompanyDAL {
         .leftJoin("tickets.ticket_type", "types")
         .leftJoin("tickets.ticket_priority", "priority")
         .leftJoin("tickets.ticket_status", "status")
-        .leftJoin("tickets.department", "department")
-        .leftJoin("department.team_lead", "team_lead")
+        .leftJoin("tickets.team", "team")
+        .leftJoin("team.team_lead", "team_lead")
         .leftJoin("tickets.client", "client")
         .leftJoin("tickets.comments", "comments")
         .select([
@@ -51,14 +51,14 @@ class CompanyDAL {
           "status.id",
           "status.type",
           "status.status_color",
-          "department.id",
-          "department.type",
+          "team.id",
+          "team.name",
           "users.id",
           "users.email",
           "users.first_name",
           "users.last_name",
           "users.role",
-          "users.department",
+          "users.team",
           "users.user_type",
           "client.id",
           "client.email",
@@ -104,8 +104,8 @@ class CompanyDAL {
         .leftJoin("tickets.ticket_type", "types")
         .leftJoin("tickets.ticket_priority", "priority")
         .leftJoin("tickets.ticket_status", "status")
-        .leftJoin("tickets.department", "department")
-        .leftJoin("department.team_lead", "team_lead")
+        .leftJoin("tickets.team", "team")
+        .leftJoin("team.team_lead", "team_lead")
         .leftJoin("tickets.client", "client")
         .leftJoin("tickets.comments", "comments")
         .select([
@@ -133,14 +133,14 @@ class CompanyDAL {
           "status.id",
           "status.type",
           "status.status_color",
-          "department.id",
-          "department.type",
+          "team.id",
+          "team.name",
           "users.id",
           "users.email",
           "users.first_name",
           "users.last_name",
           "users.role",
-          "users.department",
+          "users.team",
           "users.user_type",
           "client.id",
           "client.email",
@@ -158,7 +158,7 @@ class CompanyDAL {
           "comments.updated_at",
         ])
         .where("company.id = :id", { id })
-        .getMany();
+        .getOne();
 
       // return single data
       return company;
@@ -208,7 +208,8 @@ class CompanyDAL {
 
     // create bridge
     const companyRepository = connection.getRepository(Company);
-    const company = await companyRepository.findOneBy({ id: id });
+    const company = await companyRepository.findOne({ where: { id: id } });
+    console.log("kirubelllllllll");
     if (!company) {
       throw new Error("company not found");
     }

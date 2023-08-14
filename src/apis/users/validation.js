@@ -20,3 +20,7 @@ exports.loginValidator = joi.object({
   email: joi.string().email().required(),
   password: joi.string().required(),
 });
+
+exports.teamAccessValidation = joi.object({
+  teams: joi.array().required(),
+});

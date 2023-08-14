@@ -10,7 +10,10 @@ class teamDAL {
       // create connection bridge
       const teamRepository = connection.getRepository(Team);
 
-      const teams = await teamRepository.find({ where: { is_deleted: false } });
+      const teams = await teamRepository.find({
+        where: { is_deleted: false },
+        relations: ["tickets"],
+      });
 
       // return all teams
       return teams;
@@ -89,6 +92,21 @@ class teamDAL {
       await teamRepository.save(updatedTeam);
 
       return updatedTeam;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async findMultipleTeams(teamIds) {
+    try {
+      // get connection
+      const connection = getConnection();
+      // get users
+      const teamRepository = connection.getRepository(Team);
+      const teams = await teamRepository.findByIds(teamIds);
+
+      // return teams
+      return teams;
     } catch (error) {
       throw error;
     }

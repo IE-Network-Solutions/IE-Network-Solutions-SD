@@ -9,6 +9,7 @@ const StatusDAL = require("../status/dal");
 const DepartmentDAL = require("../department/dal");
 const ClientDAL = require("../Client/dal");
 const sendEmail = require("../../../utils/sendEmail");
+const teamDAL = require("../team/dal");
 
 /**
  *
@@ -20,30 +21,26 @@ const sendEmail = require("../../../utils/sendEmail");
 exports.getAllTickets = async (req, res, next) => {
   try {
     const user = req.user;
-    const roleName = user.role.roleName;
-    const department = user.department;
 
-    let ticket;
-    if (roleName == "Admin") {
-      //   get all tickets
-      ticket = await TicketDAL.getAllTickets();
-    } else if (roleName == "Manager") {
-    } else if (roleName == "Team Lead") {
-    } else {
-      // get tickets filtered by department
-      ticket = await TicketDAL.filterTicket(department);
-    }
+    //   get all tickets
+    const userData = await TicketDAL.getTicketBasedOnTeamAccess(user.id);
 
     // check if tickets are exist
-    if (!ticket) {
+    if (!userData) {
       // return custom error
-      return next(new AppError("No Ticket data found", 404));
+      return next(new AppError("userData does not exist", 404));
     }
 
-    // response
+    const userTeams = userData.teams_access;
+    const userTickets = userTeams.reduce(
+      (tickets, team) => tickets.concat(team.tickets),
+      []
+    );
+
+    // return all tickets of a user  based on thier ticket access
     res.status(200).json({
       status: "Success",
-      data: ticket,
+      data: userTickets,
     });
   } catch (error) {
     throw error;
@@ -98,11 +95,11 @@ exports.createNewTicket = async (req, res, next) => {
     data.type = type;
 
     // get department
-    const department = await DepartmentDAL.getDepartment(data.department_id);
-    if (!department) {
-      throw next(new Error("department does not exist", 404));
+    const team = await teamDAL.getTeam(data.team_id);
+    if (!team) {
+      throw next(new Error("team does not exist", 404));
     }
-    data.department = department;
+    data.team = team;
 
     // get priority
     const priority = await PriorityDAL.getPriority(data.priority_id);

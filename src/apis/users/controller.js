@@ -10,6 +10,7 @@ const createToken = require("../../../utils/generateToken");
 const sendEmail = require("../../../utils/sendEmail");
 const authToken = require("../../middlewares/auth/authToken");
 const teamDAL = require("../team/dal");
+const validateUuid = require("uuid-validate");
 
 exports.introduction = async (req, res, next) => {
   // Respond
@@ -340,4 +341,37 @@ exports.logOut = async (req, res, next) => {
     message: "User is successfully logout",
     statusCode: 200,
   });
+};
+
+exports.teamAccess = async (req, res, next) => {
+  try {
+    const userId = req.params.id;
+    const teamIds = req.body.teams;
+
+    //   validate uuid
+    teamIds.map((uuid) => {
+      if (!validateUuid(uuid)) {
+        return next(new AppError("Invalid team Id", 500));
+      }
+    });
+
+    // check teams
+    const teams = await teamDAL.findMultipleTeams(teamIds);
+    if (!teams)
+      return next(new AppError("team from the input does not exist", 404));
+
+    // check user
+    const user = await UserDAL.getOneUser(userId);
+    if (!user) return next("user does not exist", 404);
+
+    // assign team for the user
+    const teamUser = await UserDAL.teamAccess(userId, teamIds);
+
+    res.status(200).json({
+      status: "Success",
+      data: teamUser,
+    });
+  } catch (error) {
+    throw error;
+  }
 };

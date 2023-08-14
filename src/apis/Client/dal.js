@@ -24,8 +24,8 @@ class ClientDAL {
         .leftJoin("tickets.ticket_type", "types")
         .leftJoin("tickets.ticket_priority", "priority")
         .leftJoin("tickets.ticket_status", "status")
-        .leftJoin("tickets.department", "department")
-        .leftJoin("department.team_lead", "team_lead")
+        .leftJoin("tickets.team", "team")
+        .leftJoin("team.team_lead", "team_lead")
         .leftJoin("tickets.client", "client")
         .leftJoin("tickets.comments", "comments")
         .leftJoin("user.company", "company")
@@ -54,14 +54,14 @@ class ClientDAL {
           "status.id",
           "status.type",
           "status.status_color",
-          "department.id",
-          "department.type",
+          "team.id",
+          "team.name",
           "users.id",
           "users.email",
           "users.first_name",
           "users.last_name",
           "users.role",
-          "users.department",
+          "users.team",
           "users.user_type",
           "company.company_name",
           "company.description",
@@ -101,8 +101,8 @@ class ClientDAL {
         .leftJoin("tickets.ticket_type", "types")
         .leftJoin("tickets.ticket_priority", "priority")
         .leftJoin("tickets.ticket_status", "status")
-        .leftJoin("tickets.department", "department")
-        .leftJoin("department.team_lead", "team_lead")
+        .leftJoin("tickets.team", "team")
+        .leftJoin("team.team_lead", "team_lead")
         .leftJoin("tickets.client", "client")
         .leftJoin("tickets.comments", "comments")
         .leftJoin("user.company", "company")
@@ -115,6 +115,7 @@ class ClientDAL {
           "user.last_name",
           "user.email",
           "user.profile_pic",
+          "user.user_type",
           "company.id",
           "company.company_name",
           "company.description",
@@ -131,14 +132,14 @@ class ClientDAL {
           "status.id",
           "status.type",
           "status.status_color",
-          "department.id",
-          "department.type",
+          "team.id",
+          "team.name",
           "users.id",
           "users.email",
           "users.first_name",
           "users.last_name",
           "users.role",
-          "users.department",
+          "users.team",
           "users.user_type",
           "company.company_name",
           "company.description",
@@ -221,11 +222,11 @@ class ClientDAL {
 
     // create bridge
     const clientRepository = connection.getRepository(User);
-    const client = await clientRepository.findOneBy({ id: id });
+    const client = await clientRepository.findOne({ where: { id: id } });
     if (!client) {
       throw new Error("client not found!");
     }
-
+    console.log("kiraaaaaa", updatedFields);
     clientRepository.merge(client, updatedFields);
 
     // update if company is changed

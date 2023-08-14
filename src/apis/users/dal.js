@@ -15,7 +15,13 @@ class UserDAL {
       const users = await userRepository.find({
         where: { user_type: "employee", is_deleted: false },
         select: ["id", "first_name", "last_name", "email", "user_type"],
-        relations: ["team", "manager", "role.permissions", "permissions"],
+        relations: [
+          "team",
+          "manager",
+          "role.permissions",
+          "permissions",
+          "teams_access",
+        ],
       });
       return users;
     } catch (error) {

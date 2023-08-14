@@ -5,7 +5,7 @@ exports.createTicketValidator = joi.object({
   subject: joi.string().required(),
   description: joi.string().required(),
   priority_id: joi.string().guid({ version: "uuidv4" }).required(),
-  department_id: joi.string().guid({ version: "uuidv4" }).required(),
+  team_id: joi.string().guid({ version: "uuidv4" }).required(),
   status_id: joi.string().guid({ version: "uuidv4" }).required(),
   type_id: joi.string().guid({ version: "uuidv4" }).required(),
   client_id: joi.string().guid({ version: "uuidv4" }),
@@ -27,5 +27,5 @@ exports.updateTicketValidator = joi.object({
 });
 
 exports.assignTicket = joi.object({
-  users: joi.array().required()
+  users: joi.array().required(),
 });

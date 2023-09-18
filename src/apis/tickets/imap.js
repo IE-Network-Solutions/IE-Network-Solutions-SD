@@ -137,12 +137,26 @@ function updateLastProcessedSeqNo(box) {
 async function saveEmailToDatabase(messageData, imap) {
   try {
     const senderEmail = messageData.headers.from[0];
-    const id = uuidv4();
+    
+    let Sender;
+// Find the position of '<' and '>'
+const startIndex = senderEmail.indexOf('<');
+const endIndex = senderEmail.indexOf('>');
 
+if (startIndex !== -1 && endIndex !== -1) {
+  // Extract the string between '<' and '>'
+  const email = senderEmail.substring(startIndex + 1, endIndex);
+   Sender =`${ email}`
+//   senderEmail = Sender
+
+}
+
+//     console.log("senderEmail" ,senderEmail);
+    const id = uuidv4();
     const connection = getConnection();
     const userRepository = connection.getRepository(User);
     const user = await userRepository.findOne({
-      where: { email: senderEmail }
+      where: { email: Sender }
     });
 
     if (user) {
@@ -151,20 +165,30 @@ async function saveEmailToDatabase(messageData, imap) {
         subject: messageData.headers.subject[0],
         description: messageData.body,
         id: id,
-        status: senderEmail,
+        status: Sender,
         priority: "high",
       });
+      try {
+        
       await ticketRepository.save(newTicket);
+      } catch (error) {
+        console.log("ERros Saving THe data to DB ::" , error);
+      }
     } else {
       const id = uuidv4();
       const junkTicketRepository = connection.getRepository(JunkTicket);
       const newJunkTicket = junkTicketRepository.create({
         subject: messageData.headers.subject[0],
-        senderEmail: senderEmail,
+        senderEmail: Sender,
         body: messageData.body,
         id: id,
       });
+      try {
+        
       await junkTicketRepository.save(newJunkTicket);
+      } catch (error) {
+        console.log("Error Saving THe Data to DB:",error);
+      }
     }
 
     // Mark the message as seen (read) to avoid processing it again in the future

@@ -1,4 +1,4 @@
-const { EntitySchema } = require("typeorm"); 
+const { EntitySchema } = require("typeorm");
 
 const KnowledgeBase = new EntitySchema({
   name: "KnowledgeBase",
@@ -17,14 +17,14 @@ const KnowledgeBase = new EntitySchema({
     description: {
       type: "text",
     },
-    createdBy:{
-      nullable:false,
-      type:"varchar"
-    },
-     image: {
+    createdBy: {
+      nullable: false,
       type: "varchar"
     },
-    catagoryId:{
+    image: {
+      type: "varchar"
+    },
+    catagoryId: {
       type: "varchar",
     },
     created_at: {
@@ -46,7 +46,7 @@ const KnowledgeBase = new EntitySchema({
       },
     },
 
-    catagoryId :{
+    catagoryId: {
       type: "many-to-one",
       target: "Catagory",
       joinColumn: {

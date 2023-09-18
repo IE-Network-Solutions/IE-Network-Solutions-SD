@@ -2,7 +2,6 @@ const { getConnection } = require("typeorm");
 const Company = require("../../models/Company");
 const {v4: uuidv4} = require('uuid');
 var fs = require('fs');
-const AppError = require("../../../utils/apperror");
 
 class CompanyDAL {
   static async allCompanies() {
@@ -83,20 +82,24 @@ company_logo });
   }
 
   static async updateCompany(id, updatedFields) {
-    // get connection from the pool
-    const connection = getConnection();
+   try {
+     // get connection from the pool
+     const connection = getConnection();
 
-    // create bridge
-    const companyRepository = connection.getRepository(Company);
-    const company = await companyRepository.findOneBy({ id: id });
-    if (!company) {
-      throw new Error("company not found");
-    }
-
-   companyRepository.merge(company, updatedFields);
-    await companyRepository.save(company);
-
-    return company;
+     // create bridge
+     const companyRepository = connection.getRepository(Company);
+     const company = await companyRepository.findOneBy({ id: id });
+     if (!company) {
+       throw new Error("company not found");
+     }
+ 
+    companyRepository.merge(company, updatedFields);
+     await companyRepository.save(company);
+ 
+     return company;
+   } catch (error) {
+    throw error
+   }
   }
 
   static async deleteCompany(id) {

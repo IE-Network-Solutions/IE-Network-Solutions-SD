@@ -4,6 +4,8 @@ const { v4: uuidv4 } = require("uuid");
 const AppError = require("../../../utils/apperror");
 const Company = require("../../models/Company");
 const Ticket = require("../../models/Ticket");
+const validateUuid = require("uuid-validate");
+
 
 class ClientDAL {
   static async getClient() {
@@ -27,12 +29,13 @@ class ClientDAL {
       // return all fetched data
       return clients;
     } catch (error) {
-      return next(new AppError(`Error with internal server or ${error.message}` , 500))      
+      throw error
     }
   }
 
   static async getClientById(id) {
     try {
+      if (!validateUuid(id)) throw "Invalid Id"
 
       // get connection from the pool
       const connection = await getConnection();
@@ -49,7 +52,7 @@ class ClientDAL {
       // return single data
       return client;
     } catch (error) {
-      return next(new AppError(`Error with internal server or ${error.message}` , 500))      
+      throw error
     }
   }
 
@@ -58,27 +61,25 @@ class ClientDAL {
       const id = uuidv4();
       const { first_name, last_name, password, email, department, company_id } =
         data;
+
+        if (!validateUuid(company_id)) throw "Invalid Id"
       // get connection from the pool
       const connection = getConnection();
       // create bridge for user
       const clientRepository = connection.getRepository(User);
 
       // check if the email is used or not.
-      const emailCheck = await clientRepository.findOne({ where: { email } });
+      const emailCheck = await clientRepository.findOne({ where: { email }  });
       if (emailCheck) {
-        throw new Error("email is used , use another!");
+        throw "email is used ,please use another!";
       }
-
-      let company;
 
       const companyRepository = connection.getRepository(Company);
-      company = await companyRepository.findOne({ where: { id: company_id } });
-      if (!company) {
-        throw new Error("company not found, use another company id!");
+      const company = await companyRepository.findOne({ where: { id: company_id } });
+      if(!company){
+        throw "Company is not found!"
       }
-
-      // create client
-      const newClient = await clientRepository.create({
+      const newClient= await clientRepository.create({
         id,
         first_name,
         last_name,
@@ -86,32 +87,39 @@ class ClientDAL {
         email,
         company: company,
       });
-      const clientCreated = await clientRepository.save(newClient);
-      if (!clientCreated) {
-        throw new Error("client create faild, try again!");
-      }
+       await clientRepository.save(newClient);
       return newClient;
     } catch (error) {
-      return next(new AppError(`Error with internal server or ${error.message}` , 500))      
+      throw error 
     }
   }
 
   static async updateClient(id, updatedFields) {
    try {
+    if (!validateUuid(id)) throw "Invalid Id"
+    if (!validateUuid(updatedFields.company_id)) throw "Invalid Company Id"
+
+
      // get connection from the pool
      const connection = getConnection();
 
      // create bridge
      const clientRepository = connection.getRepository(User);
-     await clientRepository.findOneBy({ id: id });
-    
- 
+   const client =   await clientRepository.findOneBy({ id: id });
+    if(!client) throw "Client not found"
+    const companyRepository = connection.getRepository(Company);
+    const company = await companyRepository.findOne({ where: { id: updatedFields.company_id } });
+    if(!company){
+      throw "Company is not found!"
+    }
      clientRepository.merge(client, updatedFields);
-     await clientRepository.save(client);
+
+    const clientCreate =  await clientRepository.save(client);
+    if(!clientCreate) throw "Fail to update client , try again!" 
  
      return client;
    } catch (error) {
-    return next(new AppError(`Error with internal server or ${error.message}` , 500))      
+    throw error    
    }
   }
 
@@ -135,7 +143,7 @@ class ClientDAL {
       });
       return client_tickets;
     } catch (error) {
-      return next(new AppError(`Error with internal server or ${error.message}` , 500))      
+      throw error
     }
   }
 
@@ -165,7 +173,7 @@ class ClientDAL {
 
       return newTicket;
     } catch (error) {
-      return next(new AppError(`Error with internal server or ${error.message}` , 500))      
+      throw error
     }
   }
 
@@ -179,12 +187,12 @@ class ClientDAL {
 
     const deleted = await clientRepository.delete(id);
     if (!deleted) {
-      throw new Error("failed to delete client , try again!");
+      throw "failed to delete client , try again!"
     }
     throw "client deleted Successfully";
   }
   catch(error){
-    return next(new AppError(`Error with internal server or ${error.message}` , 500))      
+    throw error
   }
 }
 }

@@ -23,7 +23,7 @@ exports.allClients = async (req, res, next) => {
       data: clients,
     });
   } catch (error) {
-    return next(new AppError(`Internal Server error or ${error.message}` , 500))
+    return next(new AppError("client with the given id not found"));
   }
 };
 
@@ -43,7 +43,8 @@ exports.singleClient = async (req, res, next) => {
       data: client,
     });
   } catch (error) {
-   return new AppError("Iternal server error!" , 500)
+  return res.status(500).json(next(new AppError(error , 500)))
+
   }
 };
 
@@ -53,13 +54,13 @@ exports.createClient = async (req, res, next) => {
     data.password = hash("%TGBnhy6");    
     //   create new client
     const client = await ClientDAL.createClient(data);
+  
     res.status(201).json({
       status: "Success",
       data: client,
     });
   } catch (error) {
-    // throw error;
-    return next(new AppError(error.message , 500))
+  return res.status(500).json(next(new AppError(error , 500)))
   }
 };
 
@@ -68,11 +69,7 @@ exports.updateClient = async (req, res, next) => {
     const id = req.params.id;
     const updatedFields = req.body;
 
-    // check if client exist or not
-    const clientData = await ClientDAL.getClientById(id);
-
-    if (!clientData)
-      return next(new AppError("client with the given id not found"));
+     await ClientDAL.getClientById(id);
 
     const client = await ClientDAL.updateClient(id, updatedFields);
 
@@ -81,8 +78,7 @@ exports.updateClient = async (req, res, next) => {
       data: client,
     });
   } catch (error) {
-    return next(new AppError(`Internal Server error or ${error.message} ` ,500))
-
+  return res.status(500).json( next(new AppError(error,500))) 
   }
 };
 
@@ -103,8 +99,7 @@ exports.deleteClient = async (req, res, next) => {
       data: null,
     });
   } catch (error) {
-    return next(new AppError(`Internal Server error or ${error.message} ` ,500))
-    
+  return res.status(500).json( next(new AppError(error,500))) 
   }
 };
 
@@ -122,7 +117,7 @@ exports.clientTickets = async (req, res, next) => {
       data: tickets,
     });
   } catch (error) {
-    throw error;
+    return res.status(500).json( next(new AppError(error,500))) 
   }
 };
 
@@ -180,7 +175,7 @@ exports.createNewTicket = async (req, res, next) => {
       statusCode: "201",
     });
   } catch (error) {
-    return next(new AppError(`Internal Server error or ${error.message} ` ,500))
-    
+  //  new AppError(error ,500)
+   return res.status(500).json(next(new AppError(error,500))) 
   }
 };

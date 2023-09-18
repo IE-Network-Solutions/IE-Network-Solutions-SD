@@ -16,6 +16,24 @@ const Comment = new EntitySchema({
       type: "text",
       nullable: true,
     },
+    is_private: {
+      type: "boolean",
+      default: false,
+    },
+    emailTo: {
+      type: "varchar",
+      array: true,
+      nullable: true,
+    },
+    emailCc: {
+      type: "varchar",
+      array: true,
+      nullable: true,
+    },
+    is_escalation: {
+      type: "boolean",
+      default: false,
+    },
     created_at: {
       type: "timestamp",
       default: () => "CURRENT_TIMESTAMP",

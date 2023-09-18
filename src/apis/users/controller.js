@@ -8,6 +8,9 @@ const generateRandomPassword = require("../../../utils/generateRandomPassword");
 const checkHash = require("../../../utils/comparePassword");
 const createToken = require("../../../utils/generateToken");
 const sendEmail = require("../../../utils/sendEmail");
+const authToken = require("../../middlewares/auth/authToken");
+const teamDAL = require("../team/dal");
+const validateUuid = require("uuid-validate");
 
 exports.introduction = async (req, res, next) => {
   // Respond
@@ -35,8 +38,27 @@ exports.getAllUsers = async (req, res, next) => {
 exports.getOneUser = async (req, res, next) => {
   try {
     // Get ID
-    let id = req.params.id;
-    let user = await UserDAL.getOneUser(id);
+    const id = req.params.id;
+    const user = await UserDAL.getOneUser(id);
+
+    //   return if user does not exist
+    if (!user) return next(new AppError("user does not exist", 404));
+
+    // Respond
+    res.status(200).json({
+      status: "Success",
+      data: user,
+    });
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+exports.getLoggedUserData = async (req, res, next) => {
+  try {
+    // Get ID
+    // let id = req.params.id;
+    let user = req.user;
 
     //   return if user does not exist
     if (!user) return next(new AppError("user does not exist", 404));
@@ -55,6 +77,8 @@ exports.createUser = async (req, res, next) => {
   try {
     // Get Req Body
     let user = req.body;
+    const user_profile = req.file ? req.file.path : null;
+    user.profile_pic = user_profile;
     user.password = hash("%TGBnhy6");
 
     // check if email exsist or not
@@ -71,10 +95,10 @@ exports.createUser = async (req, res, next) => {
     }
 
     // check if department exist
-    if (user.department_id) {
-      const department = await DepartmentDAL.getDepartment(user.department_id);
-      if (!department) return next(new AppError("department does not exist"));
-      user.department = department;
+    if (user.team_id) {
+      const team = await teamDAL.getTeam(user.team_id);
+      if (!team) return next(new AppError("team does not exist"));
+      user.team = team;
     }
 
     // Create New User
@@ -86,7 +110,7 @@ exports.createUser = async (req, res, next) => {
       data: newUser,
     });
   } catch (error) {
-    throw error;
+    return next(new AppError("Role id is must be unique"));
   }
 };
 
@@ -94,19 +118,18 @@ exports.deleteUser = async (req, res, next) => {
   try {
     // Get Req Body
     const id = req.params.id;
-
-    const user = await UserDAL.getOneUser(id);
-    if (!user) return next(new AppError("user does not exist"));
-    // Delete User
     const deletedUser = await UserDAL.deleteUser(id);
-
+    if (deletedUser.affected === 0) {
+      return next(new AppError("User is not Deleted"));
+    }
     // Respond
     res.status(200).json({
       status: "Success",
-      data: null,
+      message: "User is successfully deleted",
     });
   } catch (error) {
-    throw error;
+    console.log(error);
+    return next(new AppError("Server Error", 500));
   }
 };
 
@@ -128,13 +151,25 @@ exports.deleteAllUsers = async (req, res, next) => {
 exports.editUser = async (req, res, next) => {
   try {
     // Get Req Body
-    let id = req.body.id;
+    console.log("id");
+    let id = req.params.id;
+    console.log("id");
     let user = req.body;
 
     //   check if user exist or not
-    let chekUser = UserDAL.getOneUser(id);
+    let chekUser = await UserDAL.getOneUser(id);
     if (!chekUser) {
       return next(new AppError("user does not exist", 404));
+    }
+
+    if (user.role_id) {
+      const role = await RoleDAL.getRoleById(user.role_id);
+      user.role = role;
+    }
+
+    // check if profilr update
+    if (req.file) {
+      user.profile_pic = req.file.path;
     }
 
     // Edit User
@@ -146,6 +181,46 @@ exports.editUser = async (req, res, next) => {
       data: editedUser,
     });
   } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+exports.editPassword = async (req, res, next) => {
+  try {
+    // Get Req Body
+    console.log("id");
+    let id = req.params.id;
+    console.log("id");
+    let user = req.body;
+
+    //   check if user exist or not
+    let chekUser = await UserDAL.getOneUser(id);
+    console.log(chekUser.password);
+    if (!chekUser) {
+      return next(new AppError("user does not exist", 404));
+    }
+    // validate user credential
+    if (!checkHash(user.old_password, chekUser.password))
+      return next(new AppError("please check your old credential"));
+
+    user.password = hash(user.password);
+    user.password_changed = true;
+
+    // check if profilr update
+    if (req.file) {
+      user.profile_pic = req.file.path;
+    }
+
+    // Edit User
+    let editedUser = await UserDAL.editUser(id, user);
+
+    // Respond
+    res.status(200).json({
+      status: "Success",
+      data: editedUser,
+    });
+  } catch (error) {
+    console.log(error);
     throw error;
   }
 };
@@ -159,12 +234,22 @@ exports.loginUser = async (req, res, next) => {
 
   if (!user) return next(new AppError("User Not Found!", 404));
 
+  if (user.password_changed == false) {
+    if (!checkHash(password, user.password))
+      return next(new AppError("please check your credential"));
+
+    return await res.status(200).json({
+      Status: "Success",
+      data: { user: user },
+    });
+  }
   // validate user credential
   if (!checkHash(password, user.password))
     return next(new AppError("please check your credential"));
 
   // Sign JWT
   let token = await createToken({ id: user.id });
+  res.cookie("token", token, { httpOnly: true });
 
   // filter password
   const filteredData = {};
@@ -239,6 +324,52 @@ exports.forgotPassword = async (req, res, next) => {
     res.status(200).json({
       status: "Success",
       data: passwordChangedUser,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.logOut = async (req, res, next) => {
+  const userToken = req.token;
+  if (userToken != null) {
+    console.log(userToken);
+    return next(new AppError("User is not Logged out"));
+  }
+  res.status(200).json({
+    status: "success",
+    message: "User is successfully logout",
+    statusCode: 200,
+  });
+};
+
+exports.teamAccess = async (req, res, next) => {
+  try {
+    const userId = req.params.id;
+    const teamIds = req.body.teams;
+
+    //   validate uuid
+    teamIds.map((uuid) => {
+      if (!validateUuid(uuid)) {
+        return next(new AppError("Invalid team Id", 500));
+      }
+    });
+
+    // check teams
+    const teams = await teamDAL.findMultipleTeams(teamIds);
+    if (!teams)
+      return next(new AppError("team from the input does not exist", 404));
+
+    // check user
+    const user = await UserDAL.getOneUser(userId);
+    if (!user) return next("user does not exist", 404);
+
+    // assign team for the user
+    const teamUser = await UserDAL.teamAccess(userId, teamIds);
+
+    res.status(200).json({
+      status: "Success",
+      data: teamUser,
     });
   } catch (error) {
     throw error;

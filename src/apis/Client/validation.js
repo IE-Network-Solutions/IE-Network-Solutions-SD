@@ -6,6 +6,8 @@ exports.createClientValidator = joi.object({
   last_name: joi.string().required(),
   email: joi.string().email().required(),
   company_id: joi.string().required(),
+  user_profile: joi.string(),
+  phone_number: joi.string().required(),
 });
 
 // Validate create-ticket api

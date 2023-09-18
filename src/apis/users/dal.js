@@ -1,5 +1,7 @@
 const { getConnection } = require("typeorm");
 const User = require("../../models/User");
+const TeamUser = require("../../models/TeamUser");
+const Team = require("../../models/Team");
 
 class UserDAL {
   // Get All Users
@@ -11,9 +13,15 @@ class UserDAL {
 
       // Get Data
       const users = await userRepository.find({
-        where: { user_type: "employee" },
+        where: { user_type: "employee", is_deleted: false },
         select: ["id", "first_name", "last_name", "email", "user_type"],
-        relations: ["role", "department"],
+        relations: [
+          "team",
+          "manager",
+          "role.permissions",
+          "permissions",
+          "teams_access",
+        ],
       });
       return users;
     } catch (error) {
@@ -26,16 +34,47 @@ class UserDAL {
     const id = data;
     try {
       // Form Connection
-      const connection = getConnection();
-      const userRepository = connection.getRepository(User);
+      const connection = await getConnection();
+      const userRepository = await connection.getRepository(User);
 
       // Get Data
       const foundUser = await userRepository.findOne({
-        where: { id: id },
-        select: ["id", "email", "first_name", "last_name", "user_type"],
-        relations: ["role", "department"],
+        where: { id: id, is_deleted: false },
+        select: [
+          "id",
+          "email",
+          "first_name",
+          "last_name",
+          "user_type",
+          "password",
+        ],
+        relations: ["team", "manager", "role.permissions", "permissions"],
       });
       return foundUser;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // get all admins
+  static async getAllAdmins() {
+    try {
+      const roleName = "Admin";
+      // get connection from the pool
+      const connection = getConnection();
+
+      // create bridge to the db
+      const userRepository = connection.getRepository(User);
+
+      // get all users where role Admin
+      const admins = userRepository
+        .createQueryBuilder("user")
+        .leftJoin("user.role", "role")
+        .select(["user.email"])
+        .where("role.roleName = :roleName", { roleName })
+        .getMany();
+
+      return admins;
     } catch (error) {
       throw error;
     }
@@ -61,7 +100,16 @@ class UserDAL {
   static async createUser(data) {
     try {
       // Create User Object
-      const { first_name, last_name, email, password, role, department } = data;
+      const {
+        first_name,
+        last_name,
+        email,
+        password,
+        role,
+        team,
+        manager_id,
+        profile_pic,
+      } = data;
       const user_type = "employee";
 
       // Form Connection
@@ -75,16 +123,22 @@ class UserDAL {
         email,
         password,
         user_type,
+        manager_id: manager_id,
+        profile_pic,
       });
 
       if (role) {
         newUser.role = role;
       }
 
-      if (department) {
-        newUser.department = department;
+      if (team) {
+        newUser.team = team;
       }
       await userRepository.save(newUser);
+
+      if (team) {
+        await this.teamAccess(newUser.id, [team.id]);
+      }
 
       return newUser;
     } catch (error) {
@@ -103,14 +157,11 @@ class UserDAL {
       const connection = getConnection();
       const userRepository = connection.getRepository(User);
 
-      const user = await userRepository.findOneBy({ id: idUser });
+      const user = await userRepository.findOne({ where: { id: idUser } });
       // Update User
       // Update only the specified fields in the updatedFields object
-      Object.keys(updatedFields).forEach((field) => {
-        if (field in user) {
-          user[field] = updatedFields[field];
-        }
-      });
+      userRepository.merge(user, updatedFields);
+
       await userRepository.save(user);
 
       return user;
@@ -123,13 +174,16 @@ class UserDAL {
   static async deleteUser(id) {
     try {
       // Form Connection
-      const connection = getConnection();
-      const userRepository = connection.getRepository(User);
-
-      // Delete User
-      const deletedUser = await userRepository.delete({ id: id });
-
-      return "user deleted successfully";
+      const connection = await getConnection();
+      const userRepository = await connection.getRepository(User);
+      const user = await userRepository.find({
+        where: { id: id },
+        relations: ["permissions"],
+      });
+      if (!user) {
+        return;
+      }
+      return await userRepository.remove(user);
     } catch (error) {
       throw error;
     }
@@ -163,7 +217,7 @@ class UserDAL {
       // get user by email
       const user = userRepository.findOne({
         where: { email: email },
-        // select: ["id", "first_name", "last_name", "role", "email"],
+        relations: ["role", "permissions"],
       });
 
       // return user
@@ -186,6 +240,54 @@ class UserDAL {
     } catch (error) {
       throw error;
     }
+  }
+
+  static async deletePermissionForSpecificUser(userId, permissionId) {
+    try {
+      const connecition = await getConnection();
+      const userRepository = await connecition.getRepository(User);
+      const user = await userRepository.findOne({
+        where: { id: userId },
+        relations: ["permissions"],
+      });
+      if (!user) {
+        return;
+      }
+      user.permissions = user.permissions.filter(
+        (permission) => permission.id !== permissionId
+      );
+      return await userRepository.save(user);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async teamAccess(userId, teamIds) {
+    // create connection
+    const connection = getConnection();
+
+    // create bridge to user db
+    const userRepository = connection.getRepository(User);
+
+    const user = await userRepository.findOne({ where: { id: userId } });
+
+    // create bridge to team db
+    const teamRepository = connection.getRepository(Team);
+    const teams = await teamRepository.findByIds(teamIds);
+
+    // create bridge to team user db
+    const teamUserRepository = connection.getRepository(TeamUser);
+    const teamUsers = teams.map((team) => {
+      const teamUser = teamUserRepository.create({
+        user: user,
+        team,
+      });
+      return teamUser;
+    });
+
+    await teamUserRepository.save(teamUsers);
+
+    return teamUsers;
   }
 }
 

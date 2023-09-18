@@ -10,6 +10,8 @@ const validateUuid = require("uuid-validate");
 class ClientDAL {
   static async getClient() {
     try {
+      const user_type = "client";
+      const is_deleted = false;
       // get connection from the pool
       const connection = await getConnection();
 
@@ -17,17 +19,69 @@ class ClientDAL {
       const clientRepository = await connection.getRepository(User);
 
       // find all client data
-      const clients = await clientRepository.find({
-        where: { user_type: "client" },
-        select: ["id", "first_name", "last_name", "email", "user_type"],
-        relations: ["company"],
-      });
-      if (!clients) {
-        throw new Error("Error to fetch the data, try again!");
-      }
+      // get data
+      const client = await clientRepository
+        .createQueryBuilder("user")
+        .leftJoin("user.client_tickets", "tickets")
+        .leftJoin("tickets.ticket_type", "types")
+        .leftJoin("tickets.ticket_priority", "priority")
+        .leftJoin("tickets.ticket_status", "status")
+        .leftJoin("tickets.team", "team")
+        .leftJoin("team.team_lead", "team_lead")
+        .leftJoin("tickets.client", "client")
+        .leftJoin("tickets.comments", "comments")
+        .leftJoin("user.company", "company")
+        .leftJoin("tickets.assigned_users", "users")
+        .where("user.user_type = :user_type", { user_type })
+        .andWhere("user.is_deleted = :is_deleted", { is_deleted })
+        .select([
+          "user.id",
+          "user.first_name",
+          "user.last_name",
+          "user.email",
+          "user.profile_pic",
+          "company.id",
+          "company.company_name",
+          "company.description",
+          "tickets.id",
+          "tickets.subject",
+          "tickets.description",
+          "tickets.created_at",
+          "tickets.due_date",
+          "tickets.closed",
+          "types.type",
+          "types.id",
+          "priority.id",
+          "priority.type",
+          "status.id",
+          "status.type",
+          "status.status_color",
+          "team.id",
+          "team.name",
+          "users.id",
+          "users.email",
+          "users.first_name",
+          "users.last_name",
+          "users.role",
+          "users.team",
+          "users.user_type",
+          "company.company_name",
+          "company.description",
+          "company.id",
+          "comments.id",
+          "comments.title",
+          "comments.description",
+          "comments.is_private",
+          "comments.emailTo",
+          "comments.emailCc",
+          "comments.is_escalation",
+          "comments.created_at",
+          "comments.updated_at",
+        ])
+        .getMany();
 
       // return all fetched data
-      return clients;
+      return client;
     } catch (error) {
       throw error
     }
@@ -37,6 +91,7 @@ class ClientDAL {
     try {
       if (!validateUuid(id)) throw "Invalid Id"
 
+      const is_deleted = false;
       // get connection from the pool
       const connection = await getConnection();
 
@@ -44,10 +99,66 @@ class ClientDAL {
       const clientRepository = await connection.getRepository(User);
       
       // get data
-      const client = await clientRepository.findOne({
-        where: { id },
-        relations: ["company"],
-      });
+      const client = await clientRepository
+        .createQueryBuilder("user")
+        .leftJoin("user.client_tickets", "tickets")
+        .leftJoin("tickets.ticket_type", "types")
+        .leftJoin("tickets.ticket_priority", "priority")
+        .leftJoin("tickets.ticket_status", "status")
+        .leftJoin("tickets.team", "team")
+        .leftJoin("team.team_lead", "team_lead")
+        .leftJoin("tickets.client", "client")
+        .leftJoin("tickets.comments", "comments")
+        .leftJoin("user.company", "company")
+        .leftJoin("tickets.assigned_users", "users")
+        .where("user.id = :id", { id })
+        .andWhere("user.is_deleted = :is_deleted", { is_deleted })
+        .select([
+          "user.id",
+          "user.first_name",
+          "user.last_name",
+          "user.email",
+          "user.profile_pic",
+          "user.user_type",
+          "company.id",
+          "company.company_name",
+          "company.description",
+          "tickets.id",
+          "tickets.subject",
+          "tickets.description",
+          "tickets.created_at",
+          "tickets.due_date",
+          "tickets.closed",
+          "types.type",
+          "types.id",
+          "priority.id",
+          "priority.type",
+          "status.id",
+          "status.type",
+          "status.status_color",
+          "team.id",
+          "team.name",
+          "users.id",
+          "users.email",
+          "users.first_name",
+          "users.last_name",
+          "users.role",
+          "users.team",
+          "users.user_type",
+          "company.company_name",
+          "company.description",
+          "company.id",
+          "comments.id",
+          "comments.title",
+          "comments.description",
+          "comments.is_private",
+          "comments.emailTo",
+          "comments.emailCc",
+          "comments.is_escalation",
+          "comments.created_at",
+          "comments.updated_at",
+        ])
+        .getOne();
 
       // return single data
       return client;
@@ -59,10 +170,16 @@ class ClientDAL {
   static async createClient(data) {
     try {
       const id = uuidv4();
-      const { first_name, last_name, password, email, department, company_id } =
-        data;
-
-        if (!validateUuid(company_id)) throw "Invalid Id"
+      const {
+        first_name,
+        last_name,
+        password,
+        email,
+        department,
+        company_id,
+        user_profile,
+        phone_number,
+      } = data;
       // get connection from the pool
       const connection = getConnection();
       // create bridge for user
@@ -86,6 +203,8 @@ class ClientDAL {
         password,
         email,
         company: company,
+        profile_pic: user_profile,
+        phone_number,
       });
        await clientRepository.save(newClient);
       return newClient;
@@ -99,29 +218,26 @@ class ClientDAL {
     if (!validateUuid(id)) throw "Invalid Id"
     if (!validateUuid(updatedFields.company_id)) throw "Invalid Company Id"
 
-
-     // get connection from the pool
-     const connection = getConnection();
-
-     // create bridge
-     const clientRepository = connection.getRepository(User);
-   const client =   await clientRepository.findOneBy({ id: id });
-    if(!client) throw "Client not found"
-    const companyRepository = connection.getRepository(Company);
-    const company = await companyRepository.findOne({ where: { id: updatedFields.company_id } });
-    if(!company){
-      throw "Company is not found!"
+    // create bridge
+    const clientRepository = connection.getRepository(User);
+    const client = await clientRepository.findOne({ where: { id: id } });
+    if (!client) {
+      throw new Error("client not found!");
     }
-     clientRepository.merge(client, updatedFields);
+    console.log("kiraaaaaa", updatedFields);
+    clientRepository.merge(client, updatedFields);
 
-    const clientCreate =  await clientRepository.save(client);
-    if(!clientCreate) throw "Fail to update client , try again!" 
- 
-     return client;
-   } catch (error) {
-    throw error    
-   }
-  }
+    // update if company is changed
+    if (updatedFields.company) {
+      client.company = updatedFields.company;
+    }
+
+    await clientRepository.save(client);
+
+    return client;
+  }catch(error){
+    throw error;
+  }}
 
   static async getClientTickets(data) {
     try {
@@ -133,12 +249,13 @@ class ClientDAL {
       const clientRepository = connection.getRepository(Ticket);
 
       const client_tickets = clientRepository.find({
-        where: { client: client },
+        where: { client: client, is_deleted: false },
         relations: [
           "ticket_status",
           "ticket_type",
           "ticket_priority",
           "department",
+          "comments",
         ],
       });
       return client_tickets;

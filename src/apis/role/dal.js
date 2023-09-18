@@ -3,7 +3,7 @@ const Role = require("../../models/Role");
 const { validate: isUUID } = require("uuid");
 
 class RoleDAL {
-  static async createOneRole(data) {
+  static async createRole(data) {
     try {
       const { roleName } = data;
 
@@ -31,7 +31,7 @@ class RoleDAL {
       const roleRepository = connection.getRepository(Role);
 
       // Get all roles.
-      const roles = await roleRepository.find();
+      const roles = await roleRepository.find({ relations: ["permissions"] });
 
       // return all fetched data.
       return roles;
@@ -55,7 +55,7 @@ class RoleDAL {
     }
   }
 
-  static async findOneRoleById(id) {
+  static async getRoleById(id) {
     try {
       // check the validity of the id format.
       if (!isUUID(id)) {
@@ -66,6 +66,7 @@ class RoleDAL {
       const roleRepository = connection.getRepository(Role);
 
       //  find role by the given role id.
+
       const role = await roleRepository.findOne({ where: { id } });
 
       return role;
@@ -74,7 +75,7 @@ class RoleDAL {
     }
   }
 
-  static async updateOneRoleById(id, updatedFields) {
+  static async updateRoleById(id, updatedFields) {
     try {
       // check the validity of the id format.
       if (!isUUID(id)) {
@@ -83,10 +84,7 @@ class RoleDAL {
       // Form connection.
       const connection = getConnection();
       const roleRepository = connection.getRepository(Role);
-
       const role = await roleRepository.findOneBy({ id: id });
-
-      // refresh the updated_at field.
       updatedFields.updated_at = new Date();
 
       // update
@@ -100,32 +98,22 @@ class RoleDAL {
     }
   }
 
-  static async deleteOneRoleById(id) {
+  static async deleteRoleById(id) {
     try {
       // check the validity of the id format.
       if (!isUUID(id)) {
         return null;
       }
-      // Form a connection
-      const connection = getConnection();
-      const roleRepository = connection.getRepository(Role);
+      const connection = await getConnection();
+      const roleRepository = await connection.getRepository(Role);
+      const role = await roleRepository.findOne({ where: { id: id } });
+      await roleRepository.remove(role);
 
-      await roleRepository.delete({ id });
-
-      return "Role deleted successfully.";
+      return "role deleted successfully";
     } catch (error) {
       throw error;
     }
   }
-
-  // create default permissions for newly created role.
-  // static async createManyPermissions(roleId) {
-  //   try {
-
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
 }
 
 module.exports = RoleDAL;

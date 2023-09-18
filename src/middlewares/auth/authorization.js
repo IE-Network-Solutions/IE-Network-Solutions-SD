@@ -16,13 +16,12 @@ const authorize = async (req, res, next) => {
     //   verify the token which returns the payload consisting the user id
     const verifyToken = jwt.verify(token, configs.jwt.secret);
     if (!verifyToken) {
-      console.log("error");
       return next(new AppError("Please Login!", 401));
     }
-
     //   fetch user by payload user id
     const user = await UserDAL.getOneUser(verifyToken.id);
-    if (!user) return next(new AppError("user not found", 400));
+    if (!user || user.is_deleted == true)
+      return next(new AppError("user not found", 400));
     req.user = user;
     next();
   } catch (error) {

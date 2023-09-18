@@ -1,0 +1,20 @@
+Date: 7/26/2023 
+Time: 10:45:09 AM 
+Message: Got All Notifications 
+State Details are as follows ---
+	Request Params: {} 
+	Request Queries: undefined 
+	Response Status: 200 
+	Request Headers: null 
+	Response Headers: undefined 
+	Host Details: {"ip":"::ffff:127.0.0.1","path":"/","protocol":"http","route":{"path":"/","stack":[{"name":"<anonymous>","keys":[],"regexp":{"fast_star":false,"fast_slash":false},"method":"get"}],"methods":{"get":true}},"originalURL":"/api/v1/notifications/"}
+Date: 7/26/2023 
+Time: 10:51:53 AM 
+Message: Got All Notifications 
+State Details are as follows ---
+	Request Params: {} 
+	Request Queries: undefined 
+	Response Status: 200 
+	Request Headers: null 
+	Response Headers: undefined 
+	Host Details: {"ip":"::ffff:127.0.0.1","path":"/","protocol":"http","route":{"path":"/","stack":[{"name":"<anonymous>","keys":[],"regexp":{"fast_star":false,"fast_slash":false},"method":"get"}],"methods":{"get":true}},"originalURL":"/api/v1/notifications/"}

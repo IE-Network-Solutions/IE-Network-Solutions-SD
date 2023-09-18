@@ -34,9 +34,25 @@ const User = new EntitySchema({
       type: "varchar",
       nullable: true,
     },
-    department: {
+    phone_number: {
       type: "varchar",
       nullable: true,
+    },
+    profile_pic: {
+      type: "varchar",
+      nullable: true,
+    },
+    password: {
+      type: "varchar",
+      nullable: true,
+    },
+    manager_id: {
+      type: "varchar",
+      nullable: true,
+    },
+    is_deleted: {
+      type: "boolean",
+      default: false,
     },
     user_type: {
       type: "enum",
@@ -76,7 +92,7 @@ const User = new EntitySchema({
     knowledgeBase: {
       type: "one-to-many",
       target: "KnowledgeBase",
-      inverseSide: "created_by",
+      inverseSide: "createdBy",
     },
     todos: {
       type: "one-to-many",
@@ -90,21 +106,37 @@ const User = new EntitySchema({
         name: "role_id",
         referencedColumnName: "id",
       },
+      onDelete: "SET NULL",
+      onUpdate: "CASCADE",
     },
     company: {
       type: "many-to-one",
       target: "Company",
+      inverseSide: "clients",
+    },
+    permissions: {
+      type: "many-to-many",
+      target: "Permission",
+      joinTable: {
+        name: "user_permission",
+        joinColumn: { name: "user_id", referencedColumnName: "id" },
+        inverseJoinColumn: {
+          name: "permission_id",
+          referencedColumnName: "id",
+        },
+      },
+      onDelete: "SET NULL",
+      onUpdate: "CASCADE",
       joinColumn: {
         name: "company_id",
         referencedColumnName: "id",
       },
     },
-    department: {
+    team: {
       type: "many-to-one",
-      target: "Department",
+      target: "Team",
       joinColumn: {
-        name: "department_id",
-        referencedColumnName: "id",
+        name: "team_id",
       },
     },
     ticket_type: {
@@ -131,12 +163,30 @@ const User = new EntitySchema({
         referencedColumnName: "id",
       },
     },
-    client_tickets: {
+    manager: {
       type: "many-to-one",
-      target: "Ticket",
+      target: "User",
       joinColumn: {
-        name: "ticket_id",
+        name: "manager_id",
         referencedColumnName: "id",
+      },
+    },
+    client_tickets: {
+      type: "one-to-many",
+      target: "Ticket",
+      inverseSide: "client",
+    },
+    teams_access: {
+      type: "many-to-many",
+      target: "Team",
+      joinTable: {
+        name: "team_user",
+        joinColumn: {
+          name: "user_id",
+        },
+        inverseJoinColumn: {
+          name: "team_id",
+        },
       },
     },
   },

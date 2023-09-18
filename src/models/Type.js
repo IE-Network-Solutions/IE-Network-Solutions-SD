@@ -12,6 +12,10 @@ const Type = new EntitySchema({
       type: "varchar",
       nullable: false,
     },
+    is_deleted: {
+      type: "boolean",
+      default: false,
+    },
     created_at: {
       type: "timestamp",
       default: () => "CURRENT_TIMESTAMP",

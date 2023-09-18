@@ -10,7 +10,9 @@ class StatusDAL {
       const statusRepository = connection.getRepository(Status);
 
       // Get Data
-      const statuses = await statusRepository.find();
+      const statuses = await statusRepository.find({
+        where: { is_deleted: false },
+      });
       return statuses;
     } catch (error) {
       throw error;
@@ -26,7 +28,9 @@ class StatusDAL {
       const statusRepository = connection.getRepository(Status);
 
       // Get Data
-      const foundStatus = await statusRepository.findOne({ where: { id: id } });
+      const foundStatus = await statusRepository.findOne({
+        where: { id: id, is_deleted: false },
+      });
       return foundStatus;
     } catch (error) {
       throw error;

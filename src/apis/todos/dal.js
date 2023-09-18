@@ -8,10 +8,10 @@ const UserDAL = require("../users/dal");
 class TodoDal {
   static async getAllTodo() {
     try {
-      // get connection from the pool
-      const connection = await getConnection();
+      // get connection from the pool 
+      const connection = await getConnection(); 
 
-      // create a bridg
+      // create a bridg 
       const todoRepository = await connection.getRepository(Todo);
 
       // find all todo data

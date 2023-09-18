@@ -1,6 +1,6 @@
 const { EntitySchema } = require("typeorm");
 
-const Priority = new EntitySchema({
+const Department = new EntitySchema({
   name: "Department",
   columns: {
     id: {
@@ -38,7 +38,15 @@ const Priority = new EntitySchema({
         referencedColumnName: "id",
       },
     },
+    department_lead: {
+      type: "many-to-one",
+      target: "User",
+      joinColumn: {
+        name: "departmentlead_id",
+        referencedColumnName: "id",
+      },
+    },
   },
 });
 
-module.exports = Priority;
+module.exports = Department;

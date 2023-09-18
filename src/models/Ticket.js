@@ -2,6 +2,7 @@ const { EntitySchema } = require("typeorm");
 
 const Ticket = new EntitySchema({
   name: "Ticket",
+
   columns: {
     id: {
       primary: true,
@@ -14,12 +15,17 @@ const Ticket = new EntitySchema({
     description: {
       type: "text",
     },
-    status: {
-      type: "varchar",
+    due_date: {
+      type: "date",
+      nullable: true,
     },
-    priority: {
-      type: "varchar",
-      nullable:true
+    closed: {
+      type: "boolean",
+      default: false,
+    },
+    is_deleted: {
+      type: "boolean",
+      default: false,
     },
     created_at: {
       type: "timestamp",
@@ -54,6 +60,14 @@ const Ticket = new EntitySchema({
         referencedColumnName: "id",
       },
     },
+    created_by: {
+      type: "many-to-one",
+      target: "User",
+      joinColumn: {
+        name: "created_by",
+        referencedColumnName: "id",
+      },
+    },
     ticket_status: {
       type: "many-to-one",
       target: "Status",
@@ -70,11 +84,11 @@ const Ticket = new EntitySchema({
         referencedColumnName: "id",
       },
     },
-    department: {
+    team: {
       type: "many-to-one",
-      target: "Department",
+      target: "Team",
       joinColumn: {
-        name: "department_id",
+        name: "team_id",
         referencedColumnName: "id",
       },
     },
@@ -93,6 +107,11 @@ const Ticket = new EntitySchema({
         name: "company_id",
         referencedColumnName: "id",
       },
+    },
+    comments: {
+      type: "one-to-many",
+      target: "Comment",
+      inverseSide: "ticket",
     },
   },
 });

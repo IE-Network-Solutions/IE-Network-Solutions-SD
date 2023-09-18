@@ -17,6 +17,16 @@ const KnowledgeBase = new EntitySchema({
     description: {
       type: "text",
     },
+    createdBy:{
+      nullable:false,
+      type:"varchar"
+    },
+     image: {
+      type: "varchar"
+    },
+    catagoryId:{
+      type: "varchar",
+    },
     created_at: {
       type: "timestamp",
       default: () => "CURRENT_TIMESTAMP",
@@ -27,14 +37,23 @@ const KnowledgeBase = new EntitySchema({
     },
   },
   relations: {
-    created_by: {
+    createdBy: {
       type: "many-to-one",
       target: "User",
       joinColumn: {
-        name: "user_id",
+        name: "createdBy",
         referencedColumnName: "id",
       },
     },
+
+    catagoryId :{
+      type: "many-to-one",
+      target: "Catagory",
+      joinColumn: {
+        name: "catagoryId",
+        referencedColumnName: "id",
+      },
+    }
   },
 });
 

@@ -4,6 +4,8 @@ const { v4: uuidv4 } = require("uuid");
 const AppError = require("../../../utils/apperror");
 const Company = require("../../models/Company");
 const Ticket = require("../../models/Ticket");
+const validateUuid = require("uuid-validate");
+
 
 class ClientDAL {
   static async getClient() {
@@ -81,19 +83,21 @@ class ClientDAL {
       // return all fetched data
       return client;
     } catch (error) {
-      throw error;
+      throw error
     }
   }
 
   static async getClientById(id) {
     try {
+      if (!validateUuid(id)) throw "Invalid Id"
+
       const is_deleted = false;
       // get connection from the pool
       const connection = await getConnection();
 
       // create a bridge between the entity and the database
       const clientRepository = await connection.getRepository(User);
-
+      
       // get data
       const client = await clientRepository
         .createQueryBuilder("user")
@@ -159,7 +163,7 @@ class ClientDAL {
       // return single data
       return client;
     } catch (error) {
-      throw error;
+      throw error
     }
   }
 
@@ -182,21 +186,17 @@ class ClientDAL {
       const clientRepository = connection.getRepository(User);
 
       // check if the email is used or not.
-      const emailCheck = await clientRepository.findOne({ where: { email } });
+      const emailCheck = await clientRepository.findOne({ where: { email }  });
       if (emailCheck) {
-        throw new Error("email is used , use another!");
+        throw "email is used ,please use another!";
       }
-
-      let company;
 
       const companyRepository = connection.getRepository(Company);
-      company = await companyRepository.findOne({ where: { id: company_id } });
-      if (!company) {
-        throw new Error("company not found, use another company id!");
+      const company = await companyRepository.findOne({ where: { id: company_id } });
+      if(!company){
+        throw "Company is not found!"
       }
-
-      // create client
-      const newClient = await clientRepository.create({
+      const newClient= await clientRepository.create({
         id,
         first_name,
         last_name,
@@ -206,19 +206,17 @@ class ClientDAL {
         profile_pic: user_profile,
         phone_number,
       });
-      const clientCreated = await clientRepository.save(newClient);
-      if (!clientCreated) {
-        throw new Error("client create faild, try again!");
-      }
+       await clientRepository.save(newClient);
       return newClient;
     } catch (error) {
-      throw error;
+      throw error 
     }
   }
 
   static async updateClient(id, updatedFields) {
-    // get connection from the pool
-    const connection = getConnection();
+   try {
+    if (!validateUuid(id)) throw "Invalid Id"
+    if (!validateUuid(updatedFields.company_id)) throw "Invalid Company Id"
 
     // create bridge
     const clientRepository = connection.getRepository(User);
@@ -237,7 +235,9 @@ class ClientDAL {
     await clientRepository.save(client);
 
     return client;
-  }
+  }catch(error){
+    throw error;
+  }}
 
   static async getClientTickets(data) {
     try {
@@ -260,7 +260,7 @@ class ClientDAL {
       });
       return client_tickets;
     } catch (error) {
-      throw error;
+      throw error
     }
   }
 
@@ -290,23 +290,28 @@ class ClientDAL {
 
       return newTicket;
     } catch (error) {
-      throw error;
+      throw error
     }
   }
 
   static async deleteClient(id) {
-    // get connection from the pool
-    const connection = getConnection();
+   try {
+     // get connection from the pool
+     const connection = getConnection();
 
     // create bridge
     const clientRepository = connection.getRepository(User);
 
     const deleted = await clientRepository.delete(id);
     if (!deleted) {
-      throw new Error("failed to delete client , try again!");
+      throw "failed to delete client , try again!"
     }
-    return "client deleted Successfully";
+    throw "client deleted Successfully";
   }
+  catch(error){
+    throw error
+  }
+}
 }
 
 module.exports = ClientDAL;

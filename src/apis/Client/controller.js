@@ -1,5 +1,6 @@
 const AppError = require("../../../utils/apperror");
 const hash = require("../../../utils/hashpassword");
+const { uuidValidator } = require("../../../utils/uuid");
 const PriorityDAL = require("../priority/dal");
 const ClientDAL = require("./dal");
 
@@ -23,7 +24,7 @@ exports.allClients = async (req, res, next) => {
       data: clients,
     });
   } catch (error) {
-    throw error;
+    return next(new AppError("client with the given id not found"));
   }
 };
 
@@ -33,6 +34,7 @@ exports.singleClient = async (req, res, next) => {
 
     // get client with the given id
     const client = await ClientDAL.getClientById(id);
+    // console.log( "client CLient",client)
 
     if (!client)
       return next(new AppError("client with the given id not found"));
@@ -42,7 +44,8 @@ exports.singleClient = async (req, res, next) => {
       data: client,
     });
   } catch (error) {
-    throw error;
+  return res.status(500).json(next(new AppError(error , 500)))
+
   }
 };
 
@@ -54,13 +57,13 @@ exports.createClient = async (req, res, next) => {
     data.password = hash("%TGBnhy6");
     //   create new client
     const client = await ClientDAL.createClient(data);
+  
     res.status(201).json({
       status: "Success",
       data: client,
     });
   } catch (error) {
-    // throw error;
-    return next(new AppError(error.message, 500));
+  return res.status(500).json(next(new AppError(error , 500)))
   }
 };
 
@@ -99,7 +102,7 @@ exports.updateClient = async (req, res, next) => {
       data: client,
     });
   } catch (error) {
-    throw error;
+  return res.status(500).json( next(new AppError(error,500))) 
   }
 };
 
@@ -120,7 +123,7 @@ exports.deleteClient = async (req, res, next) => {
       data: null,
     });
   } catch (error) {
-    throw error;
+  return res.status(500).json( next(new AppError(error,500))) 
   }
 };
 
@@ -138,7 +141,7 @@ exports.clientTickets = async (req, res, next) => {
       data: tickets,
     });
   } catch (error) {
-    throw error;
+    return res.status(500).json( next(new AppError(error,500))) 
   }
 };
 
@@ -196,6 +199,7 @@ exports.createNewTicket = async (req, res, next) => {
       statusCode: "201",
     });
   } catch (error) {
-    throw error;
+  //  new AppError(error ,500)
+   return res.status(500).json(next(new AppError(error,500))) 
   }
 };

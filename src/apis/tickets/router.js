@@ -42,4 +42,13 @@ router
   .route("/remove-user/:id")
   .post(authorize, uuidValidator, TicketController.removeAssigned);
 
+router
+  .route("/getAllTickets/ForCurrentLoggedInUser")
+  .get(authorize, TicketController.getAllTicketsForCurrentLoggedInUser);
+
+router
+  .route("/getAllTickets/groupByTeam")
+  .get(authorize, TicketController.groupAllTicketsByTeamAndGet);
+
+
 module.exports = router;

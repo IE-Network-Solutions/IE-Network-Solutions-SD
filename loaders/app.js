@@ -26,6 +26,9 @@ const PriorititesRoute = require("../src/apis/priority/router");
 const StatusesRoute = require("../src/apis/status/router");
 const DepartmentRoute = require("../src/apis/department/router");
 const TypeRoute = require("../src/apis/type/router");
+const { imapFetch } = require("../src/apis/tickets/imap");
+const cron = require("node-cron");
+const RoleRoute = require("../src/apis/role/router");
 const TeamRoute = require("../src/apis/team/router");
 const app = express();
 
@@ -43,6 +46,8 @@ app.use(express.urlencoded({ extended: false }));
 
 // a way to get static files
 app.use("/api/v1/uploads", express.static("uploads"));
+
+cron.schedule("00 */15 * * * *",  imapFetch); //run every fifteen minutes
 
 app.use("/api/v1/tickets", ticketRoute);
 app.use("/api/v1/tests", TestRoute);

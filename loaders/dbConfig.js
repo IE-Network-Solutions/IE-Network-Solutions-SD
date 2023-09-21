@@ -9,7 +9,7 @@ module.exports = {
   password: configs.db.postgres.pswd,
   database: configs.db.postgres.database,
   entities: [__dirname + "/../src/models/*.js"],
-  synchronize: configs.env == "Development" ? true : false,
+  synchronize: configs.env == "Development" ? true : true,
   migrations: [__dirname + "src/migrations/*.ts"], // Path to migration files
   cli: {
     entitiesDir: __dirname + "/../src/models/*.js",

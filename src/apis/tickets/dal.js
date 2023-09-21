@@ -1,16 +1,14 @@
 const { getConnection } = require("typeorm");
 const Ticket = require("../../models/Ticket");
 const { v4: uuidv4, validate: uuidValidate } = require("uuid");
-const PriorityDAL = require("../../apis/priority/dal");
-const StatusDAL = require("../../apis/status/dal");
-const DepartmentDAL = require("../../apis/department/dal");
-const TypeDAL = require("../../apis/type/dal");
+const TestDAL = require("../../apis/test/dal");
 const Test = require("../../models/Test");
 const AppError = require("../../../utils/apperror");
 const User = require("../../models/User");
 const TicketUser = require("../../models/TicketUser");
 const Type = require("../../models/Type");
 const UserDAL = require("../users/dal");
+const JunkTicket = require("../../models/JunkTicket");
 
 class TicketDAL {
   static async getAllTickets() {
@@ -194,9 +192,26 @@ class TicketDAL {
     }
   }
 
-  /**
-   *  This method implements to create new ticket
-   */
+  static async getJunkTicketById(id) {
+    try {
+      // get connection from the pool
+      const connection = await getConnection();
+
+      // create a bridge between the entity and the database
+      const ticketRepository = await connection.getRepository(JunkTicket);
+
+      // get data
+      return await ticketRepository.findOne({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  //This method implements to create new ticket
   static async createNewTicket(data) {
     try {
       //Destructure user requests
@@ -223,7 +238,10 @@ class TicketDAL {
 
       // create ticket
       const newTicket = await ticketRepository.create({
+        id,
+        status,
         description,
+        priority,
         subject,
         ticket_priority: priority,
         ticket_status: status,
@@ -235,16 +253,6 @@ class TicketDAL {
       });
       await ticketRepository.save(newTicket);
 
-      // get agent
-      const user = await UserDAL.getOneUser(agent_id);
-
-      // create ticket_user instance to create the association
-      const ticketUserRepository = connection.getRepository(TicketUser);
-      const userTicket = ticketUserRepository.create({
-        ticket: newTicket,
-        user,
-      });
-      await ticketUserRepository.save(userTicket);
       return newTicket;
     } catch (error) {
       throw error;
@@ -258,45 +266,14 @@ class TicketDAL {
     // create bridge
     const ticketRepository = connection.getRepository(Ticket);
 
-    const ticket = await ticketRepository.findOne({
-      where: { id: id },
-      relations: [
-        "ticket_status",
-        "ticket_type",
-        "ticket_priority",
-        "department",
-      ],
-    });
-
+    const ticket = await ticketRepository.findOneBy({ id: id });
+    console.log(ticket);
     if (!ticket) {
       throw new Error("Ticket is Not Found with the provided id");
     }
 
     ticketRepository.merge(ticket, updatedFields);
-
-    // update type of the ticket if any
-    if (updatedFields.type) {
-      ticket.ticket_type = updatedFields.type;
-    }
-
-    // update priority of the ticket if any
-    if (updatedFields.priority) {
-      ticket.ticket_priority = updatedFields.priority;
-    }
-
-    // update status of the ticket if any
-    if (updatedFields.status) {
-      ticket.ticket_status = updatedFields.status;
-    }
-
-    // update department of the ticket if any
-    if (updatedFields.department) {
-      ticket.department = updatedFields.department;
-    }
-
-    await ticketRepository.save(ticket);
-
-    return ticket;
+    return await ticketRepository.save(ticket);
   }
 
   static async deleteTicketById(id) {

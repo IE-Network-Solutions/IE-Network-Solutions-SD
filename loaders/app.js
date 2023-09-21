@@ -30,6 +30,7 @@ const { imapFetch } = require("../src/apis/tickets/imap");
 const cron = require("node-cron");
 const RoleRoute = require("../src/apis/role/router");
 const TeamRoute = require("../src/apis/team/router");
+const NotificationRoute = require('../src/apis/notification/router')
 const app = express();
 
 /**
@@ -47,6 +48,7 @@ app.use(express.urlencoded({ extended: false }));
 // a way to get static files
 app.use("/api/v1/uploads", express.static("uploads"));
 
+//*/30 * * * * *' // for 3o seconds 
 cron.schedule("00 */15 * * * *",  imapFetch); //run every fifteen minutes
 
 app.use("/api/v1/tickets", ticketRoute);
@@ -69,6 +71,7 @@ app.use("/api/v1/statuses", StatusesRoute);
 app.use("/api/v1/departments", DepartmentRoute);
 app.use("/api/v1/types", TypeRoute);
 app.use("/api/v1/teams", TeamRoute);
+app.use("/api/v1/notification" , NotificationRoute )
 
 // Unknown URL Error Message
 app.use("*", (req, res, next) => {

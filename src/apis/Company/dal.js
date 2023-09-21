@@ -1,13 +1,8 @@
 const { getConnection } = require("typeorm");
 const Company = require("../../models/Company");
-<<<<<<< HEAD
-const {v4: uuidv4} = require('uuid');
-var fs = require('fs');
-=======
 const { v4: uuidv4 } = require("uuid");
 var fs = require("fs");
 const AppError = require("../../../utils/apperror");
->>>>>>> 4367cc33b739505d65ee9aa7d4e3a3403dd3b1ea
 
 class CompanyDAL {
   static async allCompanies() {
@@ -208,25 +203,6 @@ class CompanyDAL {
 
   static async updateCompany(id, updatedFields) {
    try {
-     // get connection from the pool
-     const connection = getConnection();
-
-<<<<<<< HEAD
-     // create bridge
-     const companyRepository = connection.getRepository(Company);
-     const company = await companyRepository.findOneBy({ id: id });
-     if (!company) {
-       throw new Error("company not found");
-     }
- 
-    companyRepository.merge(company, updatedFields);
-     await companyRepository.save(company);
- 
-     return company;
-   } catch (error) {
-    throw error
-   }
-=======
     // create bridge
     const companyRepository = connection.getRepository(Company);
     const company = await companyRepository.findOne({ where: { id: id } });
@@ -239,36 +215,15 @@ class CompanyDAL {
     await companyRepository.save(company);
 
     return company;
->>>>>>> 4367cc33b739505d65ee9aa7d4e3a3403dd3b1ea
+   } catch (error) {
+    throw error
+   }
+
   }
 
   static async deleteCompany(id) {
    try {
-     // get connection from the pool
-     const connection = getConnection();
-
-<<<<<<< HEAD
      // create bridge
-     const companyRepository = connection.getRepository(Company);
- 
-     const company=await companyRepository.findOneBy({id})
-     if(!company) {
-     throw new Error("Company with the given id is not found")
-     
-   }
-     const sourceUrls =`${company.company_logo}`
-     const deleLogo= await fs.unlinkSync(`./${sourceUrls}`);
-    const deleteComp= await companyRepository.delete(id);
-      if(!deleteComp && !deleLogo){
-       throw new Error("Error Deleting the Company , try again!")
-      }
- 
-     return "Company deleted Successfully";
-   } catch (error) {
-    throw error
-   }
-=======
-    // create bridge
     const companyRepository = connection.getRepository(Company);
 
     const company = await companyRepository.findOneBy({ id });
@@ -283,7 +238,9 @@ class CompanyDAL {
     }
 
     return "Company deleted Successfully";
->>>>>>> 4367cc33b739505d65ee9aa7d4e3a3403dd3b1ea
+   } catch (error) {
+    throw error
+   }
   }
 }
 

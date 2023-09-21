@@ -12,6 +12,6 @@ router.route("/:id").get(authorize, permissionMiddleware(['view-permission']), u
 router.route("/").post(authorize, permissionMiddleware(['view-permission']), validator(createPermissionValidator), PermissionController.createPermission);
 router.route('/:id').patch(authorize, permissionMiddleware(['update-permission']), uuidValidator, validator(createPermissionValidator), PermissionController.updatePermission);
 router.route("/:id").delete(authorize, permissionMiddleware(['delete-permission']), PermissionController.deletePermission);
-router.route("/user/:userId/permission/:permissionId").delete(authorize, permissionMiddleware(['delete-user-permission']), PermissionController.deleteSpecificUserPermission);
+router.route("/user/:userId/permission/:permissionId").delete(authorize, permissionMiddleware(['delete-assigned-permission']), PermissionController.deleteSpecificUserPermission);
 
 module.exports = router;

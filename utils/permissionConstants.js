@@ -43,8 +43,8 @@ module.exports = [
     { name: 'Create Knowledge Base', slug: 'create-Knowledge-base' },
     { name: 'View Knowledge Base', slug: 'view-Knowledge-base' },
     { name: 'View Knowledge Bases', slug: 'view-Knowledge-bases' },
-    { name: 'Delete Knowled geBase', slug: 'delete-Knowledge-base' },
-    { name: 'Update Knowled geBase', slug: 'update-Knowledge-base' },
+    { name: 'Delete Knowledge Base', slug: 'delete-Knowledge-base' },
+    { name: 'Update Knowledge Base', slug: 'update-Knowledge-base' },
 
     //Note Permissions
     { name: 'Create note', slug: 'create-note' },
@@ -68,7 +68,7 @@ module.exports = [
     { name: 'View permission', slug: 'view-permission' },
     { name: 'View permissions', slug: 'view-permissions' },
     { name: 'Delete permission', slug: 'delete-permission' },
-    { name: 'Delete user permission', slug: 'delete-user-permission' },
+    { name: 'Delete assigned permission', slug: 'delete-assigned-permission' },
     { name: 'Update permission', slug: 'update-permission' },
 
     //Priority Permissions
@@ -88,7 +88,7 @@ module.exports = [
     //Role Permissions
     { name: 'Create role', slug: 'create-role' },
     { name: 'View role', slug: 'view-role' },
-    { name: 'View role', slug: 'view-roles' },
+    { name: 'View roles', slug: 'view-roles' },
     { name: 'View role by name', slug: 'view-role-by-name' },
     { name: 'Delete role', slug: 'delete-role' },
     { name: 'Update role', slug: 'update-role' },
@@ -112,7 +112,7 @@ module.exports = [
 
     //TeamUser Permissions ????
     { name: 'Create team user', slug: 'create-team-user' },
-    { name: 'Ciew team user', slug: 'view-team-user' },
+    { name: 'View team user', slug: 'view-team-user' },
     { name: 'Delete team user', slug: 'delete-team-user' },
     { name: 'Update team user', slug: 'update-team-user' },
 
@@ -145,7 +145,7 @@ module.exports = [
     { name: 'Create todo', slug: 'create-todo' },
     { name: 'View todo', slug: 'view-todo' },
     { name: 'View todos', slug: 'view-todos' },
-    { name: 'Velete todo', slug: 'delete-todo' },
+    { name: 'Delete todo', slug: 'delete-todo' },
     { name: 'Update todo', slug: 'update-todo' },
 
     //Ticket Type Permissions

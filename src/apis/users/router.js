@@ -9,64 +9,48 @@ const {
 const auth = require("../../middlewares/auth");
 const authorize = require("../../middlewares/auth/authorization");
 const { uuidValidator } = require("../../../utils/uuid");
-const rolePermissionMiddleware = require("../../middlewares/rolePermissionMiddleware");
 const Permission = require("../../apis/permissionList/pemissions");
 
 const { uploadOptions } = require("../../../utils/imageUpload");
 
-router.route("/").get(UserController.getAllUsers);
+const permissionMiddleware = require("../../middlewares/permission.middleware");
+
+router.route("/").get(authorize, permissionMiddleware(['view-users']), UserController.getAllUsers);
 router
   .route("/user-data")
   .get(
-    authorize,
+    authorize, permissionMiddleware(['view-logged-in-user-data']),
     uploadOptions.single("user_profile"),
     UserController.getLoggedUserData
   );
 
-router.route("/:id").get(authorize, uuidValidator, UserController.getOneUser);
+router.route("/:id").get(authorize, permissionMiddleware(['view-user']), uuidValidator, UserController.getOneUser);
 
 router
   .route("/")
   .post(uploadOptions.single("user_profile"), UserController.createUser);
 
 router.route("/:id").patch(
-  authorize,
-  uuidValidator,
-  // rolePermissionMiddleware(["edit-user"]),
-  uploadOptions.single("user_profile"),
-  UserController.editUser
-);
+  authorize, permissionMiddleware(['update-user']), uuidValidator, uploadOptions.single("user_profile"), UserController.editUser);
 router
   .route("/change-password/:id")
-  .patch(uuidValidator, validate(change_password), UserController.editPassword);
+  .patch(authorize, permissionMiddleware(['change-user-password']), uuidValidator, validate(change_password), UserController.editPassword);
 
 router
   .route("/:id")
   .delete(
-    uuidValidator,
-    authorize,
-    rolePermissionMiddleware(["delete-user"]),
-    UserController.deleteUser
-  );
+    authorize, permissionMiddleware(['delete-user']), uuidValidator, UserController.deleteUser);
 router
   .route("/deleteAllUsers/:id")
-  .delete(uuidValidator, authorize, UserController.deleteAllUsers);
+  .delete(authorize, permissionMiddleware(['delete-users']), uuidValidator, UserController.deleteAllUsers);
 router.route("/login").post(validate(loginValidator), UserController.loginUser);
 router
   .route("/resetPassword")
-  .post(
-    authorize,
-    authorize,
-    rolePermissionMiddleware([...Permission.userPermissions]),
-    UserController.resetPassword
-  );
+  .post(authorize, permissionMiddleware(['reset-user-password']), UserController.resetPassword);
 router
   .route("/forgotPassword")
   .post(
-    authorize,
-    rolePermissionMiddleware([...Permission.userPermissions]),
-    UserController.forgotPassword
-  );
+    authorize, permissionMiddleware(['forget-user-password']), UserController.forgotPassword);
 router.route("/logout").post(async (req, res, next) => {
   const token = req.headers["authorization"];
   console.log(token);
@@ -75,5 +59,6 @@ router.route("/logout").post(async (req, res, next) => {
   }
   res.json({ message: "Logged out successfully." });
 });
-router.route("/team-access/:id").post(authorize, UserController.teamAccess);
+router.route("/team-access/:id").post(authorize, permissionMiddleware(['team-access']), UserController.teamAccess);
+
 module.exports = router;

@@ -1,25 +1,23 @@
 const router = require("express").Router();
 
 const knowledgebaseController = require("./controller");
-const createKnowledgebaseValidator = require("./validation"); 
+const createKnowledgebaseValidator = require("./validation");
 const uuidValidator = require('../../../utils/uuidValidator')
 const knowledgeBaseController = require("./controller");
 const createKnowledgeBaseValidator = require("./validation");
 const validate = require("../../../utils/validator");
- 
-router.route("/").get(uuidValidator, knowledgeBaseController.getAllKnowledgebase);
 
-router.route("/").post(validate(createKnowledgeBaseValidator), knowledgeBaseController.createKnowledgebase);
+const authorize = require("../../middlewares/auth/authorization");
+const permissionMiddleware = require("../../middlewares/permission.middleware");
 
-router.route("/:id").get(uuidValidator, knowledgebaseController.getKnowlegebaseById)
+router.route("/")
+    .get(authorize, permissionMiddleware(['view-Knowledge-bases']), knowledgeBaseController.getKnowledgeBases)
+    .post(authorize, permissionMiddleware(['create-Knowledge-base']), validate(createKnowledgeBaseValidator), knowledgeBaseController.createKnowledgeBase);
 
-router.route("/:id").patch(validate(createKnowledgebaseValidator), knowledgebaseController.updateOneKnowledgebase)
+router.route("/:id")
+    .patch(authorize, permissionMiddleware(['view-knowledge-base']), uuidValidator, knowledgeBaseController.updateKnowledgeBaseById)
+    .get(authorize, permissionMiddleware(['update-Knowledge-base']), uuidValidator, knowledgebaseController.getKnowlegeBaseById)
+    .delete(authorize, permissionMiddleware(['delete-Knowledge-base']), uuidValidator, knowledgebaseController.deleteKnowledgeBaseById);
 
-router.route("/:id").delete(uuidValidator, knowledgebaseController.deleteOneKnowledgebase);
-router.route("/:id").get(knowledgeBaseController.getKnowledgeBaseById)
-
-router.route("/:id").patch(knowledgeBaseController.updateOneKnowledgebase)
-
-router.route("/:id").delete(knowledgeBaseController.updateOneKnowledgebase);
 
 module.exports = router;

@@ -10,7 +10,12 @@ const Permission = new EntitySchema({
     },
     name: {
       type: "varchar",
-      nullable:true,
+      nullable: true,
+      unique: true
+    },
+    slug: {
+      type: "varchar",
+      nullable: true,
       unique: true
     },
     created_at: {
@@ -23,7 +28,7 @@ const Permission = new EntitySchema({
     },
   }
   ,
-relations:{
+  relations: {
     roles: {
       type: 'many-to-many',
       target: 'Role',
@@ -36,7 +41,7 @@ relations:{
       onUpdate: 'CASCADE',
     },
 
-     user: {
+    user: {
       type: 'many-to-many',
       target: 'User',
       onDelete: 'CASCADE',
@@ -47,7 +52,7 @@ relations:{
         inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' },
       },
     },
-}
+  }
 })
 
 

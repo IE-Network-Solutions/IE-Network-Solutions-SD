@@ -415,6 +415,31 @@ class TicketDAL {
     const tickets = await queryBuilder.getMany();
     return tickets;
   }
+
+  // ticket total by status
+  static async ticketsTotalByStatus() {
+    // get connection from the pool
+    const connection = getConnection();
+    const is_deleted = false;
+    // create bridge to the db
+    const ticketRepository = connection.getRepository(Ticket);
+
+    // Fetch tickets with related data and group by status
+    const ticketStatusCounts = await ticketRepository
+      .createQueryBuilder("ticket")
+      .leftJoin("ticket.ticket_status", "status")
+      .select([
+        "status.id AS statusId",
+        "status.type AS statusType",
+        "COUNT(ticket.id) AS ticketCount",
+      ])
+      .where("ticket.is_deleted = :is_deleted", { is_deleted })
+      .groupBy("status.id", "status.type")
+      .orderBy("status.id")
+      .getRawMany();
+
+    return ticketStatusCounts;
+  }
 }
 
 module.exports = TicketDAL;

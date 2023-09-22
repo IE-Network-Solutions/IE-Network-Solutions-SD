@@ -9,6 +9,7 @@ const {
 const { uuidValidator } = require("../../../utils/uuid");
 const authorize = require("../../middlewares/auth/authorization");
 
+router.route("/tickt-status").get(TicketController.getTicketsByStatus);
 router.route("/filter").get(authorize, TicketController.applyFilterOnTickets);
 router.route("/").get(authorize, TicketController.getAllTickets);
 router.route("/:id").get(authorize, TicketController.getTicketById);

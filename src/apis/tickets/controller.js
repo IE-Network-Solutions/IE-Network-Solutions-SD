@@ -353,3 +353,16 @@ exports.applyFilterOnTickets = async (req, res, next) => {
     throw error;
   }
 };
+
+exports.getTicketsByStatus = async (req, res, next) => {
+  try {
+    const data = await TicketDAL.ticketsTotalByStatus();
+
+    res.status(200).json({
+      status: "Success",
+      data: data,
+    });
+  } catch (error) {
+    throw error;
+  }
+};

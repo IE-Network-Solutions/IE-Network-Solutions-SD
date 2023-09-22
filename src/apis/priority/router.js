@@ -4,28 +4,29 @@ const validate = require("../../../utils/validator");
 const { priorityValidator } = require("./validation");
 const { uuidValidator } = require("../../../utils/uuid");
 const authorize = require("../../middlewares/auth/authorization");
+const permissionMiddleware = require("../../middlewares/permission.middleware");
 
-router.route("/").get(authorize, PriorityController.getAllPriorities);
+router.route("/").get(authorize, permissionMiddleware(['view-priorities']), PriorityController.getAllPriorities);
 router
   .route("/:id")
-  .get(authorize, uuidValidator, PriorityController.getPriority);
+  .get(authorize, permissionMiddleware(['view-priority']), uuidValidator, PriorityController.getPriority);
 
 router
   .route("/")
   .post(
-    authorize,
+    authorize, permissionMiddleware(['create-priority']),
     validate(priorityValidator),
     PriorityController.createPriority
   );
 
-router.route("/").patch(authorize, PriorityController.editPriority);
+router.route("/").patch(authorize, permissionMiddleware(['update-priority']), PriorityController.editPriority);
 
 router
   .route("/deleteAllPriorities")
-  .delete(authorize, PriorityController.deleteAllPriorities);
+  .delete(authorize, permissionMiddleware(['delete-priorities']), PriorityController.deleteAllPriorities);
 
 router
   .route("/:id")
-  .delete(authorize, uuidValidator, PriorityController.deletePriority);
+  .delete(authorize, permissionMiddleware(['delete-priority']), uuidValidator, PriorityController.deletePriority);
 
 module.exports = router;

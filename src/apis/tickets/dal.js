@@ -1,16 +1,14 @@
 const { getConnection } = require("typeorm");
 const Ticket = require("../../models/Ticket");
 const { v4: uuidv4, validate: uuidValidate } = require("uuid");
-const PriorityDAL = require("../../apis/priority/dal");
-const StatusDAL = require("../../apis/status/dal");
-const DepartmentDAL = require("../../apis/department/dal");
-const TypeDAL = require("../../apis/type/dal");
+const TestDAL = require("../../apis/test/dal");
 const Test = require("../../models/Test");
 const AppError = require("../../../utils/apperror");
 const User = require("../../models/User");
 const TicketUser = require("../../models/TicketUser");
 const Type = require("../../models/Type");
 const UserDAL = require("../users/dal");
+const JunkTicket = require("../../models/JunkTicket");
 
 class TicketDAL {
   static async getAllTickets() {
@@ -29,8 +27,9 @@ class TicketDAL {
         .leftJoin("ticket.ticket_type", "types")
         .leftJoin("ticket.ticket_priority", "priority")
         .leftJoin("ticket.ticket_status", "status")
-        // .leftJoin("ticket.department", "department")
+        .leftJoin("ticket.created_by", "created_by")
         .leftJoin("ticket.client", "client")
+        .leftJoin("ticket.team", "team")
         .leftJoin("ticket.company", "company")
         .leftJoin("ticket.comments", "comments")
         .select([
@@ -40,6 +39,9 @@ class TicketDAL {
           "ticket.created_at",
           "ticket.due_date",
           "ticket.closed",
+          "created_by",
+          "team.id",
+          "team.name",
           "types.type",
           "types.id",
           "priority.id",
@@ -108,6 +110,7 @@ class TicketDAL {
           "teams_access.tickets.client",
           "teams_access.tickets.company",
           "teams_access.tickets.comments",
+          "teams_access.tickets.created_by",
         ],
       });
 
@@ -189,9 +192,26 @@ class TicketDAL {
     }
   }
 
-  /**
-   *  This method implements to create new ticket
-   */
+  static async getJunkTicketById(id) {
+    try {
+      // get connection from the pool
+      const connection = await getConnection();
+
+      // create a bridge between the entity and the database
+      const ticketRepository = await connection.getRepository(JunkTicket);
+
+      // get data
+      return await ticketRepository.findOne({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  //This method implements to create new ticket
   static async createNewTicket(data) {
     try {
       //Destructure user requests
@@ -218,7 +238,10 @@ class TicketDAL {
 
       // create ticket
       const newTicket = await ticketRepository.create({
+        id,
+        status,
         description,
+        priority,
         subject,
         ticket_priority: priority,
         ticket_status: status,
@@ -230,16 +253,6 @@ class TicketDAL {
       });
       await ticketRepository.save(newTicket);
 
-      // get agent
-      const user = await UserDAL.getOneUser(agent_id);
-
-      // create ticket_user instance to create the association
-      const ticketUserRepository = connection.getRepository(TicketUser);
-      const userTicket = ticketUserRepository.create({
-        ticket: newTicket,
-        user,
-      });
-      await ticketUserRepository.save(userTicket);
       return newTicket;
     } catch (error) {
       throw error;
@@ -253,45 +266,14 @@ class TicketDAL {
     // create bridge
     const ticketRepository = connection.getRepository(Ticket);
 
-    const ticket = await ticketRepository.findOne({
-      where: { id: id },
-      relations: [
-        "ticket_status",
-        "ticket_type",
-        "ticket_priority",
-        "department",
-      ],
-    });
-
+    const ticket = await ticketRepository.findOneBy({ id: id });
+    console.log(ticket);
     if (!ticket) {
       throw new Error("Ticket is Not Found with the provided id");
     }
 
     ticketRepository.merge(ticket, updatedFields);
-
-    // update type of the ticket if any
-    if (updatedFields.type) {
-      ticket.ticket_type = updatedFields.type;
-    }
-
-    // update priority of the ticket if any
-    if (updatedFields.priority) {
-      ticket.ticket_priority = updatedFields.priority;
-    }
-
-    // update status of the ticket if any
-    if (updatedFields.status) {
-      ticket.ticket_status = updatedFields.status;
-    }
-
-    // update department of the ticket if any
-    if (updatedFields.department) {
-      ticket.department = updatedFields.department;
-    }
-
-    await ticketRepository.save(ticket);
-
-    return ticket;
+    return await ticketRepository.save(ticket);
   }
 
   static async deleteTicketById(id) {
@@ -439,6 +421,79 @@ class TicketDAL {
       .getRawMany();
 
     return ticketStatusCounts;
+  }
+  static async groupAllTicketsByTeam() {
+    try {
+      const is_deleted = false;
+      // get connection from the pool
+      const connection = await getConnection();
+
+      // create a bridg
+      const ticketRepository = await connection.getRepository(Ticket);
+
+      // fetch tickets with related data
+      const tickets = await ticketRepository
+        .createQueryBuilder("ticket")
+        .leftJoin("ticket.assigned_users", "users")
+        .leftJoin("ticket.ticket_type", "types")
+        .leftJoin("ticket.ticket_priority", "priority")
+        .leftJoin("ticket.ticket_status", "status")
+        .leftJoin("ticket.created_by", "created_by")
+        .leftJoin("ticket.client", "client")
+        .leftJoin("ticket.team", "team")
+        .leftJoin("ticket.company", "company")
+        .leftJoin("ticket.comments", "comments")
+        .select([
+          "ticket.id",
+          "ticket.subject",
+          "ticket.description",
+          "ticket.created_at",
+          "ticket.due_date",
+          "ticket.closed",
+          "created_by",
+          "types.type",
+          "types.id",
+          "priority.id",
+          "priority.type",
+          "status.id",
+          "status.type",
+          "status.status_color",
+          "users.id",
+          "users.email",
+          "users.first_name",
+          "users.last_name",
+          "users.role",
+          "users.user_type",
+          "client.id",
+          "client.email",
+          "client.first_name",
+          "client.last_name",
+          "client.user_type",
+          "team.id",
+          "team.name",
+          "team.is_deleted",
+          "company.company_name",
+          "company.description",
+          "company.id",
+          "comments.id",
+          "comments.title",
+          "comments.description",
+          "comments.is_private",
+          "comments.emailTo",
+          "comments.emailCc",
+          "comments.is_escalation",
+          "comments.created_at",
+          "comments.updated_at",
+          "ticket.team_id",
+        ])
+        .where("ticket.is_deleted = :is_deleted", { is_deleted })
+        .orderBy("ticket.created_at", "DESC")
+        .getMany();
+
+      return tickets;
+    } catch (error) {
+      throw error;
+    }
   }
 }
 

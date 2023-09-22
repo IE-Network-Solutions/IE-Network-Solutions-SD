@@ -47,6 +47,26 @@ exports.getAllTickets = async (req, res, next) => {
   }
 };
 
+exports.getAllJunkTickets = async (req, res, next) => {
+  try {
+    //   get all tickets
+    const ticket = await TicketDAL.getAllJunkTickets();
+
+    // check if tickets are exist
+    if (!ticket) {
+      // return custom error
+      return next(new AppError("No Ticket data found"));
+    }
+
+    // response
+    res.status(200).json({
+      status: "Success",
+      data: ticket,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
 //This method is
 exports.getTicketById = async (req, res, next) => {
   try {
@@ -351,6 +371,55 @@ exports.applyFilterOnTickets = async (req, res, next) => {
     });
   } catch (error) {
     throw error;
+  }
+};
+
+exports.getAllTicketsForCurrentLoggedInUser = async (req, res, next) => {
+  try {
+    const currentLoggedInUser = req.user;
+    const allTickets = await TicketDAL.getAllTickets();
+
+    // Filter tickets where the createdBy field's id matches the current user's id.
+    const ticketsForCurrentLoggedInUser = allTickets.filter(
+      (ticket) => ticket.created_by.id === currentLoggedInUser.id
+    );
+    res.status(200).json({
+      status: "Success",
+      userInfo: currentLoggedInUser,
+      userTicket: ticketsForCurrentLoggedInUser,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.groupAllTicketsByTeamAndGet = async (req, res, next) => {
+  try {
+    const currentLoggedInUser = req.user;
+    const groupedTickets = await TicketDAL.groupAllTicketsByTeam();
+
+    // Group tickets by team using JavaScript
+    const result = groupedTickets.reduce((result, ticket) => {
+      const teamName = ticket.team ? ticket.team.name : "Unassigned"; // Use "Unassigned" for tickets without a team
+      if (!result[teamName]) {
+        result[teamName] = [];
+      }
+      result[teamName].push(ticket);
+      return result;
+    }, {});
+
+    if (currentLoggedInUser.user_type != "Admin") {
+      return next(new AppError("Current user Unable to View"));
+    }
+
+    // Now 'groupedTickets' will contain tickets grouped by team name or "Unassigned" if not associated with any team
+    res.status(200).json({
+      status: "Success",
+      currentLoggedInUser: currentLoggedInUser,
+      groupedTickets: result,
+    });
+  } catch (error) {
+    next(error);
   }
 };
 

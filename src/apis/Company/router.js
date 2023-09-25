@@ -6,26 +6,39 @@ const { uploadOptions } = require("../../../utils/imageUpload");
 const authorize = require("../../middlewares/auth/authorization");
 const permissionMiddleware = require("../../middlewares/permission.middleware");
 
-
-companyRouter.route("/").get(authorize, permissionMiddleware(['view-companies']), CompanyController.allCompanies);
+companyRouter.route("/").get(authorize, CompanyController.allCompanies);
 
 companyRouter
   .route("/")
   .post(
-    authorize, permissionMiddleware(['create-company']),
+    authorize,
+    permissionMiddleware(["create-company"]),
     uploadOptions.single("company_logo"),
     validate(createCompanyValidator),
     CompanyController.createCompany
   );
-companyRouter.route("/:id").get(authorize, permissionMiddleware(['view-company']), CompanyController.singleCompany);
+companyRouter
+  .route("/:id")
+  .get(
+    authorize,
+    permissionMiddleware(["view-company"]),
+    CompanyController.singleCompany
+  );
 companyRouter
   .route("/:id")
   .patch(
-    authorize, permissionMiddleware(['update-company']),
+    authorize,
+    permissionMiddleware(["update-company"]),
     uploadOptions.single("company_profile_update"),
     validate(createCompanyValidator),
     CompanyController.updateCompany
   );
-companyRouter.route("/:id").delete(authorize, permissionMiddleware(['delete-company']), CompanyController.deleteCompany);
+companyRouter
+  .route("/:id")
+  .delete(
+    authorize,
+    permissionMiddleware(["delete-company"]),
+    CompanyController.deleteCompany
+  );
 
 module.exports = companyRouter;

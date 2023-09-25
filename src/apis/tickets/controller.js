@@ -435,3 +435,30 @@ exports.getTicketsByStatus = async (req, res, next) => {
     throw error;
   }
 };
+
+exports.getTicketsCountByTeam = async (req, res, next) => {
+  try {
+    const data = await TicketDAL.getAllTeamTicketsCount();
+
+    res.status(200).json({
+      status: "Success",
+      data: data,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.getAssignedTicketsForLoggedinUser = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const data = await TicketDAL.getAssignedTickets(userId);
+
+    res.status(200).json({
+      status: "Success",
+      data: data,
+    });
+  } catch (error) {
+    throw error;
+  }
+};

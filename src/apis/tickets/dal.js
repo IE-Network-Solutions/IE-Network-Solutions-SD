@@ -495,6 +495,48 @@ class TicketDAL {
       throw error;
     }
   }
+
+  // tickets count for each team
+  static async getAllTeamTicketsCount() {
+    // get connection from the pool
+    const connection = getConnection();
+
+    // create bridge to the db
+    const ticketRepository = connection.getRepository(Ticket);
+
+    const data = ticketRepository
+      .createQueryBuilder("ticket")
+      .leftJoin("ticket.team", "team")
+      .select([
+        "team.id AS teamId",
+        "team.name AS teamName",
+        "COUNT(ticket.id) as ticketCount",
+      ])
+      .groupBy("team.id", "team.name")
+      .orderBy("team.id")
+      .getRawMany();
+
+    return data;
+  }
+
+  // assigned tickets for logged in user status not closed
+  static async getAssignedTickets(userId) {
+    const connection = getConnection();
+    const name = "Closed";
+    const userRepository = connection.getRepository(User);
+    const ticketRepository = connection.getRepository(Ticket);
+
+    const userTasks = await userRepository
+      .createQueryBuilder("user")
+      .leftJoin("user.assigned_tickets", "ticket")
+      .leftJoin("ticket.ticket_status", "status")
+      .select(["user.id", "ticket.id", "ticket.subject", "ticket.description"])
+      .where("status.type != :name", { name: name })
+      .andWhere("user.id = :id", { id: userId })
+      .getRawMany();
+
+    return userTasks;
+  }
 }
 
 module.exports = TicketDAL;

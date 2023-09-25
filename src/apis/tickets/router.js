@@ -11,6 +11,11 @@ const authorize = require("../../middlewares/auth/authorization");
 const permissionMiddleware = require("../../middlewares/permission.middleware");
 
 router.route("/tickt-status").get(TicketController.getTicketsByStatus);
+router.route("/tickt-team-count").get(TicketController.getTicketsCountByTeam);
+router.route("/tickt-status").get(TicketController.getTicketsByStatus);
+router
+  .route("/user-assigned-ticket")
+  .get(authorize, TicketController.getAssignedTicketsForLoggedinUser);
 router
   .route("/filter")
   .get(

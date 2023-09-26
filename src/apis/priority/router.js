@@ -6,10 +6,10 @@ const { uuidValidator } = require("../../../utils/uuid");
 const authorize = require("../../middlewares/auth/authorization");
 const permissionMiddleware = require("../../middlewares/permission.middleware");
 
-router.route("/").get(authorize, permissionMiddleware(['view-priorities']), PriorityController.getAllPriorities);
+router.route("/").get(authorize, PriorityController.getAllPriorities);
 router
   .route("/:id")
-  .get(authorize, permissionMiddleware(['view-priority']), uuidValidator, PriorityController.getPriority);
+  .get(authorize, uuidValidator, PriorityController.getPriority);
 
 router
   .route("/")

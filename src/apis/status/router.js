@@ -7,8 +7,8 @@ const authorize = require("../../middlewares/auth/authorization");
 const permissionMiddleware = require("../../middlewares/permission.middleware");
 
 
-router.route("/").get(authorize, permissionMiddleware(['view-ticket-statuses']), StatusController.getAllStatuses);
-router.route("/:id").get(authorize, permissionMiddleware(['view-ticket-status']), uuidValidator, StatusController.getStatus);
+router.route("/").get(authorize, StatusController.getAllStatuses);
+router.route("/:id").get(authorize, uuidValidator, StatusController.getStatus);
 
 router
   .route("/")

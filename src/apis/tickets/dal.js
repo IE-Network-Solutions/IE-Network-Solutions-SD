@@ -471,7 +471,18 @@ class TicketDAL {
     }
   }
 
-}
+  static async getAllTicketsCreatedByAgentByUserId(userId) {
+    try {
+      const connection = await getConnection();
+      const userTicketRepository = await connection.getRepository(TicketUser);
+      const result = await userTicketRepository.find({ where: { user_id: userId } })
+      // console.log("result", result)
+      return result;
 
+    } catch (error) {
+      throw error;
+    }
+  }
+}
 
 module.exports = TicketDAL;

@@ -42,11 +42,11 @@ router
 
 router
   .route("/getAllTickets/ForCurrentLoggedInUser")
-  .get(authorize, permissionMiddleware(['view-ticket-for-logged-in']), TicketController.getAllTicketsForCurrentLoggedInUser);
+  .get(authorize, TicketController.getAllTicketsForCurrentLoggedInUser);
 
 router
   .route("/getAllTickets/groupByTeam")
-  .get(authorize, permissionMiddleware(['view-grouped-ticket-by-team']), TicketController.groupAllTicketsByTeamAndGet);
+  .get(authorize, TicketController.groupAllTicketsByTeamAndGet);
 
 
 module.exports = router;

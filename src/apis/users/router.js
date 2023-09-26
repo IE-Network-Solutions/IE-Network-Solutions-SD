@@ -59,6 +59,6 @@ router.route("/logout").post(async (req, res, next) => {
   }
   res.json({ message: "Logged out successfully." });
 });
-router.route("/team-access/:id").post(authorize, permissionMiddleware(['team-access']), UserController.teamAccess);
+router.route("/team-access/:id").post(authorize, UserController.teamAccess);
 
 module.exports = router;

@@ -530,7 +530,7 @@ class TicketDAL {
       .createQueryBuilder("user")
       .leftJoin("user.assigned_tickets", "ticket")
       .leftJoin("ticket.ticket_status", "status")
-      .select(["user.id", "ticket.id", "ticket.subject", "ticket.description"])
+      .select(["user.id","user.name", "ticket.id", "ticket.subject", "ticket.description"])
       .where("status.type != :name", { name: name })
       .andWhere("user.id = :id", { id: userId })
       .getRawMany();

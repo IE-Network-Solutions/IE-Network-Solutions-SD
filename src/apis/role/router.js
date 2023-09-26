@@ -7,7 +7,7 @@ const permissionMiddleware = require("../../middlewares/permission.middleware");
 router.route("/").get(
   authorize, RoleController.getAllRoles);
 router.route("/:id").get(
-  authorize, permissionMiddleware(['view-role']), RoleController.getRoleById);
+  authorize, RoleController.getRoleById);
 router.route("/").post(
   authorize, permissionMiddleware(['create-role']), RoleController.createRole);
 router

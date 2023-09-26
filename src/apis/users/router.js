@@ -51,14 +51,9 @@ router
   .route("/forgotPassword")
   .post(
     authorize, permissionMiddleware(['forget-user-password']), UserController.forgotPassword);
-router.route("/logout").post(async (req, res, next) => {
-  const token = req.headers["authorization"];
-  console.log(token);
-  if (token) {
-    return res.status(400).json({ message: "Token not provided." });
-  }
-  res.json({ message: "Logged out successfully." });
-});
+
+router.route("/logout").post(authorize, UserController.logout);
+
 router.route("/team-access/:id").post(authorize, UserController.teamAccess);
 
 module.exports = router;

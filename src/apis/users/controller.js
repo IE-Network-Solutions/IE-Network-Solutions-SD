@@ -258,8 +258,8 @@ exports.loginUser = async (req, res, next) => {
       filteredData[key] = user[key];
     }
   }
-  console.log(filteredData);
-  // Respond
+  await UserDAL.storeToken({ userId: user.id, token: token, isRevoked: false })
+
   res.status(200).json({
     status: "Success",
     data: {
@@ -330,16 +330,18 @@ exports.forgotPassword = async (req, res, next) => {
   }
 };
 
-exports.logOut = async (req, res, next) => {
-  const userToken = req.token;
-  if (userToken != null) {
-    console.log(userToken);
-    return next(new AppError("User is not Logged out"));
+exports.logout = async (req, res, next) => {
+  const currentLoggedInUserToken = await UserDAL.logout(req.user.id);
+
+
+  console.log(currentLoggedInUserToken)
+  if (!req.user.id) {
+    return next(new AppError("There is Error", 400))
   }
   res.status(200).json({
     status: "success",
     message: "User is successfully logout",
-    statusCode: 200,
+    statusCode: 200
   });
 };
 

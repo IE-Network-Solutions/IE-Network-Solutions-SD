@@ -3,6 +3,7 @@ const User = require("../../models/User");
 const TeamUser = require("../../models/TeamUser");
 const Team = require("../../models/Team");
 const Token = require("../../models/Token");
+const sendEmail = require("../../../utils/sendEmail");
 
 class UserDAL {
   // Get All Users
@@ -310,6 +311,29 @@ class UserDAL {
       return;
     }
     await tokenRepository.update(result.id, { isRevoked: true });
+    return result;
+  }
+
+  static async sendChangePasswordAlertByEmail(email) {
+    const result = await this.getUserByEmail(email);
+    console.log(email)
+    if (!result) {
+      return;
+    }
+
+    const emailResult = await sendEmail(
+      process.env.SYSTEM_EMAIL,
+      email,
+      "Change your password",
+      `<h2>Hello ${result.first_name},</h2>
+      <h3> Welcome to our website! Click the link below to get started:</h3>
+    <a href="http://localhost:3001/changePass/:${result.id}">Click here to change your default password</a>
+    <p>Thank you!</p>`,
+      "Chage password"
+    );
+
+    console.log("Email is result", emailResult)
+
     return result;
   }
 }

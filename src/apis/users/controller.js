@@ -377,3 +377,15 @@ exports.teamAccess = async (req, res, next) => {
     throw error;
   }
 };
+
+exports.sendChangePasswordAlertByEmail = async (req, res, next) => {
+  const result = await UserDAL.sendChangePasswordAlertByEmail(req.user.email);
+  console.log("result", result)
+  if (!result) {
+    return next(new AppError("User not Found with the email you provided"));
+  }
+  res.status(200).json({
+    status: "Success",
+    data: result,
+  });
+} 

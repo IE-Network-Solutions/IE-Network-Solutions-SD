@@ -12,11 +12,11 @@ const permissionMiddleware = require("../../middlewares/permission.middleware");
 
 router.route("/filter").get(authorize, permissionMiddleware(['filter-tickets']), TicketController.applyFilterOnTickets);
 router.route("/").get(authorize, permissionMiddleware(['view-tickets']), TicketController.getAllTickets);
-router.route("/:id").get(authorize, permissionMiddleware(['view-ticket']), TicketController.getTicketById);
+router.route("/:id").get(authorize, TicketController.getTicketById);
 router
   .route("/")
   .post(
-    authorize, permissionMiddleware(['create-ticket']),
+    authorize,
     validate(createTicketValidator),
     TicketController.createNewTicket
   );

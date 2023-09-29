@@ -55,5 +55,6 @@ router
 router.route("/logout").post(authorize, UserController.logout);
 
 router.route("/team-access/:id").post(authorize, UserController.teamAccess);
+router.route("/sendChangePasswordAlertByEmail").post(authorize, UserController.sendChangePasswordAlertByEmail);
 
 module.exports = router;

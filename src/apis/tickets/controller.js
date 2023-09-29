@@ -398,12 +398,16 @@ exports.getAllTicketsForCurrentLoggedInUser = async (req, res, next) => {
 
     const groupedTeam = listOfTicketTeam.reduce((groupedTeam, team) => {
       const teamName = team.team ? team.team.name : "Unassigned";
-      if (!groupedTeam[teamName]) {
-        groupedTeam[teamName] = [];
+      const existingTeam = groupedTeam.find(item => item.teamName === teamName);
+
+      if (existingTeam) {
+        existingTeam.tickets.push(team);
+      } else {
+        groupedTeam.push({ teamName: teamName, tickets: [team] });
       }
-      groupedTeam[teamName].push(team);
       return groupedTeam;
-    }, {});
+    }, []);
+
     const ticketsForCurrentLoggedInUser = allTickets.filter(ticket => ticket.created_by.id === currentLoggedInUser.id);
 
     res.status(200).json({

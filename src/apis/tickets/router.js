@@ -10,8 +10,18 @@ const { uuidValidator } = require("../../../utils/uuid");
 const authorize = require("../../middlewares/auth/authorization");
 
 router.route("/").get(TicketController.getAllTickets);
-router.route("/junk").get(TicketController.getAllJunkTickets);
-// router.route("/junk/:id").delete( uuidValidator, TicketController.removeDeleteTicket);
+router
+      .route("/junk")
+      .get(TicketController.getAllJunkTickets)
+router
+      .route('/junk/untransfered')
+      .get(TicketController.getAllUnTransferedJunkTickets)
+
+router
+    .route('/junk/:id')
+    .get(TicketController.getJunkTicket)
+    .post(TicketController.transferJunkTicketToTicket)
+    .delete( uuidValidator, TicketController.deleteJunkTicket);
 
 
 router.route("/:id").get(TicketController.getTicketById);

@@ -203,21 +203,29 @@ class CompanyDAL {
   }
 
   static async updateCompany(id, updatedFields) {
-    try {
-      // get connection from the pool
-      const connection = getConnection();
-
-      // create bridge
-      const companyRepository = connection.getRepository(Company);
-      const company = await companyRepository.findOne({ where: { id: id } });
-      console.log("kirubelllllllll");
-      if (!company) {
-        throw new Error("company not found");
-      }
+   try {
+    // create bridge
+    const companyRepository = connection.getRepository(Company);
+    const company = await companyRepository.findOne({ where: { id: id } });
+    console.log("kirubelllllllll");
+    if (!company) {
+      throw new Error("company not found");
+    }
 
       companyRepository.merge(company, updatedFields);
       await companyRepository.save(company);
 
+    return company;
+   } catch (error) {
+    throw error
+   }
+
+  }
+
+  static async deleteCompany(id) {
+   try {
+     // create bridge
+    const companyRepository = connection.getRepository(Company);
       return company;
     } catch (error) {
       throw error
@@ -242,7 +250,6 @@ class CompanyDAL {
       if (!deleteComp && !deleLogo) {
         throw new Error("Error Deleting the Company , try again!");
       }
-
       return "Company deleted Successfully";
     } catch (error) {
       throw error

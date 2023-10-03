@@ -191,6 +191,37 @@ class TicketDAL {
       throw error;
     }
   }
+  static async getAllJunkTickets(){
+    try {
+        // get connection from the pool
+        const connection = await getConnection();
+
+        // create a bridge between the entity and the database
+        const ticketRepository = await connection.getRepository(JunkTicket);
+  
+        // get data
+        return await ticketRepository.find();
+    } catch (error) {
+      throw error
+    }
+  }
+
+  static async getAllUnTransferedJunkTickets(){
+    try {
+      // get connection from the pool
+      const connection = await getConnection();
+
+      // create a bridge between the entity and the database
+      const ticketRepository = await connection.getRepository(JunkTicket);
+
+      // get data
+      return await ticketRepository.findBy({
+        isTransfered:false
+      });
+  } catch (error) {
+    throw error
+  }
+  }
 
   static async getJunkTicketById(id) {
     try {
@@ -210,7 +241,43 @@ class TicketDAL {
       throw error;
     }
   }
+  static async transferJunkToTicker(data , id){
+    try {
+      // get connection from the pool
+    const connection = getConnection();
 
+    // create bridge
+    const junkTicketRepository = connection.getRepository(JunkTicket);
+
+    const ticket = await junkTicketRepository.findOneBy({ id: id });
+    console.log(ticket);
+    if (!ticket) {
+      throw new Error("Junk Ticket is Not Found with the provided id");
+    }
+
+    junkTicketRepository.merge(ticket, {...ticket ,isTransfered:true } );
+  const updatedJunk = await junkTicketRepository.save(ticket);
+
+      const transfer = await this.createNewTicket(data)
+      return {transfer , updatedJunk}
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async deleteJunkTicket(id){
+    try {
+       // get connection from the pool
+    const connection = getConnection();
+
+    // create bridge
+    const junkTicketRepository = connection.getRepository(JunkTicket);
+
+    return await junkTicketRepository.delete(id);
+    } catch (error) {
+      throw error
+    }
+  }
   //This method implements to create new ticket
   static async createNewTicket(data) {
     try {
@@ -397,6 +464,31 @@ class TicketDAL {
     const tickets = await queryBuilder.getMany();
     return tickets;
   }
+
+  // ticket total by status
+  static async ticketsTotalByStatus() {
+    // get connection from the pool
+    const connection = getConnection();
+    const is_deleted = false;
+    // create bridge to the db
+    const ticketRepository = connection.getRepository(Ticket);
+
+    // Fetch tickets with related data and group by status
+    const ticketStatusCounts = await ticketRepository
+      .createQueryBuilder("ticket")
+      .leftJoin("ticket.ticket_status", "status")
+      .select([
+        "status.id AS statusId",
+        "status.type AS statusType",
+        "COUNT(ticket.id) AS ticketCount",
+      ])
+      .where("ticket.is_deleted = :is_deleted", { is_deleted })
+      .groupBy("status.id", "status.type")
+      .orderBy("status.id")
+      .getRawMany();
+
+    return ticketStatusCounts;
+  }
   static async groupAllTicketsByTeam() {
     try {
       const is_deleted = false;
@@ -459,7 +551,7 @@ class TicketDAL {
           "comments.is_escalation",
           "comments.created_at",
           "comments.updated_at",
-          "ticket.team_id"
+          "ticket.team_id",
         ])
         .where("ticket.is_deleted = :is_deleted", { is_deleted })
         .orderBy("ticket.created_at", "DESC")
@@ -482,6 +574,46 @@ class TicketDAL {
     } catch (error) {
       throw error;
     }
+  // tickets count for each team
+  static async getAllTeamTicketsCount() {
+    // get connection from the pool
+    const connection = getConnection();
+
+    // create bridge to the db
+    const ticketRepository = connection.getRepository(Ticket);
+
+    const data = ticketRepository
+      .createQueryBuilder("ticket")
+      .leftJoin("ticket.team", "team")
+      .select([
+        "team.id AS teamId",
+        "team.name AS teamName",
+        "COUNT(ticket.id) as ticketCount",
+      ])
+      .groupBy("team.id", "team.name")
+      .orderBy("team.id")
+      .getRawMany();
+
+    return data;
+  }
+
+  // assigned tickets for logged in user status not closed
+  static async getAssignedTickets(userId) {
+    const connection = getConnection();
+    const name = "Closed";
+    const userRepository = connection.getRepository(User);
+    const ticketRepository = connection.getRepository(Ticket);
+
+    const userTasks = await userRepository
+      .createQueryBuilder("user")
+      .leftJoin("user.assigned_tickets", "ticket")
+      .leftJoin("ticket.ticket_status", "status")
+      .select(["user.id", "ticket.id", "ticket.subject", "ticket.description"])
+      .where("status.type != :name", { name: name })
+      .andWhere("user.id = :id", { id: userId })
+      .getRawMany();
+
+    return userTasks;
   }
 }
 

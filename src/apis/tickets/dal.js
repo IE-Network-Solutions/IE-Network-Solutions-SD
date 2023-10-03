@@ -27,8 +27,9 @@ class TicketDAL {
         .leftJoin("ticket.ticket_type", "types")
         .leftJoin("ticket.ticket_priority", "priority")
         .leftJoin("ticket.ticket_status", "status")
-        // .leftJoin("ticket.department", "department")
+        .leftJoin("ticket.created_by", "created_by")
         .leftJoin("ticket.client", "client")
+        .leftJoin("ticket.team", "team")
         .leftJoin("ticket.company", "company")
         .leftJoin("ticket.comments", "comments")
         .select([
@@ -38,6 +39,9 @@ class TicketDAL {
           "ticket.created_at",
           "ticket.due_date",
           "ticket.closed",
+          "created_by",
+          "team.id",
+          "team.name",
           "types.type",
           "types.id",
           "priority.id",
@@ -106,6 +110,7 @@ class TicketDAL {
           "teams_access.tickets.client",
           "teams_access.tickets.company",
           "teams_access.tickets.comments",
+          "teams_access.tickets.created_by",
         ],
       });
 
@@ -458,6 +463,146 @@ class TicketDAL {
 
     const tickets = await queryBuilder.getMany();
     return tickets;
+  }
+
+  // ticket total by status
+  static async ticketsTotalByStatus() {
+    // get connection from the pool
+    const connection = getConnection();
+    const is_deleted = false;
+    // create bridge to the db
+    const ticketRepository = connection.getRepository(Ticket);
+
+    // Fetch tickets with related data and group by status
+    const ticketStatusCounts = await ticketRepository
+      .createQueryBuilder("ticket")
+      .leftJoin("ticket.ticket_status", "status")
+      .select([
+        "status.id AS statusId",
+        "status.type AS statusType",
+        "COUNT(ticket.id) AS ticketCount",
+      ])
+      .where("ticket.is_deleted = :is_deleted", { is_deleted })
+      .groupBy("status.id", "status.type")
+      .orderBy("status.id")
+      .getRawMany();
+
+    return ticketStatusCounts;
+  }
+  static async groupAllTicketsByTeam() {
+    try {
+      const is_deleted = false;
+      // get connection from the pool
+      const connection = await getConnection();
+
+      // create a bridg
+      const ticketRepository = await connection.getRepository(Ticket);
+
+      // fetch tickets with related data
+      const tickets = await ticketRepository
+        .createQueryBuilder("ticket")
+        .leftJoin("ticket.assigned_users", "users")
+        .leftJoin("ticket.ticket_type", "types")
+        .leftJoin("ticket.ticket_priority", "priority")
+        .leftJoin("ticket.ticket_status", "status")
+        .leftJoin("ticket.created_by", "created_by")
+        .leftJoin("ticket.client", "client")
+        .leftJoin("ticket.team", "team")
+        .leftJoin("ticket.company", "company")
+        .leftJoin("ticket.comments", "comments")
+        .select([
+          "ticket.id",
+          "ticket.subject",
+          "ticket.description",
+          "ticket.created_at",
+          "ticket.due_date",
+          "ticket.closed",
+          "created_by",
+          "types.type",
+          "types.id",
+          "priority.id",
+          "priority.type",
+          "status.id",
+          "status.type",
+          "status.status_color",
+          "users.id",
+          "users.email",
+          "users.first_name",
+          "users.last_name",
+          "users.role",
+          "users.user_type",
+          "client.id",
+          "client.email",
+          "client.first_name",
+          "client.last_name",
+          "client.user_type",
+          "team.id",
+          "team.name",
+          "team.is_deleted",
+          "company.company_name",
+          "company.description",
+          "company.id",
+          "comments.id",
+          "comments.title",
+          "comments.description",
+          "comments.is_private",
+          "comments.emailTo",
+          "comments.emailCc",
+          "comments.is_escalation",
+          "comments.created_at",
+          "comments.updated_at",
+          "ticket.team_id",
+        ])
+        .where("ticket.is_deleted = :is_deleted", { is_deleted })
+        .orderBy("ticket.created_at", "DESC")
+        .getMany();
+
+      return tickets;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // tickets count for each team
+  static async getAllTeamTicketsCount() {
+    // get connection from the pool
+    const connection = getConnection();
+
+    // create bridge to the db
+    const ticketRepository = connection.getRepository(Ticket);
+
+    const data = ticketRepository
+      .createQueryBuilder("ticket")
+      .leftJoin("ticket.team", "team")
+      .select([
+        "team.id AS teamId",
+        "team.name AS teamName",
+        "COUNT(ticket.id) as ticketCount",
+      ])
+      .groupBy("team.id", "team.name")
+      .orderBy("team.id")
+      .getRawMany();
+
+    return data;
+  }
+
+  // assigned tickets for logged in user status not closed
+  static async getAssignedTickets(userId) {
+    const connection = getConnection();
+    const name = "Closed";
+    const userRepository = connection.getRepository(User);
+    const ticketRepository = connection.getRepository(Ticket);
+
+    const userTasks = await userRepository
+      .createQueryBuilder("user")
+      .leftJoin("user.assigned_tickets", "ticket")
+      .leftJoin("ticket.ticket_status", "status")
+      .select(["user.id", "ticket.id", "ticket.subject", "ticket.description"])
+      .where("status.type != :name", { name: name })
+      .andWhere("user.id = :id", { id: userId })
+      .getRawMany();
+
+    return userTasks;
   }
 }
 

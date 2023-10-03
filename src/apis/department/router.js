@@ -6,10 +6,10 @@ const { uuidValidator } = require("../../../utils/uuid");
 const authorize = require("../../middlewares/auth/authorization");
 const permissionMiddleware = require("../../middlewares/permission.middleware");
 
-router.route("/").get(authorize, permissionMiddleware(['view-departments']), DepartmentController.getAllDepartments);
+router.route("/").get(authorize, DepartmentController.getAllDepartments);
 router
   .route("/:id")
-  .get(authorize, permissionMiddleware(['view-department']), uuidValidator, DepartmentController.getDepartment);
+  .get(authorize, uuidValidator, DepartmentController.getDepartment);
 
 router
   .route("/")

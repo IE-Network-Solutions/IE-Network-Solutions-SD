@@ -102,6 +102,12 @@ router
 
 router
   .route("/getAllTickets/ForCurrentLoggedInUser")
+  .get(authorize, TicketController.getAllTicketsForCurrentLoggedInUser);
+
+router
+  .route("/getAllTickets/groupByTeam")
+  .get(authorize, TicketController.groupAllTicketsByTeamAndGet);
+
   .get(
     authorize,
     permissionMiddleware(["view-ticket-for-logged-in"]),

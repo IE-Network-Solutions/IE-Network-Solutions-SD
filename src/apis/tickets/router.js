@@ -10,6 +10,25 @@ const { uuidValidator } = require("../../../utils/uuid");
 const authorize = require("../../middlewares/auth/authorization");
 const permissionMiddleware = require("../../middlewares/permission.middleware");
 
+router.route("/").get(TicketController.getAllTickets);
+router
+      .route("/junk")
+      .get(TicketController.getAllJunkTickets)
+router
+      .route('/junk/untransfered')
+      .get(TicketController.getAllUnTransferedJunkTickets)
+
+router
+    .route('/junk/:id')
+    .get(TicketController.getJunkTicket)
+    .post(TicketController.transferJunkTicketToTicket)
+    .delete( uuidValidator, TicketController.deleteJunkTicket);
+
+
+router.route("/:id").get(TicketController.getTicketById);
+router.route("/filter").get(authorize, TicketController.applyFilterOnTickets);
+router.route("/").get(authorize, TicketController.getAllTickets);
+router.route("/:id").get(authorize, TicketController.getTicketById);
 router.route("/tickt-status").get(TicketController.getTicketsByStatus);
 router.route("/tickt-team-count").get(TicketController.getTicketsCountByTeam);
 router.route("/tickt-status").get(TicketController.getTicketsByStatus);

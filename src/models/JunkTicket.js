@@ -7,15 +7,27 @@ const JunkTicket = new EntitySchema({
       primary: true,
       type: "uuid",
       generated: "uuid",
+      
     },
     subject: {
       type: "varchar",
+      nullable:true
+
     },
     senderEmail: {
       type: "text",
+      nullable:true
+
     },
     body: {
       type: "varchar",
+      nullable:true
+
+    },
+    isTransfered: {
+      type: "boolean",
+      default:false,
+      nullable:true
     },
     created_at: {
       type: "timestamp",

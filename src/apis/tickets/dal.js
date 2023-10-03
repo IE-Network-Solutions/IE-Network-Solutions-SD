@@ -191,6 +191,37 @@ class TicketDAL {
       throw error;
     }
   }
+  static async getAllJunkTickets(){
+    try {
+        // get connection from the pool
+        const connection = await getConnection();
+
+        // create a bridge between the entity and the database
+        const ticketRepository = await connection.getRepository(JunkTicket);
+  
+        // get data
+        return await ticketRepository.find();
+    } catch (error) {
+      throw error
+    }
+  }
+
+  static async getAllUnTransferedJunkTickets(){
+    try {
+      // get connection from the pool
+      const connection = await getConnection();
+
+      // create a bridge between the entity and the database
+      const ticketRepository = await connection.getRepository(JunkTicket);
+
+      // get data
+      return await ticketRepository.findBy({
+        isTransfered:false
+      });
+  } catch (error) {
+    throw error
+  }
+  }
 
   static async getJunkTicketById(id) {
     try {
@@ -210,7 +241,43 @@ class TicketDAL {
       throw error;
     }
   }
+  static async transferJunkToTicker(data , id){
+    try {
+      // get connection from the pool
+    const connection = getConnection();
 
+    // create bridge
+    const junkTicketRepository = connection.getRepository(JunkTicket);
+
+    const ticket = await junkTicketRepository.findOneBy({ id: id });
+    console.log(ticket);
+    if (!ticket) {
+      throw new Error("Junk Ticket is Not Found with the provided id");
+    }
+
+    junkTicketRepository.merge(ticket, {...ticket ,isTransfered:true } );
+  const updatedJunk = await junkTicketRepository.save(ticket);
+
+      const transfer = await this.createNewTicket(data)
+      return {transfer , updatedJunk}
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async deleteJunkTicket(id){
+    try {
+       // get connection from the pool
+    const connection = getConnection();
+
+    // create bridge
+    const junkTicketRepository = connection.getRepository(JunkTicket);
+
+    return await junkTicketRepository.delete(id);
+    } catch (error) {
+      throw error
+    }
+  }
   //This method implements to create new ticket
   static async createNewTicket(data) {
     try {

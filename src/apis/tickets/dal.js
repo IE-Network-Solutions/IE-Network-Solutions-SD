@@ -181,6 +181,8 @@ class TicketDAL {
           "comments.is_escalation",
           "comments.created_at",
           "comments.updated_at",
+          "team_lead.id",
+          "team_lead.first_name",
         ])
         .where("ticket.id = :id", { id })
         .andWhere("ticket.is_deleted = :is_deleted", { is_deleted })

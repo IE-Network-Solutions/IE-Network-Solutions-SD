@@ -11,6 +11,7 @@ const Priority = new EntitySchema({
     type: {
       type: "varchar",
       nullable: false,
+      default: "Open"
     },
     status_color: {
       type: "varchar",

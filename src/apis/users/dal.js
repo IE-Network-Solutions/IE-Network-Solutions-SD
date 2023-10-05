@@ -4,6 +4,13 @@ const TeamUser = require("../../models/TeamUser");
 const Team = require("../../models/Team");
 const Token = require("../../models/Token");
 const sendEmail = require("../../../utils/sendEmail");
+const createToken = require("../../../utils/generateToken");
+const { verifyToken } = require("../../middlewares/auth");
+const hash = require("../../../utils/hashpassword");
+const { generateVerificationCode } = require("../../../utils/generateVerificationCode");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const generateRandomPassword = require("../../../utils/generateRandomPassword");
 
 class UserDAL {
   // Get All Users
@@ -219,7 +226,7 @@ class UserDAL {
       // get user by email
       const user = userRepository.findOne({
         where: { email: email },
-        relations: ["role", "permissions"],
+        relations: ["role", "permissions", "teams_access"],
       });
 
       // return user
@@ -315,26 +322,49 @@ class UserDAL {
   }
 
   static async sendChangePasswordAlertByEmail(email) {
-    const result = await this.getUserByEmail(email);
-    console.log(email)
-    if (!result) {
-      return;
-    }
+    const connection = await getConnection();
+    const userRepository = connection.getRepository(User);
+    const user = await this.getUserByEmail(email);
+    const resetToken = await jwt.sign(user.id, process.env.JWT_SECRET);
 
-    const emailResult = await sendEmail(
+    user.verificationCode = (await generateVerificationCode()).code;
+    user.passwordChangeToken = resetToken;
+    user.tokenExpirationTime = (await generateVerificationCode()).expiresAt;
+
+    const result = await userRepository.create(user);
+    await userRepository.save(result);
+    await sendEmail(
       process.env.SYSTEM_EMAIL,
       email,
-      "Change your password",
-      `<h2>Hello ${result.first_name},</h2>
-      <h3> Welcome to our website! Click the link below to get started:</h3>
-    <a href="http://localhost:3001/changePass/:${result.id}">Click here to change your default password</a>
+      "[IE Networks Solutions] Password Reset E-mail",
+      `<h2>Hello ${user.first_name} ${user.last_name},</h2>
+      <p> You're receiving this e-mail because you or someone else has requested a password reset for your user account.</p>
+      <h4>Click the link below to reset your password:</h4>
+    <a href="http://localhost:3001/changePass/:${resetToken}">Click here to change your default password</a>
+    <p> Your verification code is <strong> ${(await generateVerificationCode()).code}</strong></p>
+       <p>Verification Code will expire at:<strong> ${(await generateVerificationCode()).expiresAt.toString()}</strong></p>
+       <p>This is your new password :<strong> ${(await generateRandomPassword(8, true, true, true, true))}</strong></p>
+       <p>If you did not request a password reset you can safely ignore this email.</p?
     <p>Thank you!</p>`,
       "Chage password"
     );
+    return user;
+  }
 
-    console.log("Email is result", emailResult)
-
-    return result;
+  static async sendChangePasswordRequest(token, body) {
+    const connecition = getConnection();
+    const userRepository = await connecition.getRepository(User);
+    const newPassword = await bcrypt.hash(body.newPassword, 10);
+    return await userRepository.update(
+      {
+        id: token
+      },
+      {
+        password: newPassword,
+        passwordChangeToken: null,
+        verificationCode: null
+      }
+    );
   }
 }
 

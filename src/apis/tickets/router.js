@@ -10,8 +10,8 @@ const { uuidValidator } = require("../../../utils/uuid");
 const authorize = require("../../middlewares/auth/authorization");
 const permissionMiddleware = require("../../middlewares/permission.middleware");
 
-router.route("/filter").get(authorize, permissionMiddleware(['filter-tickets']), TicketController.applyFilterOnTickets);
-router.route("/").get(authorize, permissionMiddleware(['view-tickets']), TicketController.getAllTickets);
+router.route("/filter").get(authorize, TicketController.applyFilterOnTickets);
+router.route("/").get(authorize, TicketController.getAllTickets);
 router.route("/:id").get(authorize, TicketController.getTicketById);
 router
   .route("/")
@@ -23,14 +23,14 @@ router
 router
   .route("/:id")
   .patch(
-    authorize, permissionMiddleware(['update-ticket']), validate(updateTicketValidator), TicketController.updateTicket);
+    authorize, validate(updateTicketValidator), TicketController.updateTicket);
 router
   .route("/:id")
-  .delete(authorize, permissionMiddleware(['delete-ticket']), uuidValidator, authorize, TicketController.deleteTicket);
+  .delete(authorize, uuidValidator, authorize, TicketController.deleteTicket);
 router
   .route("/assign-user/:id")
   .post(
-    authorize, permissionMiddleware(['assign-ticket-to-user']),
+    authorize,
     uuidValidator,
     validate(assignTicket),
     TicketController.assignUserToTicket
@@ -38,7 +38,7 @@ router
 
 router
   .route("/remove-user/:id")
-  .post(authorize, permissionMiddleware(['remove-assigned-user-ticket']), uuidValidator, TicketController.removeAssigned);
+  .post(authorize, uuidValidator, TicketController.removeAssigned);
 
 router
   .route("/getAllTickets/ForCurrentLoggedInUser")

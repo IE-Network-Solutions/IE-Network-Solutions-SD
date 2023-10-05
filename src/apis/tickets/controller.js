@@ -99,13 +99,13 @@ exports.createNewTicket = async (req, res, next) => {
     const to = admins.map((admin) => admin.email);
     const from = req.user.email;
 
-    console.log(to);
-    // get status
-    const status = await StatusDAL.getStatus(data.status_id);
-    if (!status) {
-      return next(new AppError("status does not exist", 404));
-    }
-    data.status = status;
+    // console.log(to);
+    // // get status
+    // const status = await StatusDAL.getStatus(data.status_id);
+    // if (!status) {
+    //   return next(new AppError("status does not exist", 404));
+    // }
+    // data.status = status;
 
     // get type
     const type = await TypeDAL.getOneType(data.type_id);
@@ -128,7 +128,6 @@ exports.createNewTicket = async (req, res, next) => {
       return next(new AppError("such priority does not exist", 404));
     }
     data.priority = priority;
-
     if (data.client_id) {
       // get client
       const client = await ClientDAL.getClientById(data.client_id);
@@ -270,7 +269,18 @@ exports.assignUserToTicket = async (req, res, next) => {
   try {
     const ticketId = req.params.id;
     const userIds = req.body.users;
+    const userId = req.user.id;
 
+    const ticketData = await TicketDAL.getTicketById(ticketId);
+
+    if (!ticketData || !ticketData.team) {
+      return next(new AppError("Invalid Id", 500));
+    }
+    const teamLeadId = ticketData.team.team_lead.id;
+
+    if (userId != teamLeadId) {
+      return next(new AppError("you don't have access assigne users for this ticket", 500));
+    }
     //   validate uuid
     userIds.map((uuid) => {
       if (!validateUuid(uuid)) {
@@ -390,31 +400,32 @@ exports.getAllTicketsForCurrentLoggedInUser = async (req, res, next) => {
     let listOfTicketTeam = [];
     let singleTeam = [];
     for (const list of userTeam) {
-      singleTeam = allTickets.filter(ticket => ticket.team.id === list.team_id);
+      singleTeam = allTickets.filter(ticket => ticket?.team?.id === list.team_id);
       singleTeam.map((team) => {
         listOfTicketTeam.push(team);
       })
     }
 
-    const groupedTeam = listOfTicketTeam.reduce((groupedTeam, team) => {
-      const teamName = team.team ? team.team.name : "Unassigned";
+    const groupedTeam = listOfTicketTeam.reduce((groupedTeam, singleTeam) => {
+      const teamName = singleTeam.team ? singleTeam.team.name : "Unassigned";
       const existingTeam = groupedTeam.find(item => item.teamName === teamName);
-
       if (existingTeam) {
-        existingTeam.tickets.push(team);
+        existingTeam.tickets.push(singleTeam);
       } else {
-        groupedTeam.push({ teamName: teamName, tickets: [team] });
+        groupedTeam.push({ teamName: teamName, tickets: [singleTeam] });
       }
       return groupedTeam;
     }, []);
 
-    const ticketsForCurrentLoggedInUser = allTickets.filter(ticket => ticket.created_by.id === currentLoggedInUser.id);
+    const ticketsForCurrentLoggedInUser = allTickets.filter(ticket => ticket?.created_by?.id === currentLoggedInUser.id);
+    const unAssignedTickets = allTickets.filter(ticket => ticket.assigned_users.length != 0);
 
     res.status(200).json({
       status: 'Success',
       userTicket: ticketsForCurrentLoggedInUser,
       listOfTicketsByAgent: listOfTicketsByAgent,
-      groupedTeam: groupedTeam
+      groupedTeam: groupedTeam,
+      unAssignedTickets: unAssignedTickets
     });
   } catch (error) {
     next(error);

@@ -9,7 +9,7 @@ const permissionMiddleware = require("../../middlewares/permission.middleware");
 const router = require('express').Router();
 router.route("/").get(authorize, permissionMiddleware(['view-user-permissions']), UserPermissionController.getAllUserPermission);
 router.route("/:id").get(authorize, permissionMiddleware(['view-user-permission']), uuidValidator, UserPermissionController.getUserPermissionById);
-router.route("/:id").post(authorize, permissionMiddleware(['create-user-permission']), validator(createUserPermissionValidator), UserPermissionController.assignPermissionToUser);
+router.route("/:id").post(authorize, validator(createUserPermissionValidator), UserPermissionController.assignPermissionToUser);
 router.route("/:id").delete(authorize, permissionMiddleware(['delete-user-permission']), UserPermissionController.deleteUserPermissionById);
 router.route("/:userId/:id").delete(authorize, permissionMiddleware(['delete-user-permission-by-user-id']), UserPermissionController.deleteSpecificUserPermissionById);
 router.route("/:id").patch(authorize, permissionMiddleware(['update-user-permission']), UserPermissionController.updateUserPermissionById);

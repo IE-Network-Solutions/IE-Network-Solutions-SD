@@ -63,6 +63,20 @@ const User = new EntitySchema({
       type: "boolean",
       default: false,
     },
+    verificationCode: {
+      type: "varchar",
+      unique: true,
+      nullable: true
+    },
+    passwordChangeToken: {
+      type: "varchar",
+      unique: true,
+      nullable: true
+    },
+    tokenExpirationTime: {
+      type: "varchar",
+      nullable: true
+    },
 
     created_at: {
       type: "timestamp",

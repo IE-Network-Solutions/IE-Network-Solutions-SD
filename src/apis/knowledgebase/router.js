@@ -19,5 +19,7 @@ router.route("/:id")
     .get(authorize, permissionMiddleware(['update-Knowledge-base']), uuidValidator, knowledgebaseController.getKnowlegeBaseById)
     .delete(authorize, permissionMiddleware(['delete-Knowledge-base']), uuidValidator, knowledgebaseController.deleteKnowledgeBaseById);
 
+router.route("/catagoryId/:id")
+    .get(authorize, knowledgeBaseController.getKnowledgeBaseByCatagoryId)
 
 module.exports = router;

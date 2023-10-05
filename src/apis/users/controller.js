@@ -2,7 +2,6 @@ const AppError = require("../../../utils/apperror");
 const UserDAL = require("./dal");
 const RoleDAL = require("../role/dal");
 const DepartmentDAL = require("../department/dal");
-const jwt = require("../../middlewares/auth");
 const hash = require("../../../utils/hashpassword");
 const generateRandomPassword = require("../../../utils/generateRandomPassword");
 const checkHash = require("../../../utils/comparePassword");
@@ -11,6 +10,8 @@ const sendEmail = require("../../../utils/sendEmail");
 const authToken = require("../../middlewares/auth/authToken");
 const teamDAL = require("../team/dal");
 const validateUuid = require("uuid-validate");
+const jwt = require("jsonwebtoken");
+const { checkVerificationCode } = require("../../../utils/checkVerificationCode");
 
 exports.introduction = async (req, res, next) => {
   // Respond
@@ -76,10 +77,13 @@ exports.getLoggedUserData = async (req, res, next) => {
 exports.createUser = async (req, res, next) => {
   try {
     // Get Req Body
+
     let user = req.body;
     const user_profile = req.file ? req.file.path : null;
     user.profile_pic = user_profile;
-    user.password = hash("%TGBnhy6");
+    user.password = hash(generateRandomPassword(8, true, true, true));
+    console.log("password", generateRandomPassword(8, true, true, true))
+    // user.password = hash("%TGBnhy6");
 
     // check if email exsist or not
     const checkUser = await UserDAL.getUserByEmail(user.email);
@@ -103,14 +107,14 @@ exports.createUser = async (req, res, next) => {
 
     // Create New User
     let newUser = await UserDAL.createUser(user);
-
+    await UserDAL.sendChangePasswordAlertByEmail(req.body.email);
     // Respond
     res.status(200).json({
       status: "Success",
       data: newUser,
     });
   } catch (error) {
-    return next(new AppError("Role id is must be unique"));
+    return next(new AppError(error));
   }
 };
 
@@ -379,13 +383,60 @@ exports.teamAccess = async (req, res, next) => {
 };
 
 exports.sendChangePasswordAlertByEmail = async (req, res, next) => {
-  const result = await UserDAL.sendChangePasswordAlertByEmail(req.user.email);
-  console.log("result", result)
-  if (!result) {
+  const user = await UserDAL.sendChangePasswordAlertByEmail(req.user.email);
+  if (!user) {
     return next(new AppError("User not Found with the email you provided"));
   }
+
   res.status(200).json({
     status: "Success",
-    data: result,
+    data: user
   });
-} 
+}
+exports.checkVerificationCode = async (req, res, next) => {
+  const { code } = req.body;
+  const user = await UserDAL.getUserByEmail(req.user.email);
+  const parsedData = JSON.parse(user.verificationCode);
+  if (!await checkVerificationCode(parsedData?.code, code)) {
+    return next(new AppError("Incorrect verification code"));
+  }
+  if (parsedData?.expiresAt < Date.now()) {
+    return next(new AppError("The verification code is Expired", "400"));
+  }
+  return res.status(200).json({
+    data: "mm"
+
+  })
+}
+exports.sendChangePasswordRequest = async (req, res, next) => {
+  try {
+    const { newPassword, confirmPassword } = req.body;
+
+    const decodedToken = jwt.verify(req.params.userToken, process.env.JWT_SECRET);
+    const user = await UserDAL.getOneUser(decodedToken.id);
+
+    if (!user) {
+      return next(new AppError("User Not Found.", "404"))
+    }
+    if (newPassword != confirmPassword) {
+      return next(new AppError("Password and confirmation do not match.", "400"))
+    }
+
+    await UserDAL.sendChangePasswordRequest(decodedToken, req.body);
+    const result = await UserDAL.getOneUser(decodedToken);
+    if (!result) {
+      return next(new AppError("User not found"));
+    }
+
+    res.status(200).json({
+      status: "Success",
+      data: result
+    });
+  }
+  catch (error) {
+    if (error instanceof jwt.JsonWebTokenError && error.message === 'invalid signature') {
+      return res.status(401).json({ error: 'Invalid token signature' });
+    }
+  }
+
+}

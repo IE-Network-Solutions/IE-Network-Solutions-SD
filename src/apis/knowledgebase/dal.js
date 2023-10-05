@@ -14,7 +14,7 @@ class KnowledgeBaseDAL {
       const knowledgebaseRepository = connection.getRepository(KnowledgeBase);
 
       // Returns Knowledge base data relate with create by user
-      return await knowledgebaseRepository.find({ relations: ['createdBy', 'catagoryId'] });
+      return await knowledgebaseRepository.find({ relations: ['createdBy', 'catagory'] });
 
     } catch (error) {
       throw error
@@ -32,7 +32,7 @@ class KnowledgeBaseDAL {
       const knowledgebaseRepository = connection.getRepository(KnowledgeBase);
 
       // Returns Knowledge base data relate with create by user
-      return await knowledgebaseRepository.findOne({ where: { id: id }, relations: ['createdBy', 'catagoryId'] });
+      return await knowledgebaseRepository.findOne({ where: { id: id }, relations: ['createdBy', 'catagory'] });
 
     } catch (error) {
       throw error;
@@ -127,6 +127,20 @@ class KnowledgeBaseDAL {
 
       // return updated knowledgeBase data.
       return updatedKnowledgeBase;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async getKnowledgeBaseByCatagoryId(id) {
+    try {
+      if (!isUUID(id)) {
+        return null;
+      }
+      const connection = await getConnection();
+      const knowledgeBaseRepository = connection.getRepository(KnowledgeBase);
+      const getKnowlegeBaseById = await knowledgeBaseRepository.find({ where: { catagoryId: id }, relations: ['createdBy'] });
+      return getKnowlegeBaseById;
     } catch (error) {
       throw error;
     }

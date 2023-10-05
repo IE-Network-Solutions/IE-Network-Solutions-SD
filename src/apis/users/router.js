@@ -31,7 +31,7 @@ router
   .post(uploadOptions.single("user_profile"), UserController.createUser);
 
 router.route("/:id").patch(
-  authorize, permissionMiddleware(['update-user']), uuidValidator, uploadOptions.single("user_profile"), UserController.editUser);
+  authorize, uuidValidator, uploadOptions.single("user_profile"), UserController.editUser);
 router
   .route("/change-password/:id")
   .patch(authorize, permissionMiddleware(['change-user-password']), uuidValidator, validate(change_password), UserController.editPassword);
@@ -39,7 +39,7 @@ router
 router
   .route("/:id")
   .delete(
-    authorize, permissionMiddleware(['delete-user']), uuidValidator, UserController.deleteUser);
+    authorize, uuidValidator, UserController.deleteUser);
 router
   .route("/deleteAllUsers/:id")
   .delete(authorize, permissionMiddleware(['delete-users']), uuidValidator, UserController.deleteAllUsers);
@@ -56,5 +56,7 @@ router.route("/logout").post(authorize, UserController.logout);
 
 router.route("/team-access/:id").post(authorize, UserController.teamAccess);
 router.route("/sendChangePasswordAlertByEmail").post(authorize, UserController.sendChangePasswordAlertByEmail);
+router.route("/sendChangePasswordRequest/:userToken").post(authorize, UserController.sendChangePasswordRequest);
+router.route("/checkVerificationCode").post(authorize, UserController.checkVerificationCode);
 
 module.exports = router;

@@ -7,6 +7,9 @@ const Ticket = require('../../models/Ticket');
 const JunkTicket = require('../../models/JunkTicket');
 const { v4: uuidv4, validate: uuidValidate } = require("uuid");
 const { simpleParser } = require('mailparser');
+const sendEmail = require('../../../utils/sendEmail');
+const AppError = require('../../../utils/apperror');
+const config = require('../../../utils/configs');
 
 let lastProcessedSeqNo = 0;
 
@@ -28,7 +31,8 @@ exports.imapFetch = async () => {
 
   try {
     imap.once('ready', function() {
-      openInbox(function(err, box) {
+      openInbox(
+        function(err, box) {
         if (err) throw err;
 
         const fetchRange = getFetchRange(box);
@@ -38,8 +42,9 @@ exports.imapFetch = async () => {
           struct: true,
         });
 
-        f.on('message', async function(msg, seqno) {
-          console.log('Message #%d', seqno);
+        f.on('message',
+         async function(msg, seqno) {
+          // console.log('Message #%d', seqno);
           var prefix = '(#' + seqno + ') ';
           const messageData = {
             prefix: prefix,
@@ -55,14 +60,14 @@ exports.imapFetch = async () => {
               buffer += chunk.toString('utf8');
             });
             stream.once('end', function() {
-              console.log(prefix + 'Parsed header: %s', inspect(Imap.parseHeader(buffer)));
+              // console.log(prefix + 'Parsed header: %s', inspect(Imap.parseHeader(buffer)));
               messageData.headers = Imap.parseHeader(buffer);
             });
           });
 
           // Extract attributes (flags) of the message
           msg.once('attributes', async function(attrs) {
-            console.log(prefix + 'Attributes: %s', await inspect(attrs, false, 12));
+            // console.log(prefix + 'Attributes: %s', await inspect(attrs, false, 12));
             messageData.attributes = attrs;
             if (messageData.attributes.flags && !messageData.attributes.flags.includes('\\Seen')) {
               await saveEmailToDatabase(messageData, imap);
@@ -76,12 +81,12 @@ exports.imapFetch = async () => {
               buffer += chunk.toString('utf8');
             });
             stream.once('end',async function() {
-              console.log(prefix + 'Body: %s', buffer);
+              // console.log(prefix + 'Body: %s', buffer);
               // Parse the email using mailparser
       const parsedEmail = await simpleParser(buffer);
               messageData.body = parsedEmail.text ;
               // console.log("---------------------------")
-              console.log( "Body Buffer",parsedEmail.text || '')
+              // console.log( "Body Buffer",parsedEmail.text || '')
               // console.log("---------------------------")
 
             });
@@ -132,8 +137,6 @@ function updateLastProcessedSeqNo(box) {
   }
 }
 
-
-
 async function saveEmailToDatabase(messageData, imap) {
   try {
     const senderEmail = messageData.headers.from[0];
@@ -151,30 +154,8 @@ if (startIndex !== -1 && endIndex !== -1) {
 
 }
 
-//     console.log("senderEmail" ,senderEmail);
-    const id = uuidv4();
+    // const id = uuidv4();
     const connection = getConnection();
-    const userRepository = connection.getRepository(User);
-    const user = await userRepository.findOne({
-      where: { email: Sender }
-    });
-
-    if (user) {
-      const ticketRepository = connection.getRepository(Ticket);
-      const newTicket = ticketRepository.create({
-        subject: messageData.headers.subject[0],
-        description: messageData.body,
-        id: id,
-        status: Sender,
-        priority: "high",
-      });
-      try {
-        
-      await ticketRepository.save(newTicket);
-      } catch (error) {
-        console.log("ERros Saving THe data to DB ::" , error);
-      }
-    } else {
       const id = uuidv4();
       const junkTicketRepository = connection.getRepository(JunkTicket);
       const newJunkTicket = junkTicketRepository.create({
@@ -185,11 +166,27 @@ if (startIndex !== -1 && endIndex !== -1) {
       });
       try {
         
-      await junkTicketRepository.save(newJunkTicket);
+     const savedJunkTicket = await junkTicketRepository.save(newJunkTicket);
+     if(!savedJunkTicket){
+      console.log("Faild to create a junk ticket.");
+     }
+      await sendEmail(config.email.systemEmail , newJunkTicket.senderEmail , "Successfully created a ticket!" ,`<body style="font-family: Arial, sans-serif; background-color: #f5f5f5; margin: 0; padding: 0;">
+
+      <div style="max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff; border-radius: 5px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+      
+          <p>Hello, ${senderEmail.split('@')[0]}</p>
+      
+          <p>
+          You have successfully created a ticket , please patiently wait until we address you issue!
+          </>
+      
+          <a href="http://localhost:3001/localhost" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Click here to see detail</a>
+      
+          <p>Thank you!</p>` , "cc" )
       } catch (error) {
         console.log("Error Saving THe Data to DB:",error);
       }
-    }
+    // }
 
     // Mark the message as seen (read) to avoid processing it again in the future
     const msgSeqNo = parseInt(messageData.prefix.match(/\d+/)[0]);

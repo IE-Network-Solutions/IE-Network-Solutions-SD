@@ -67,6 +67,90 @@ exports.getAllJunkTickets = async (req, res, next) => {
     throw error;
   }
 };
+exports.getJunkTicket = async (req, res, next) => {
+  try {
+    //   get all tickets
+    const ticket = await TicketDAL.getJunkTicketById(req.params.id);
+
+    // check if tickets are exist
+    if (!ticket) {
+      // return custom error
+      return next(new AppError("No Ticket data found"));
+    }
+
+    // response
+    res.status(200).json({
+      status: "Success",
+      data: ticket,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+exports.getAllUnTransferedJunkTickets=async (req, res, next) => {
+  try {
+    //   get all tickets
+    const ticket = await TicketDAL.getAllUnTransferedJunkTickets();
+
+    // check if tickets are exist
+    if (!ticket) {
+      // return custom error
+      return next(new AppError("No Ticket data found"));
+    }
+
+    // response
+    res.status(200).json({
+      status: "Success",
+      data: ticket,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.transferJunkTicketToTicket=async(req,res,next)=>{
+  try {
+    const {id}= req.params
+    const junk = await TicketDAL.getJunkTicketById(id)
+    if(!junk){
+      return next(new AppError("Junk Ticket to update Failed!"));
+    }
+    const {transfer , updatedJunk} = await TicketDAL.transferJunkToTicker(req.body , id)
+    if(!transfer){
+      return next(new AppError("Failed to Transfer junk ticket to ticket, try agian!"));
+    }
+  //  const email = await sendEmail("form" , "to" , "dskf" , "kdsfj" , "dkjf" , "dklfj")
+    // console.log("email",email);
+
+    res.status(200).json({
+      status: "Success",
+      data: [{"transfered":{ transfer} ,"Junk Ticket":updatedJunk}],
+    });
+  } catch (error) {
+    
+  }
+}
+
+
+exports.deleteJunkTicket= async( req, res , next)=>{
+  try {
+    const {id} = req.params;
+    // validate if ticket exist or not
+    const ticketData = await TicketDAL.getJunkTicketById(id);
+
+    if (!ticketData)
+      return next(new AppError(`Junk Ticket with id ${id} is Not Found`));
+
+    await TicketDAL.deleteJunkTicket(id);
+
+    res.status(200).json({
+      status: `Junk Ticket with id ${id} is deleted Successfully`,
+      statusCode: 200,
+    });
+  } catch (error) {
+    throw error
+  }
+}
 //This method is
 exports.getTicketById = async (req, res, next) => {
   try {
@@ -424,8 +508,7 @@ exports.getAllTicketsForCurrentLoggedInUser = async (req, res, next) => {
       status: 'Success',
       userTicket: ticketsForCurrentLoggedInUser,
       listOfTicketsByAgent: listOfTicketsByAgent,
-      groupedTeam: groupedTeam,
-      unAssignedTickets: unAssignedTickets
+      groupedTeam: groupedTeam
     });
   } catch (error) {
     next(error);
@@ -452,15 +535,51 @@ exports.groupAllTicketsByTeamAndGet = async (req, res, next) => {
 
     // Now 'groupedTickets' will contain tickets grouped by team name or "Unassigned" if not associated with any team
     res.status(200).json({
-      status: 'Success',
+      status: "Success",
       currentLoggedInUser: currentLoggedInUser,
-      groupedTickets: result
+      groupedTickets: result,
     });
   } catch (error) {
     next(error);
   }
 };
 
+exports.getTicketsByStatus = async (req, res, next) => {
+  try {
+    const data = await TicketDAL.ticketsTotalByStatus();
 
+    res.status(200).json({
+      status: "Success",
+      data: data,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
 
+exports.getTicketsCountByTeam = async (req, res, next) => {
+  try {
+    const data = await TicketDAL.getAllTeamTicketsCount();
 
+    res.status(200).json({
+      status: "Success",
+      data: data,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.getAssignedTicketsForLoggedinUser = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const data = await TicketDAL.getAssignedTickets(userId);
+
+    res.status(200).json({
+      status: "Success",
+      data: data,
+    });
+  } catch (error) {
+    throw error;
+  }
+};

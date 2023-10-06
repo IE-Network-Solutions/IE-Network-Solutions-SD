@@ -8,7 +8,7 @@ exports.createTicketValidator = joi.object({
   team_id: joi.string().guid({ version: "uuidv4" }).required(),
   // status_id: joi.string().guid({ version: "uuidv4" }).required(),
   type_id: joi.string().guid({ version: "uuidv4" }).required(),
-  // client_id: joi.string().guid({ version: "uuidv4" }),
+  client_id: joi.string().guid({ version: "uuidv4" }),
   // agent_id: joi.string().guid({ version: "uuidv4" }).required(),
 });
 

@@ -9,10 +9,11 @@ const validate = require("../../../utils/validator");
 
 const authorize = require("../../middlewares/auth/authorization");
 const permissionMiddleware = require("../../middlewares/permission.middleware");
+const { uploadOptions } = require("../../../utils/imageUpload");
 
 router.route("/")
     .get(authorize, permissionMiddleware(['view-Knowledge-bases']), knowledgeBaseController.getKnowledgeBases)
-    .post(authorize, permissionMiddleware(['create-Knowledge-base']), validate(createKnowledgeBaseValidator), knowledgeBaseController.createKnowledgeBase);
+    .post(authorize, permissionMiddleware(['create-Knowledge-base']), uploadOptions.single("image"), knowledgeBaseController.createKnowledgeBase);
 
 router.route("/:id")
     .patch(authorize, permissionMiddleware(['view-knowledge-base']), uuidValidator, knowledgeBaseController.updateKnowledgeBaseById)

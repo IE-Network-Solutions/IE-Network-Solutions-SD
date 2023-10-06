@@ -50,7 +50,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use("/api/v1/uploads", express.static("uploads"));
 
 //*/30 * * * * *' // for 3o seconds 
-cron.schedule('*/30 * * * * *',  imapFetch); //run every fifteen minutes
+cron.schedule('*/30 * * * * *', imapFetch); //run every fifteen minutes
 // cron.schedule("00 */15 * * * *",  imapFetch); //run every fifteen minutes\
 
 
@@ -74,7 +74,7 @@ app.use("/api/v1/statuses", StatusesRoute);
 app.use("/api/v1/departments", DepartmentRoute);
 app.use("/api/v1/types", TypeRoute);
 app.use("/api/v1/teams", TeamRoute);
-app.use("/api/v1/notification" , NotificationRoute )
+app.use("/api/v1/notification", NotificationRoute)
 app.use("/api/v1/permissionSeeder", permissionSeeder);
 
 // Unknown URL Error Message

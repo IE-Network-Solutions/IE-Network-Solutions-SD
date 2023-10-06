@@ -51,6 +51,8 @@ exports.createKnowledgeBase = async (req, res, next) => {
   try {
     // get input data.
     const data = req.body;
+    data.image = req.file ? req.file.path : null;;
+
 
     //   create new knowledgeBase
     const knowledgeBase = await KnowledgeBaseDAL.createKnowledgeBase(data);

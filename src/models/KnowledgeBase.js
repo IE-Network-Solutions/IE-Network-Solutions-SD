@@ -18,9 +18,6 @@ const KnowledgeBase = new EntitySchema({
       nullable: false,
       type: "varchar"
     },
-    image: {
-      type: "varchar"
-    },
     catagoryId: {
       type: "varchar",
     },

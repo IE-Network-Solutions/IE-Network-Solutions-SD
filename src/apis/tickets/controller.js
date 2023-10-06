@@ -87,7 +87,7 @@ exports.getJunkTicket = async (req, res, next) => {
     throw error;
   }
 };
-exports.getAllUnTransferedJunkTickets=async (req, res, next) => {
+exports.getAllUnTransferedJunkTickets = async (req, res, next) => {
   try {
     //   get all tickets
     const ticket = await TicketDAL.getAllUnTransferedJunkTickets();
@@ -108,33 +108,33 @@ exports.getAllUnTransferedJunkTickets=async (req, res, next) => {
   }
 };
 
-exports.transferJunkTicketToTicket=async(req,res,next)=>{
+exports.transferJunkTicketToTicket = async (req, res, next) => {
   try {
-    const {id}= req.params
+    const { id } = req.params
     const junk = await TicketDAL.getJunkTicketById(id)
-    if(!junk){
+    if (!junk) {
       return next(new AppError("Junk Ticket to update Failed!"));
     }
-    const {transfer , updatedJunk} = await TicketDAL.transferJunkToTicker(req.body , id)
-    if(!transfer){
+    const { transfer, updatedJunk } = await TicketDAL.transferJunkToTicker(req.body, id)
+    if (!transfer) {
       return next(new AppError("Failed to Transfer junk ticket to ticket, try agian!"));
     }
-  //  const email = await sendEmail("form" , "to" , "dskf" , "kdsfj" , "dkjf" , "dklfj")
+    //  const email = await sendEmail("form" , "to" , "dskf" , "kdsfj" , "dkjf" , "dklfj")
     // console.log("email",email);
 
     res.status(200).json({
       status: "Success",
-      data: [{"transfered":{ transfer} ,"Junk Ticket":updatedJunk}],
+      data: [{ "transfered": { transfer }, "Junk Ticket": updatedJunk }],
     });
   } catch (error) {
-    
+
   }
 }
 
 
-exports.deleteJunkTicket= async( req, res , next)=>{
+exports.deleteJunkTicket = async (req, res, next) => {
   try {
-    const {id} = req.params;
+    const { id } = req.params;
     // validate if ticket exist or not
     const ticketData = await TicketDAL.getJunkTicketById(id);
 
@@ -502,13 +502,14 @@ exports.getAllTicketsForCurrentLoggedInUser = async (req, res, next) => {
     }, []);
 
     const ticketsForCurrentLoggedInUser = allTickets.filter(ticket => ticket?.created_by?.id === currentLoggedInUser.id);
-    const unAssignedTickets = allTickets.filter(ticket => ticket.assigned_users.length != 0);
+    const unAssignedTickets = allTickets.filter(ticket => ticket.assigned_users.length === 0 && ticket.created_by === null);
 
     res.status(200).json({
       status: 'Success',
       userTicket: ticketsForCurrentLoggedInUser,
       listOfTicketsByAgent: listOfTicketsByAgent,
-      groupedTeam: groupedTeam
+      groupedTeam: groupedTeam,
+      unAssignedTickets: unAssignedTickets
     });
   } catch (error) {
     next(error);

@@ -56,6 +56,7 @@ class UserDAL {
           "last_name",
           "user_type",
           "password",
+          "verificationCode"
         ],
         relations: ["team", "manager", "role.permissions", "permissions"],
       });
@@ -340,8 +341,8 @@ class UserDAL {
       `<h2>Hello ${user.first_name} ${user.last_name},</h2>
       <p> You're receiving this e-mail because you or someone else has requested a password reset for your user account.</p>
       <h4>Click the link below to reset your password:</h4>
-    <a href="http://localhost:3001/changePass/:${resetToken}">Click here to change your default password</a>
-    <p> Your verification code is <strong> ${(await generateVerificationCode()).code}</strong></p>
+    <a href="http://172.16.32.82:5174/verification/${user.id}">Click here to change your default password</a>
+    <p> Your verification code is <strong> ${user.verificationCode}</strong></p>
        <p>Verification Code will expire at:<strong> ${(await generateVerificationCode()).expiresAt.toString()}</strong></p>
        <p>This is your new password :<strong> ${(await generateRandomPassword(8, true, true, true, true))}</strong></p>
        <p>If you did not request a password reset you can safely ignore this email.</p?
@@ -351,18 +352,19 @@ class UserDAL {
     return user;
   }
 
-  static async sendChangePasswordRequest(token, body) {
+  static async sendChangePasswordRequest(id, body) {
     const connecition = getConnection();
     const userRepository = await connecition.getRepository(User);
     const newPassword = await bcrypt.hash(body.newPassword, 10);
     return await userRepository.update(
       {
-        id: token
+        id: id
       },
       {
         password: newPassword,
         passwordChangeToken: null,
-        verificationCode: null
+        verificationCode: null,
+        password_changed: true
       }
     );
   }

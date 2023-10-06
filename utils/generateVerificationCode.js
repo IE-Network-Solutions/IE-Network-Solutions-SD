@@ -29,7 +29,7 @@ const generateVerificationCode = async () => {
     const expirationTimestamp = getFormattedTime(Date.now() + 2 * 60 * 1000);
     console.log("time", expirationTimestamp)
     startCountdown(expirationTimestamp);
-    const verificationCode = Math.floor(100000 + Math.random() * 900000)
+    const verificationCode = Math.floor(1000 + Math.random() * 9000);
     return { code: verificationCode, expiresAt: expirationTimestamp };
 }
 

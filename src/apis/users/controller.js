@@ -410,20 +410,20 @@ exports.checkVerificationCode = async (req, res, next) => {
 }
 exports.sendChangePasswordRequest = async (req, res, next) => {
   try {
-    const { newPassword, confirmPassword } = req.body;
+    const { newPassword } = req.body;
 
-    const decodedToken = jwt.verify(req.params.userToken, process.env.JWT_SECRET);
-    const user = await UserDAL.getOneUser(decodedToken.id);
+    // const decodedToken = jwt.verify(req.params.id, process.env.JWT_SECRET);
+    const user = await UserDAL.getOneUser(req.params.id);
 
     if (!user) {
       return next(new AppError("User Not Found.", "404"))
     }
-    if (newPassword != confirmPassword) {
-      return next(new AppError("Password and confirmation do not match.", "400"))
-    }
+    // if (newPassword != confirmPassword) {
+    //   return next(new AppError("Password and confirmation do not match.", "400"))
+    // }
 
-    await UserDAL.sendChangePasswordRequest(decodedToken, req.body);
-    const result = await UserDAL.getOneUser(decodedToken);
+    await UserDAL.sendChangePasswordRequest(req.params.id, req.body);
+    const result = await UserDAL.getOneUser(req.params.id);
     if (!result) {
       return next(new AppError("User not found"));
     }

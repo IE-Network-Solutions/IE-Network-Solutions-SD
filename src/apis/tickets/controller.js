@@ -120,13 +120,18 @@ exports.transferJunkTicketToTicket=async(req,res,next)=>{
       return next(new AppError("Failed to Transfer junk ticket to ticket, try agian!"));
     }
   //  const email = await sendEmail("form" , "to" , "dskf" , "kdsfj" , "dkjf" , "dklfj")
-    // console.log("email",email);
+    // console.log("email",req.body);
+    // console.log(
+    //   "Transfered", transfer,
+    //   "Updated Data",
+    //   updatedJunk);
 
     res.status(200).json({
       status: "Success",
       data: [{"transfered":{ transfer} ,"Junk Ticket":updatedJunk}],
     });
   } catch (error) {
+    throw error
     
   }
 }

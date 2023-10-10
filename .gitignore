@@ -4,3 +4,4 @@ node_modules
 uploads/*
 .vscode/
 
+yarn.lock

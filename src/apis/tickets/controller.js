@@ -496,13 +496,13 @@ exports.getAllTicketsForCurrentLoggedInUser = async (req, res, next) => {
       listOfTicketsByAgent: listOfTicketsByAgent,
       groupedTeam: groupedTeam
     // Filter tickets where the createdBy field's id matches the current user's id.
-    const ticketsForCurrentLoggedInUser = allTickets.filter(
-      (ticket) => ticket.created_by.id === currentLoggedInUser.id
-    );
-    res.status(200).json({
-      status: "Success",
-      userInfo: currentLoggedInUser,
-      userTicket: ticketsForCurrentLoggedInUser,
+    // const ticketsForCurrentLoggedInUser = allTickets.filter(
+    //   (ticket) => ticket.created_by.id === currentLoggedInUser.id
+    // );
+    // res.status(200).json({
+    //   status: "Success",
+    //   userInfo: currentLoggedInUser,
+    //   userTicket: ticketsForCurrentLoggedInUser,
     });
   } catch (error) {
     next(error);

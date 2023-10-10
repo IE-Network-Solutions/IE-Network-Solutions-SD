@@ -191,22 +191,22 @@ class TicketDAL {
       throw error;
     }
   }
-  static async getAllJunkTickets(){
+  static async getAllJunkTickets() {
     try {
-        // get connection from the pool
-        const connection = await getConnection();
+      // get connection from the pool
+      const connection = await getConnection();
 
-        // create a bridge between the entity and the database
-        const ticketRepository = await connection.getRepository(JunkTicket);
-  
-        // get data
-        return await ticketRepository.find();
+      // create a bridge between the entity and the database
+      const ticketRepository = await connection.getRepository(JunkTicket);
+
+      // get data
+      return await ticketRepository.find();
     } catch (error) {
-      throw error
+      throw error;
     }
   }
 
-  static async getAllUnTransferedJunkTickets(){
+  static async getAllUnTransferedJunkTickets() {
     try {
       // get connection from the pool
       const connection = await getConnection();
@@ -216,11 +216,11 @@ class TicketDAL {
 
       // get data
       return await ticketRepository.findBy({
-        isTransfered:false
+        isTransfered: false,
       });
-  } catch (error) {
-    throw error
-  }
+    } catch (error) {
+      throw error;
+    }
   }
 
   static async getJunkTicketById(id) {
@@ -241,41 +241,41 @@ class TicketDAL {
       throw error;
     }
   }
-  static async transferJunkToTicker(data , id){
+  static async transferJunkToTicker(data, id) {
     try {
       // get connection from the pool
-    const connection = getConnection();
+      const connection = getConnection();
 
-    // create bridge
-    const junkTicketRepository = connection.getRepository(JunkTicket);
+      // create bridge
+      const junkTicketRepository = connection.getRepository(JunkTicket);
 
-    const ticket = await junkTicketRepository.findOneBy({ id: id });
-    console.log(ticket);
-    if (!ticket) {
-      throw new Error("Junk Ticket is Not Found with the provided id");
-    }
+      const ticket = await junkTicketRepository.findOneBy({ id: id });
+      console.log(ticket);
+      if (!ticket) {
+        throw new Error("Junk Ticket is Not Found with the provided id");
+      }
 
-    junkTicketRepository.merge(ticket, {...ticket ,isTransfered:true } );
-  const updatedJunk = await junkTicketRepository.save(ticket);
+      junkTicketRepository.merge(ticket, { ...ticket, isTransfered: true });
+      const updatedJunk = await junkTicketRepository.save(ticket);
 
-      const transfer = await this.createNewTicket(data)
-      return {transfer , updatedJunk}
+      const transfer = await this.createNewTicket(data);
+      return { transfer, updatedJunk };
     } catch (error) {
       throw error;
     }
   }
 
-  static async deleteJunkTicket(id){
+  static async deleteJunkTicket(id) {
     try {
-       // get connection from the pool
-    const connection = getConnection();
+      // get connection from the pool
+      const connection = getConnection();
 
-    // create bridge
-    const junkTicketRepository = connection.getRepository(JunkTicket);
+      // create bridge
+      const junkTicketRepository = connection.getRepository(JunkTicket);
 
-    return await junkTicketRepository.delete(id);
+      return await junkTicketRepository.delete(id);
     } catch (error) {
-      throw error
+      throw error;
     }
   }
   //This method implements to create new ticket
@@ -567,13 +567,15 @@ class TicketDAL {
     try {
       const connection = await getConnection();
       const userTicketRepository = await connection.getRepository(TicketUser);
-      const result = await userTicketRepository.find({ where: { user_id: userId } })
+      const result = await userTicketRepository.find({
+        where: { user_id: userId },
+      });
       // console.log("result", result)
       return result;
-
     } catch (error) {
       throw error;
     }
+  }
   // tickets count for each team
   static async getAllTeamTicketsCount() {
     // get connection from the pool

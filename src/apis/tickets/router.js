@@ -108,11 +108,11 @@ router
   .route("/getAllTickets/groupByTeam")
   .get(authorize, TicketController.groupAllTicketsByTeamAndGet);
 
-  .get(
-    authorize,
-    permissionMiddleware(["view-ticket-for-logged-in"]),
-    TicketController.getAllTicketsForCurrentLoggedInUser
-  );
+  // .get(
+  //   authorize,
+  //   permissionMiddleware(["view-ticket-for-logged-in"]),
+  //   TicketController.getAllTicketsForCurrentLoggedInUser
+  // );
 
 router
   .route("/getAllTickets/groupByTeam")

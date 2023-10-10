@@ -48,6 +48,14 @@ const Notification = new EntitySchema({
         referencedColumnName: "id",
       },
     },
+    created_to:{
+      type:   "many-to-one",
+      target: "User",
+      joinColumn: {
+        name: "user_id",
+        referencedColumnName: "id",
+      },
+    }
   },
 });
 

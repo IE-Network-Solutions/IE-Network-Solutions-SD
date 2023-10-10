@@ -9,7 +9,7 @@ exports.createTicketValidator = joi.object({
   status_id: joi.string().guid({ version: "uuidv4" }).required(),
   type_id: joi.string().guid({ version: "uuidv4" }).required(),
   client_id: joi.string().guid({ version: "uuidv4" }),
-  agent_id: joi.string().guid({ version: "uuidv4" }).required(),
+  // agent_id: joi.string().guid({ version: "uuidv4" }).required(),
 });
 
 // Validate update-test api

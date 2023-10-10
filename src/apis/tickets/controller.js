@@ -462,3 +462,123 @@ exports.applyFilterOnTickets = async (req, res, next) => {
     throw error;
   }
 };
+
+exports.getAllTicketsForCurrentLoggedInUser = async (req, res, next) => {
+  try {
+    const currentLoggedInUser = req.user;
+    const allTickets = await TicketDAL.getAllTickets();
+    const userTeam = await teamDAL.getTeamByUserId(currentLoggedInUser.id)
+    const ticketsByAgent = await TicketDAL.getAllTicketsCreatedByAgentByUserId(currentLoggedInUser.id);
+
+    let listOfTicketsByAgent = [];
+    for (const list of ticketsByAgent) {
+      const singleTicket = await TicketDAL.getTicketById(list.ticket_id)
+      listOfTicketsByAgent.push(singleTicket);
+    }
+
+    let listOfTicketTeam = [];
+    let singleTeam = [];
+    for (const list of userTeam) {
+      singleTeam = allTickets.filter(ticket => ticket.team.id === list.team_id);
+      singleTeam.map((team) => {
+        listOfTicketTeam.push(team);
+      })
+    }
+
+    const groupedTeam = listOfTicketTeam.reduce((groupedTeam, team) => {
+      const teamName = team.team ? team.team.name : "Unassigned";
+      if (!groupedTeam[teamName]) {
+        groupedTeam[teamName] = [];
+      }
+      groupedTeam[teamName].push(team);
+      return groupedTeam;
+    }, {});
+    const ticketsForCurrentLoggedInUser = allTickets.filter(ticket => ticket.created_by.id === currentLoggedInUser.id);
+
+    res.status(200).json({
+      status: 'Success',
+      userTicket: ticketsForCurrentLoggedInUser,
+      listOfTicketsByAgent: listOfTicketsByAgent,
+      groupedTeam: groupedTeam
+    // Filter tickets where the createdBy field's id matches the current user's id.
+    const ticketsForCurrentLoggedInUser = allTickets.filter(
+      (ticket) => ticket.created_by.id === currentLoggedInUser.id
+    );
+    res.status(200).json({
+      status: "Success",
+      userInfo: currentLoggedInUser,
+      userTicket: ticketsForCurrentLoggedInUser,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.groupAllTicketsByTeamAndGet = async (req, res, next) => {
+  try {
+    const currentLoggedInUser = req.user;
+    const groupedTickets = await TicketDAL.groupAllTicketsByTeam();
+
+    const result = groupedTickets.reduce((result, ticket) => {
+      const teamName = ticket.team ? ticket.team.name : "Unassigned"; // Use "Unassigned" for tickets without a team
+      if (!result[teamName]) {
+        result[teamName] = [];
+      }
+      result[teamName].push(ticket);
+      return result;
+    }, {});
+
+    // if (currentLoggedInUser.user_type != "Admin") {
+    //   return next(new AppError("Current user Unable to View"));
+    // }
+
+    // Now 'groupedTickets' will contain tickets grouped by team name or "Unassigned" if not associated with any team
+    res.status(200).json({
+      status: "Success",
+      currentLoggedInUser: currentLoggedInUser,
+      groupedTickets: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getTicketsByStatus = async (req, res, next) => {
+  try {
+    const data = await TicketDAL.ticketsTotalByStatus();
+
+    res.status(200).json({
+      status: "Success",
+      data: data,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.getTicketsCountByTeam = async (req, res, next) => {
+  try {
+    const data = await TicketDAL.getAllTeamTicketsCount();
+
+    res.status(200).json({
+      status: "Success",
+      data: data,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.getAssignedTicketsForLoggedinUser = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const data = await TicketDAL.getAssignedTickets(userId);
+
+    res.status(200).json({
+      status: "Success",
+      data: data,
+    });
+  } catch (error) {
+    throw error;
+  }
+};

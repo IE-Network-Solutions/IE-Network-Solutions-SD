@@ -5,7 +5,7 @@ const notify = async (data) => {
     try {
         // Create Notification Object
         const notification = data;
-        
+
         // Form Connection
         const connection = getConnection();
         const notificationRepository = connection.getRepository(Notification);

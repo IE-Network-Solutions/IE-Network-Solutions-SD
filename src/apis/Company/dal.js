@@ -3,6 +3,7 @@ const Company = require("../../models/Company");
 const { v4: uuidv4 } = require("uuid");
 var fs = require("fs");
 const AppError = require("../../../utils/apperror");
+const { error } = require("console");
 
 class CompanyDAL {
   static async allCompanies() {
@@ -211,8 +212,8 @@ class CompanyDAL {
       throw new Error("company not found");
     }
 
-    companyRepository.merge(company, updatedFields);
-    await companyRepository.save(company);
+      companyRepository.merge(company, updatedFields);
+      await companyRepository.save(company);
 
     return company;
    } catch (error) {
@@ -225,22 +226,34 @@ class CompanyDAL {
    try {
      // create bridge
     const companyRepository = connection.getRepository(Company);
-
-    const company = await companyRepository.findOneBy({ id });
-    if (!company) {
-      throw new Error("Company with the given id is not found");
+      return company;
+    } catch (error) {
+      throw error
     }
-    const sourceUrls = `${company.company_logo}`;
-    const deleLogo = await fs.unlinkSync(`./${sourceUrls}`);
-    const deleteComp = await companyRepository.delete(id);
-    if (!deleteComp && !deleLogo) {
-      throw new Error("Error Deleting the Company , try again!");
-    }
+  }
 
-    return "Company deleted Successfully";
-   } catch (error) {
-    throw error
-   }
+  static async deleteCompany(id) {
+    try {
+      // get connection from the pool
+      const connection = getConnection();
+
+      // create bridge
+      const companyRepository = connection.getRepository(Company);
+
+      const company = await companyRepository.findOneBy({ id });
+      if (!company) {
+        throw new Error("Company with the given id is not found");
+      }
+      const sourceUrls = `${company.company_logo}`;
+      const deleLogo = await fs.unlinkSync(`./${sourceUrls}`);
+      const deleteComp = await companyRepository.delete(id);
+      if (!deleteComp && !deleLogo) {
+        throw new Error("Error Deleting the Company , try again!");
+      }
+      return "Company deleted Successfully";
+    } catch (error) {
+      throw error
+    }
   }
 }
 

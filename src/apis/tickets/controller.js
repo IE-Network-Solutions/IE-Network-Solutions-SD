@@ -67,6 +67,90 @@ exports.getAllJunkTickets = async (req, res, next) => {
     throw error;
   }
 };
+exports.getJunkTicket = async (req, res, next) => {
+  try {
+    //   get all tickets
+    const ticket = await TicketDAL.getJunkTicketById(req.params.id);
+
+    // check if tickets are exist
+    if (!ticket) {
+      // return custom error
+      return next(new AppError("No Ticket data found"));
+    }
+
+    // response
+    res.status(200).json({
+      status: "Success",
+      data: ticket,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+exports.getAllUnTransferedJunkTickets=async (req, res, next) => {
+  try {
+    //   get all tickets
+    const ticket = await TicketDAL.getAllUnTransferedJunkTickets();
+
+    // check if tickets are exist
+    if (!ticket) {
+      // return custom error
+      return next(new AppError("No Ticket data found"));
+    }
+
+    // response
+    res.status(200).json({
+      status: "Success",
+      data: ticket,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.transferJunkTicketToTicket=async(req,res,next)=>{
+  try {
+    const {id}= req.params
+    const junk = await TicketDAL.getJunkTicketById(id)
+    if(!junk){
+      return next(new AppError("Junk Ticket to update Failed!"));
+    }
+    const {transfer , updatedJunk} = await TicketDAL.transferJunkToTicker(req.body , id)
+    if(!transfer){
+      return next(new AppError("Failed to Transfer junk ticket to ticket, try agian!"));
+    }
+  //  const email = await sendEmail("form" , "to" , "dskf" , "kdsfj" , "dkjf" , "dklfj")
+    // console.log("email",email);
+
+    res.status(200).json({
+      status: "Success",
+      data: [{"transfered":{ transfer} ,"Junk Ticket":updatedJunk}],
+    });
+  } catch (error) {
+    
+  }
+}
+
+
+exports.deleteJunkTicket= async( req, res , next)=>{
+  try {
+    const {id} = req.params;
+    // validate if ticket exist or not
+    const ticketData = await TicketDAL.getJunkTicketById(id);
+
+    if (!ticketData)
+      return next(new AppError(`Junk Ticket with id ${id} is Not Found`));
+
+    await TicketDAL.deleteJunkTicket(id);
+
+    res.status(200).json({
+      status: `Junk Ticket with id ${id} is deleted Successfully`,
+      statusCode: 200,
+    });
+  } catch (error) {
+    throw error
+  }
+}
 //This method is
 exports.getTicketById = async (req, res, next) => {
   try {
@@ -378,7 +462,39 @@ exports.getAllTicketsForCurrentLoggedInUser = async (req, res, next) => {
   try {
     const currentLoggedInUser = req.user;
     const allTickets = await TicketDAL.getAllTickets();
+    const userTeam = await teamDAL.getTeamByUserId(currentLoggedInUser.id)
+    const ticketsByAgent = await TicketDAL.getAllTicketsCreatedByAgentByUserId(currentLoggedInUser.id);
 
+    let listOfTicketsByAgent = [];
+    for (const list of ticketsByAgent) {
+      const singleTicket = await TicketDAL.getTicketById(list.ticket_id)
+      listOfTicketsByAgent.push(singleTicket);
+    }
+
+    let listOfTicketTeam = [];
+    let singleTeam = [];
+    for (const list of userTeam) {
+      singleTeam = allTickets.filter(ticket => ticket.team.id === list.team_id);
+      singleTeam.map((team) => {
+        listOfTicketTeam.push(team);
+      })
+    }
+
+    const groupedTeam = listOfTicketTeam.reduce((groupedTeam, team) => {
+      const teamName = team.team ? team.team.name : "Unassigned";
+      if (!groupedTeam[teamName]) {
+        groupedTeam[teamName] = [];
+      }
+      groupedTeam[teamName].push(team);
+      return groupedTeam;
+    }, {});
+    const ticketsForCurrentLoggedInUser = allTickets.filter(ticket => ticket.created_by.id === currentLoggedInUser.id);
+
+    res.status(200).json({
+      status: 'Success',
+      userTicket: ticketsForCurrentLoggedInUser,
+      listOfTicketsByAgent: listOfTicketsByAgent,
+      groupedTeam: groupedTeam
     // Filter tickets where the createdBy field's id matches the current user's id.
     const ticketsForCurrentLoggedInUser = allTickets.filter(
       (ticket) => ticket.created_by.id === currentLoggedInUser.id
@@ -398,7 +514,6 @@ exports.groupAllTicketsByTeamAndGet = async (req, res, next) => {
     const currentLoggedInUser = req.user;
     const groupedTickets = await TicketDAL.groupAllTicketsByTeam();
 
-    // Group tickets by team using JavaScript
     const result = groupedTickets.reduce((result, ticket) => {
       const teamName = ticket.team ? ticket.team.name : "Unassigned"; // Use "Unassigned" for tickets without a team
       if (!result[teamName]) {
@@ -408,9 +523,9 @@ exports.groupAllTicketsByTeamAndGet = async (req, res, next) => {
       return result;
     }, {});
 
-    if (currentLoggedInUser.user_type != "Admin") {
-      return next(new AppError("Current user Unable to View"));
-    }
+    // if (currentLoggedInUser.user_type != "Admin") {
+    //   return next(new AppError("Current user Unable to View"));
+    // }
 
     // Now 'groupedTickets' will contain tickets grouped by team name or "Unassigned" if not associated with any team
     res.status(200).json({

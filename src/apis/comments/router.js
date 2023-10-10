@@ -6,21 +6,21 @@ const { uuidValidator } = require("../../../utils/uuid");
 const authorize = require("../../middlewares/auth/authorization");
 const permissionMiddleware = require("../../middlewares/permission.middleware");
 
-router.route("/").get(authorize, permissionMiddleware(['view-comments']), CommentController.getAllComments);
+router.route("/").get(authorize, CommentController.getAllComments);
 router
   .route("/ticket/:id")
-  .get(authorize, permissionMiddleware(['view-comment-ticket']), uuidValidator, CommentController.getCommentByTicket);
+  .get(authorize, uuidValidator, CommentController.getCommentByTicket);
 
-router.route("/:id").get(authorize, permissionMiddleware(['view-comment']), uuidValidator, CommentController.getOneComment);
+router.route("/:id").get(authorize, uuidValidator, CommentController.getOneComment);
 
 router
   .route("/")
-  .post(authorize, permissionMiddleware(['create-comment']), validate(commentValidator), CommentController.createComment);
+  .post(authorize, validate(commentValidator), CommentController.createComment);
 
 router
   .route("/private")
   .post(
-    authorize, permissionMiddleware(['create-private-comment']),
+    authorize,
     validate(commentValidator),
     CommentController.createPrivateComment
   );

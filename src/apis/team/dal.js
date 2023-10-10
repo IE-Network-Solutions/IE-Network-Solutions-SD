@@ -1,5 +1,6 @@
 const { getConnection } = require("typeorm");
 const Team = require("../../models/Team");
+const TeamUser = require("../../models/TeamUser");
 
 class teamDAL {
   static async getAllTeams() {
@@ -107,6 +108,16 @@ class teamDAL {
 
       // return teams
       return teams;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async getTeamByUserId(userId) {
+    try {
+      const connection = getConnection();
+      const teamRepository = connection.getRepository(TeamUser);
+      return await teamRepository.find({ where: { user_id: userId } });
     } catch (error) {
       throw error;
     }

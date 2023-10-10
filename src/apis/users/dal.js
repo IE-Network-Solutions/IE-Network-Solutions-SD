@@ -2,6 +2,7 @@ const { getConnection } = require("typeorm");
 const User = require("../../models/User");
 const TeamUser = require("../../models/TeamUser");
 const Team = require("../../models/Team");
+const Token = require("../../models/Token");
 
 class UserDAL {
   // Get All Users
@@ -288,6 +289,28 @@ class UserDAL {
     await teamUserRepository.save(teamUsers);
 
     return teamUsers;
+  }
+
+  static async storeToken(tokenBody) {
+    const connection = getConnection();
+    const tokenRepository = await connection.getRepository(Token);
+    const result = tokenRepository.create({
+      userId: tokenBody.userId,
+      token: tokenBody.token,
+      isRevoked: tokenBody.isRevoked
+    })
+    return await tokenRepository.save(result);
+  }
+
+  static async logout(userId) {
+    const connection = getConnection();
+    const tokenRepository = await connection.getRepository(Token);
+    const result = await tokenRepository.findOne({ where: { userId: userId } });
+    if (!result) {
+      return;
+    }
+    await tokenRepository.update(result.id, { isRevoked: true });
+    return result;
   }
 }
 

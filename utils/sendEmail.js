@@ -32,6 +32,7 @@ const sendEmail = async (from, to, subject, body, cc) => {
       ignoreTLS: true,
       rejectUnauthorized: false,
     },
+    service:"gmail",
     auth: {
       user: configs.email.systemEmail,
       pass: configs.email.emailPassword,

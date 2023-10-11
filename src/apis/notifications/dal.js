@@ -26,7 +26,7 @@ class NotificationDAL {
             const notificationRepository = connection.getRepository(Notification);
 
             // Get Data
-            const notes = await notificationRepository.findBy({type: "User"});
+            const notes = await notificationRepository.findBy({ type: "User" });
             return notes;
         } catch (error) {
             throw error;
@@ -41,7 +41,7 @@ class NotificationDAL {
             const notificationRepository = connection.getRepository(Notification);
 
             // Get Data
-            const notes = await notificationRepository.findBy({type: "System"});
+            const notes = await notificationRepository.findBy({ type: "System" });
             return notes;
         } catch (error) {
             throw error;
@@ -69,7 +69,7 @@ class NotificationDAL {
         try {
             // Create Notification Object
             const notification = data;
-            
+
             // Form Connection
             const connection = getConnection();
             const notificationRepository = connection.getRepository(Notification);

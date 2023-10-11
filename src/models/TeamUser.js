@@ -21,6 +21,8 @@ const TeamUser = new EntitySchema({
         name: "team_id",
         referencedColumnName: "id",
       },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
     user: {
       type: "many-to-one",

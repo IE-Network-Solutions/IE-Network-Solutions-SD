@@ -82,7 +82,6 @@ exports.createUser = async (req, res, next) => {
     const user_profile = req.file ? req.file.path : null;
     user.profile_pic = user_profile;
     user.password = hash(generateRandomPassword(8, true, true, true));
-    console.log("password", generateRandomPassword(8, true, true, true))
     // user.password = hash("%TGBnhy6");
 
     // check if email exsist or not
@@ -107,7 +106,7 @@ exports.createUser = async (req, res, next) => {
 
     // Create New User
     let newUser = await UserDAL.createUser(user);
-    await UserDAL.sendChangePasswordAlertByEmail(req.body.email);
+    await UserDAL.sendChangePasswordAlertByEmail("employee", req.body.email);
     // Respond
     res.status(200).json({
       status: "Success",
@@ -336,8 +335,7 @@ exports.forgotPassword = async (req, res, next) => {
 
 exports.logout = async (req, res, next) => {
   const currentLoggedInUserToken = await UserDAL.logout(req.user.id);
-
-
+  // const user = await UserDAL.getOneUser(currentLoggedInUserToken.userId)
   console.log(currentLoggedInUserToken)
   if (!req.user.id) {
     return next(new AppError("There is Error", 400))
@@ -345,7 +343,8 @@ exports.logout = async (req, res, next) => {
   res.status(200).json({
     status: "success",
     message: "User is successfully logout",
-    statusCode: 200
+    statusCode: 200,
+    // data: user
   });
 };
 

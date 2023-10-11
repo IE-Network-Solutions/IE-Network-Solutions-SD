@@ -50,7 +50,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use("/api/v1/uploads", express.static("uploads"));
 
 //*/30 * * * * *' // for 3o seconds 
-cron.schedule('*/30 * * * * *', imapFetch); //run every fifteen minutes
+// cron.schedule('*/30 * * * * *', imapFetch); //run every fifteen minutes
 // cron.schedule("00 */15 * * * *",  imapFetch); //run every fifteen minutes\
 
 

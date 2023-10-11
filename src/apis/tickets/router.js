@@ -15,17 +15,17 @@ router.route("/").get(authorize, TicketController.getAllTickets);
 router.route("/:id").get(authorize, TicketController.getTicketById);
 router.route("/").get(TicketController.getAllTickets);
 router
-      .route("/junk")
-      .get(TicketController.getAllJunkTickets)
+  .route("/junk")
+  .get(TicketController.getAllJunkTickets)
 router
-      .route('/junk/untransfered')
-      .get(TicketController.getAllUnTransferedJunkTickets)
+  .route('/junk/untransfered')
+  .get(TicketController.getAllUnTransferedJunkTickets)
 
 router
-    .route('/junk/:id')
-    .get(TicketController.getJunkTicket)
-    .post(TicketController.transferJunkTicketToTicket)
-    .delete( uuidValidator, TicketController.deleteJunkTicket);
+  .route('/junk/:id')
+  .get(TicketController.getJunkTicket)
+  .post(TicketController.transferJunkTicketToTicket)
+  .delete(uuidValidator, TicketController.deleteJunkTicket);
 
 
 router.route("/:id").get(TicketController.getTicketById);
@@ -78,7 +78,6 @@ router
   .route("/assign-user/:id")
   .post(
     authorize,
-    permissionMiddleware(["assign-ticket-to-user"]),
     uuidValidator,
     validate(assignTicket),
     TicketController.assignUserToTicket
@@ -97,10 +96,10 @@ router
   .get(authorize, TicketController.groupAllTicketsByTeamAndGet);
 
 router.route("/getAllTickets/ForCurrentLoggedInUser").get(
-    authorize,
-    permissionMiddleware(["view-ticket-for-logged-in"]),
-    TicketController.getAllTicketsForCurrentLoggedInUser
-  );
+  authorize,
+  permissionMiddleware(["view-ticket-for-logged-in"]),
+  TicketController.getAllTicketsForCurrentLoggedInUser
+);
 
 router
   .route("/getAllTickets/groupByTeam")

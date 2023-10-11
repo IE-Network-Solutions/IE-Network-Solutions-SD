@@ -56,7 +56,7 @@ exports.createKnowledgeBase = async (req, res, next) => {
 
     //   create new knowledgeBase
     const knowledgeBase = await KnowledgeBaseDAL.createKnowledgeBase(data);
-
+    console.log("accepted", req.body, "knowledgebase", knowledgeBase)
     //Create knowledge base and return the data
     res.status(201).json({
       status: "Success",

@@ -32,7 +32,7 @@ class teamDAL {
       const teamRepository = connection.getRepository(Team);
 
       const team = await teamRepository.findOne({
-        where: { id: id, is_deleted: false },
+        where: { id: id, is_deleted: false }, relations: ["tickets"]
       });
 
       // return single team data
@@ -76,21 +76,22 @@ class teamDAL {
       const connecition = getConnection();
 
       // create bridge
+
       const teamRepository = connecition.getRepository(Team);
-
-      const updatedTeam = teamRepository.merge(team, updatedFields);
-
+      console.log(updatedFields)
+      const updatedTeam = await teamRepository.update({ id: team }, updatedFields);
+      console.log("teams")
       // check for department
-      if (updatedFields.department) {
-        updatedTeam.department = updatedFields.department;
-      }
+      // if (updatedFields.department) {
+      //   updatedTeam.department = updatedFields.department;
+      // }
 
-      // check for team lead
-      if (updatedFields.team_lead) {
-        updatedTeam.team_lead = updatedFields.team_lead;
-      }
+      // // check for team lead
+      // if (updatedFields.team_lead) {
+      //   updatedTeam.team_lead = updatedFields.team_lead;
+      // }
 
-      await teamRepository.save(updatedTeam);
+      // await teamRepository.save(updatedTeam);
 
       return updatedTeam;
     } catch (error) {
@@ -118,6 +119,17 @@ class teamDAL {
       const connection = getConnection();
       const teamRepository = connection.getRepository(TeamUser);
       return await teamRepository.find({ where: { user_id: userId } });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+
+  static async deleteTeamById(id) {
+    try {
+      const connection = getConnection();
+      const teamRepository = connection.getRepository(Team);
+      return await teamRepository.delete({ id: id })
     } catch (error) {
       throw error;
     }

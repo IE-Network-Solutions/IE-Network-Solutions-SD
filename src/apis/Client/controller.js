@@ -7,6 +7,8 @@ const ClientDAL = require("./dal");
 const TypeDAL = require("../type/dal");
 const CompanyDAL = require("../Company/dal");
 const teamDAL = require("../team/dal");
+const generateRandomPassword = require("../../../utils/generateRandomPassword");
+const UserDAL = require("../users/dal");
 
 exports.allClients = async (req, res, next) => {
   try {
@@ -55,10 +57,11 @@ exports.createClient = async (req, res, next) => {
     const data = req.body;
     const user_profile = req.file ? req.file.path : null;
     data.user_profile = user_profile;
-    data.password = hash("%TGBnhy6");
-    //   create new client
-    const client = await ClientDAL.createClient(data);
 
+    data.password = hash(generateRandomPassword(8, true, true, true));
+
+    const client = await ClientDAL.createClient(data);
+    await UserDAL.sendChangePasswordAlertByEmail("client", req.body.email);
     res.status(201).json({
       status: "Success",
       data: client,

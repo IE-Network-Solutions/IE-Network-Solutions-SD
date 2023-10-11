@@ -1,6 +1,7 @@
 const { getConnection } = require("typeorm");
 const KnowledgeBase = require("../../models/KnowledgeBase");
 const { validate: isUUID } = require("uuid");
+const AppError = require("../../../utils/apperror");
 class KnowledgeBaseDAL {
 
 
@@ -44,7 +45,7 @@ class KnowledgeBaseDAL {
     try {
 
       // Accept all knowledge base values
-      const { title, category, description, image, createdBy, catagoryId } = data;
+      const { title, description, createdBy, catagoryId } = data;
 
       // Create connection
       const connection = getConnection();
@@ -52,9 +53,11 @@ class KnowledgeBaseDAL {
       // Inject knowledge base model
       const knowledgebaseRepository = connection.getRepository(KnowledgeBase);
 
+      console.log(catagoryId)
+
       // Create knowledge base value in memory
-      const knowledgebase = await knowledgebaseRepository.create({
-        title, category, description, image, createdBy, catagoryId
+      const knowledgebase = knowledgebaseRepository.create({
+        title, description, createdBy, catagoryId
       });
 
       // Save knowledge base values and Return new data

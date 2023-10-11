@@ -1,4 +1,5 @@
 const AppError = require("../../../utils/apperror");
+const Team = require("../../models/Team");
 const DepartmentDAL = require("../department/dal");
 const UserDAL = require("../users/dal");
 const teamDAL = require("./dal");
@@ -53,3 +54,58 @@ exports.createTeam = async (req, res, next) => {
     throw error;
   }
 };
+
+exports.getTeamById = async (req, res, next) => {
+  const teams = await teamDAL.getTeam(req.params.id);
+
+  if (!teams) {
+    return next(new AppError("Team with the given id Not Found"));
+  }
+  res.status(200).json({
+    status: "Success",
+    data: teams
+  })
+}
+
+exports.deleteTeamById = async (req, res, next) => {
+  try {
+    const team = await teamDAL.getTeam(req.params.id);
+
+    if (!team) {
+      return next(
+        new AppError("Team with the given id is not found.", 404)
+      );
+    }
+    await teamDAL.deleteTeamById(id);
+    res.status(200).json({
+      status: 200,
+      message: "Team is successfully deleted"
+    });
+  } catch (error) {
+    throw error;
+  }
+}
+
+exports.updateTeamById = async (req, res, next) => {
+  try {
+    const team = await teamDAL.getTeam(req.params.id);
+
+    if (!team) {
+      return next(
+        new AppError("Team with the given id Not Found", 404)
+      );
+    }
+    const result = await teamDAL.updateTeam(req.params.id, req.body);
+    if (!result) {
+      return next(new AppError("Error team Updating", 400));
+    }
+    res.status(200).json({
+      status: "Success",
+      data: await teamDAL.getTeam(id)
+    }
+    );
+
+  } catch (error) {
+    throw error;
+  }
+}

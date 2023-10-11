@@ -91,6 +91,8 @@ const Ticket = new EntitySchema({
         name: "team_id",
         referencedColumnName: "id",
       },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
     client: {
       type: "many-to-one",

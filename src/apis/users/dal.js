@@ -322,7 +322,7 @@ class UserDAL {
     return result;
   }
 
-  static async sendChangePasswordAlertByEmail(email) {
+  static async sendChangePasswordAlertByEmail(type, email) {
     const connection = await getConnection();
     const userRepository = connection.getRepository(User);
     const user = await this.getUserByEmail(email);
@@ -338,10 +338,10 @@ class UserDAL {
       process.env.SYSTEM_EMAIL,
       email,
       "[IE Networks Solutions] Password Reset E-mail",
-      `<h2>Hello ${user.first_name} ${user.last_name},</h2>
+      `<h2>Hello ${user.first_name} ${user.last_name}, ${type == "client" ? "[Client]" : "[Employee]"}</h2>
       <p> You're receiving this e-mail because you or someone else has requested a password reset for your user account.</p>
       <h4>Click the link below to reset your password:</h4>
-    <a href="http://172.16.32.82:5174/verification/${user.id}">Click here to change your default password</a>
+    <a href="http://172.16.32.114:5173/verification/${user.id}">Click here to change your default password</a>
     <p> Your verification code is <strong> ${user.verificationCode}</strong></p>
        <p>Verification Code will expire at:<strong> ${(await generateVerificationCode()).expiresAt.toString()}</strong></p>
        <p>This is your new password :<strong> ${(await generateRandomPassword(8, true, true, true, true))}</strong></p>

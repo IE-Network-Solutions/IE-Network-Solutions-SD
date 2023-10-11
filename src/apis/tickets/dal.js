@@ -193,22 +193,22 @@ class TicketDAL {
       throw error;
     }
   }
-  static async getAllJunkTickets(){
+  static async getAllJunkTickets() {
     try {
-        // get connection from the pool
-        const connection = await getConnection();
+      // get connection from the pool
+      const connection = await getConnection();
 
-        // create a bridge between the entity and the database
-        const ticketRepository = await connection.getRepository(JunkTicket);
-  
-        // get data
-        return await ticketRepository.find();
+      // create a bridge between the entity and the database
+      const ticketRepository = await connection.getRepository(JunkTicket);
+
+      // get data
+      return await ticketRepository.find();
     } catch (error) {
       throw error
     }
   }
 
-  static async getAllUnTransferedJunkTickets(){
+  static async getAllUnTransferedJunkTickets() {
     try {
       // get connection from the pool
       const connection = await getConnection();
@@ -218,11 +218,11 @@ class TicketDAL {
 
       // get data
       return await ticketRepository.findBy({
-        isTransfered:false
+        isTransfered: false
       });
-  } catch (error) {
-    throw error
-  }
+    } catch (error) {
+      throw error
+    }
   }
 
   static async getJunkTicketById(id) {
@@ -243,39 +243,39 @@ class TicketDAL {
       throw error;
     }
   }
-  static async transferJunkToTicker(data , id){
+  static async transferJunkToTicker(data, id) {
     try {
       // get connection from the pool
-    const connection = getConnection();
+      const connection = getConnection();
 
-    // create bridge
-    const junkTicketRepository = connection.getRepository(JunkTicket);
+      // create bridge
+      const junkTicketRepository = connection.getRepository(JunkTicket);
 
-    const ticket = await junkTicketRepository.findOneBy({ id: id });
-    console.log(ticket);
-    if (!ticket) {
-      throw new Error("Junk Ticket is Not Found with the provided id");
-    }
+      const ticket = await junkTicketRepository.findOneBy({ id: id });
+      console.log(ticket);
+      if (!ticket) {
+        throw new Error("Junk Ticket is Not Found with the provided id");
+      }
 
-    junkTicketRepository.merge(ticket, {...ticket ,isTransfered:true } );
-  const updatedJunk = await junkTicketRepository.save(ticket);
+      junkTicketRepository.merge(ticket, { ...ticket, isTransfered: true });
+      const updatedJunk = await junkTicketRepository.save(ticket);
 
       const transfer = await this.createNewTicket(data)
-      return {transfer , updatedJunk}
+      return { transfer, updatedJunk }
     } catch (error) {
       throw error;
     }
   }
 
-  static async deleteJunkTicket(id){
+  static async deleteJunkTicket(id) {
     try {
-       // get connection from the pool
-    const connection = getConnection();
+      // get connection from the pool
+      const connection = getConnection();
 
-    // create bridge
-    const junkTicketRepository = connection.getRepository(JunkTicket);
+      // create bridge
+      const junkTicketRepository = connection.getRepository(JunkTicket);
 
-    return await junkTicketRepository.delete(id);
+      return await junkTicketRepository.delete(id);
     } catch (error) {
       throw error
     }
@@ -585,7 +585,7 @@ class TicketDAL {
     // create bridge to the db
     const ticketRepository = connection.getRepository(Ticket);
 
-    const data = ticketRepository
+    const data = await ticketRepository
       .createQueryBuilder("ticket")
       .leftJoin("ticket.team", "team")
       .select([
@@ -602,11 +602,11 @@ class TicketDAL {
 
   // assigned tickets for logged in user status not closed
   static async getAssignedTickets(userId) {
+
     const connection = getConnection();
     const name = "Closed";
     const userRepository = connection.getRepository(User);
     const ticketRepository = connection.getRepository(Ticket);
-
     const userTasks = await userRepository
       .createQueryBuilder("user")
       .leftJoin("user.assigned_tickets", "ticket")
@@ -615,6 +615,7 @@ class TicketDAL {
       .where("status.type != :name", { name: name })
       .andWhere("user.id = :id", { id: userId })
       .getRawMany();
+    console.log(userTasks, "ooooooooooooo")
 
     return userTasks;
   }

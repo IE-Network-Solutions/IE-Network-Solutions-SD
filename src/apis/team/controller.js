@@ -101,7 +101,7 @@ exports.updateTeamById = async (req, res, next) => {
     }
     res.status(200).json({
       status: "Success",
-      data: await teamDAL.getTeam(id)
+      data: await teamDAL.getTeam(req.params.id)
     }
     );
 

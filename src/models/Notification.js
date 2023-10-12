@@ -8,6 +8,10 @@ const Notification = new EntitySchema({
       type: "uuid",
       generated: "uuid",
     },
+    title: {
+      type: "varchar",
+      nullable: true,
+    },
     // Whether the notification is from system or users
     type: {
       type: "text",
@@ -21,6 +25,11 @@ const Notification = new EntitySchema({
     // The notification message
     message: {
       type: "text",
+    },
+    isRead: {
+      type: "boolean",
+      default: false,
+      nullable: true,
     },
     read_at: {
       type: "date",

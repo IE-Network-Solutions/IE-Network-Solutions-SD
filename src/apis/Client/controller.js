@@ -9,6 +9,7 @@ const CompanyDAL = require("../Company/dal");
 const teamDAL = require("../team/dal");
 const generateRandomPassword = require("../../../utils/generateRandomPassword");
 const UserDAL = require("../users/dal");
+const { sendEmailNotification } = require("../../../utils/sendNotification");
 
 exports.allClients = async (req, res, next) => {
   try {
@@ -154,6 +155,8 @@ exports.createNewTicket = async (req, res, next) => {
     const data = req.body;
     const user = req.user;
 
+    const admin = await UserDAL.getAllAdmins();
+
     if (user.user_type != "client") {
       return next(new AppError("unauthorized user", 500));
     }
@@ -196,7 +199,20 @@ exports.createNewTicket = async (req, res, next) => {
 
     //   create new ticket
     const newTicket = await ClientDAL.createTicket(data);
-
+    await sendEmailNotification(
+      req.user.email,
+      process.env.SYSTEM_EMAIL,
+      "[IE Networks Solutions] Email is sent by the client for new Ticket",
+      `Hello Admin,
+      Ticket details:
+      Ticket id: ${newTicket.id}
+      Subject: ${newTicket.subject}
+      Description: ${newTicket.description}
+      Created At: ${newTicket.created_at}
+      Ticket type: ${newTicket.ticket_type.type}
+      Thank you!`,
+      "Change password"
+    );
     res.status(201).json({
       status: "new Ticket is created Successfully",
       data: newTicket,

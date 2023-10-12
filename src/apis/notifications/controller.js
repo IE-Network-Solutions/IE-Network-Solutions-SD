@@ -15,10 +15,10 @@ exports.introduction = async (req, res, next) => {
 exports.getAllNotifications = async (req, res, next) => {
     try {
         // Get All Notifications
-        let notifications = await NotificationDAL.getAllNotifications();
-
-        // Log
-        await log("Got All Notifications", req, res);
+        const notifications = await NotificationDAL.getAllNotifications();
+        if (!notifications) {
+            return next(new AppError("Notification Not Found", 404))
+        }
 
         // Respond
         res.status(200).json({
@@ -82,20 +82,20 @@ exports.createNotification = async (req, res, next) => {
     try {
         // Get Req Body
         let notification = req.body;
-        let userID = req.body.userID;
-        let isFromSystem = !userID ? true : false;
+        let userId = req.body.user_id;
+        let isUser = userId ? true : false;
 
-        if (isFromSystem == false) {
+        if (isUser) {
             // Get User 
-            const user_ID = userID;
-            const user = await UserDAL.getOneUser(user_ID);
-            if (!user) return next(new AppError("User Does Not Exist", 404));
+            const user = await UserDAL.getOneUser(userId);
+            if (!user) {
+                return next(new AppError("User Does Not Exist", 404));
+            }
             notification.from = `${user.first_name + " " + user.last_name}`;
             notification.created_by = user;
         }
-
         // Create Notification
-        let newNotification = await NotificationDAL.createNotification(notification, isFromSystem, userID);
+        const newNotification = await NotificationDAL.createNotification(notification);
 
         // Respond
         res.status(200).json({
@@ -111,18 +111,16 @@ exports.deleteNotification = async (req, res, next) => {
     try {
         // Get Req Body
         const id = req.params.id;
-
         // Check If Notification Exists
         const notification = await NotificationDAL.getOneNotification(id);
-        if (!notification) return next(new AppError("Notification Does Not Exist!"));
-
-        // Delete Notification
-        const deletedNotification = await NotificationDAL.deleteNotification(id);
-
+        if (!notification) {
+            return next(new AppError("Notification Does Not Exist!", 404));
+        }
+        await NotificationDAL.deleteNotification(id);
         // Respond
         res.status(200).json({
             status: "Success",
-            data: null,
+            message: "Notification Deleted Successfully!"
         });
     } catch (error) {
         throw error;
@@ -131,17 +129,41 @@ exports.deleteNotification = async (req, res, next) => {
 
 exports.deleteAllNotifications = async (req, res, next) => {
     try {
-        // Delete All Notification
-        let deletedNotifications = await NotificationDAL.deleteAllNotifications();
+        const allNotification = await NotificationDAL.getAllNotifications();
+        if (!allNotification) {
+            return next(new AppError("Unable to delete notification"))
+        }
+        allNotification.map(async (notification) => {
+            await NotificationDAL.deleteAllNotifications(notification.id);
+        })
+
 
         // Respond
         res.status(200).json({
             status: "Success",
-            data: deletedNotifications,
+            message: "Notifications are Deleted Successfully!"
         });
     } catch (error) {
         throw error;
     }
+}
+
+exports.updateNotificationById = async (req, res, next) => {
+    const result = await NotificationDAL.getOneNotification(req.params.id);
+    if (!result) {
+        return next(new AppError("Notification id is Not Found"));
+    }
+
+    const update = await NotificationDAL.updateNotificationById(req.params.id, req.body);
+    if (!update) {
+        return next(new AppError("Unable to update", 400))
+    }
+    res.status(200).json({
+        status: "Success",
+        data: await NotificationDAL.getOneNotification(req.params.id)
+    })
+
+    // const update = await
 }
 
 

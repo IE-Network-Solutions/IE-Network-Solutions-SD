@@ -10,6 +10,7 @@ const DepartmentDAL = require("../department/dal");
 const ClientDAL = require("../Client/dal");
 const sendEmail = require("../../../utils/sendEmail");
 const teamDAL = require("../team/dal");
+const { sendEmailNotification } = require("../../../utils/sendNotification");
 
 /**
  *
@@ -178,19 +179,10 @@ exports.createNewTicket = async (req, res, next) => {
     data.created_by = created_by;
 
     const admins = await UserDAL.getAllAdmins();
-    console.log(admins);
+    // console.log(admins);
 
     const to = admins.map((admin) => admin.email);
     const from = req.user.email;
-
-    // console.log(to);
-    // // get status
-    // const status = await StatusDAL.getStatus(data.status_id);
-    // if (!status) {
-    //   return next(new AppError("status does not exist", 404));
-    // }
-    // data.status = status;
-
     // get type
     const type = await TypeDAL.getOneType(data.type_id);
     if (!type) {
@@ -215,7 +207,7 @@ exports.createNewTicket = async (req, res, next) => {
     if (data.client_id) {
       // get client
       const client = await ClientDAL.getClientById(data.client_id);
-      console.log(client);
+      // console.log(client);
       if (!client) {
         return next(new AppError("such client does not exist", 404));
       }
@@ -242,17 +234,31 @@ exports.createNewTicket = async (req, res, next) => {
     }
     //   create new ticket
     const newTicket = await TicketDAL.createNewTicket(data);
-
+    await sendEmailNotification(
+      req.user.email,
+      process.env.SYSTEM_EMAIL,
+      admins.map(email => email.email),
+      "[IE Networks Solutions] Email is sent by the employee for new Ticket",
+      `Hello Admin,
+      Ticket details:
+      Ticket id: ${newTicket.id}
+      Subject: ${newTicket.subject}
+      Description: ${newTicket.description}
+      Created At: ${newTicket.created_at}
+      Ticket type: ${newTicket.ticket_type.type}
+      Thank you!`,
+      "Change password"
+    );
     // when new ticket is created email will be send to the admins
     let subject = "New Ticket created";
     let body = `Please follow the ticket progress through the following link`;
-    const sendmail = await sendEmail(
-      from,
-      to,
-      subject,
-      newTicket.description,
-      to
-    );
+    // const sendmail = await sendEmail(
+    //   from,
+    //   to,
+    //   subject,
+    //   newTicket.description,
+    //   to
+    // );
 
     res.status(201).json({
       status: "new Ticket is created Successfully",
@@ -547,6 +553,7 @@ exports.groupAllTicketsByTeamAndGet = async (req, res, next) => {
 
 exports.getTicketsByStatus = async (req, res, next) => {
   try {
+    console.log("jjjjjjjjjjjjj")
     const data = await TicketDAL.ticketsTotalByStatus();
 
     res.status(200).json({
@@ -560,6 +567,7 @@ exports.getTicketsByStatus = async (req, res, next) => {
 
 exports.getTicketsCountByTeam = async (req, res, next) => {
   try {
+    console.log("nahommmmmmmmmmmmmmm")
     const data = await TicketDAL.getAllTeamTicketsCount();
 
     res.status(200).json({

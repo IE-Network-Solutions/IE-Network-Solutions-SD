@@ -56,7 +56,8 @@ class UserDAL {
           "last_name",
           "user_type",
           "password",
-          "verificationCode"
+          "verificationCode",
+          "profile_pic"
         ],
         relations: ["team", "manager", "role.permissions", "permissions"],
       });

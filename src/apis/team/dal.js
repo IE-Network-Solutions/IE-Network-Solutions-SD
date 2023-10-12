@@ -68,7 +68,7 @@ class teamDAL {
     }
   }
 
-  static async updateTeam(team, data) {
+  static async updateTeam(teamId, data) {
     try {
       const updatedFields = data;
 
@@ -78,20 +78,19 @@ class teamDAL {
       // create bridge
 
       const teamRepository = connecition.getRepository(Team);
-      console.log(updatedFields)
-      const updatedTeam = await teamRepository.update({ id: team }, updatedFields);
-      console.log("teams")
+      const team = await teamRepository.findOne({ where: { id: teamId } });
+      const updatedTeam = await teamRepository.merge(team, updatedFields);
       // check for department
-      // if (updatedFields.department) {
-      //   updatedTeam.department = updatedFields.department;
-      // }
+      if (updatedFields.department) {
+        updatedTeam.department = updatedFields.department;
+      }
 
-      // // check for team lead
-      // if (updatedFields.team_lead) {
-      //   updatedTeam.team_lead = updatedFields.team_lead;
-      // }
+      // check for team lead
+      if (updatedFields.team_lead) {
+        updatedTeam.team_lead = updatedFields.team_lead;
+      }
 
-      // await teamRepository.save(updatedTeam);
+      await teamRepository.save(updatedTeam);
 
       return updatedTeam;
     } catch (error) {

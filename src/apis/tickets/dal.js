@@ -245,23 +245,39 @@ class TicketDAL {
   }
   static async transferJunkToTicker(data, id) {
     try {
-      // get connection from the pool
+      // Get a connection from the pool
       const connection = getConnection();
 
-      // create bridge
+      // Create a bridge to the JunkTicket entity
       const junkTicketRepository = connection.getRepository(JunkTicket);
 
-      const ticket = await junkTicketRepository.findOneBy({ id: id });
-      console.log(ticket);
-      if (!ticket) {
-        throw new Error("Junk Ticket is Not Found with the provided id");
+      // Find the ticket by its ID
+      const ticket = await junkTicketRepository.findOneBy({ id });
+
+      if (ticket) {
+        // Update the ticket with the new data
+        junkTicketRepository.merge(ticket, data);
+        ticket.isTransfered = false;
+
+        // Save the updated ticket
+        const updatedTicket = await junkTicketRepository.save(ticket);
+
+        const ddddd =
+        {
+          "subject": updatedTicket.subject,
+          "description": updatedTicket.body,
+          "priority_id": data.priority_id,
+          "team_id": data.team_id,
+          "type_id": data.type_id
+        }
+        console.log(data);
+
+        const transfer = await this.createNewTicket(ddddd)
+
+        return { updateTicket: updatedTicket, transfer: transfer };
+      } else {
+        throw new Error(`Ticket with ID ${id} not found`);
       }
-
-      junkTicketRepository.merge(ticket, { ...ticket, isTransfered: true });
-      const updatedJunk = await junkTicketRepository.save(ticket);
-
-      const transfer = await this.createNewTicket(data)
-      return { transfer, updatedJunk }
     } catch (error) {
       throw error;
     }
@@ -306,7 +322,7 @@ class TicketDAL {
       const ticketRepository = connection.getRepository(Ticket);
 
       // create ticket
-      const newTicket = await ticketRepository.create({
+      const newTicket = ticketRepository.create({
         id,
         status,
         description,
@@ -320,9 +336,8 @@ class TicketDAL {
         company: company,
         created_by: created_by,
       });
-      await ticketRepository.save(newTicket);
+      return await ticketRepository.save(newTicket);
 
-      return newTicket;
     } catch (error) {
       throw error;
     }

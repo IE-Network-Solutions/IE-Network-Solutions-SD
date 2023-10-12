@@ -31,7 +31,7 @@ const permissionSeeder = require('../src/apis/Seeder/router');
 const cron = require("node-cron");
 const RoleRoute = require("../src/apis/role/router");
 const TeamRoute = require("../src/apis/team/router");
-const NotificationRoute = require('../src/apis/notification/router')
+const NotificationRoute = require('../src/apis/notifications/router')
 const app = express();
 
 /**

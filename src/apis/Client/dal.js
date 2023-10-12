@@ -31,6 +31,7 @@ class ClientDAL {
         .leftJoin("tickets.ticket_priority", "priority")
         .leftJoin("tickets.ticket_status", "status")
         .leftJoin("tickets.team", "team")
+        .leftJoin("tickets.created_by", "created_by")
         .leftJoin("team.team_lead", "team_lead")
         .leftJoin("tickets.client", "client")
         .leftJoin("tickets.comments", "comments")
@@ -81,6 +82,11 @@ class ClientDAL {
           "comments.is_escalation",
           "comments.created_at",
           "comments.updated_at",
+          "created_by.id",
+          "created_by.first_name",
+          "created_by.last_name",
+          "created_by.email",
+          "created_by.user_type"
         ])
         .getMany();
 

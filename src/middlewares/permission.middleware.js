@@ -10,9 +10,10 @@ const permissionMiddleware = (requiredPermissions = []) => {
           new AppError("User is Not Authorized Please Login first", 401)
         );
       }
-
-      // If user permission array is empty, return not allowed
-
+      if (user?.user_type === "client") {
+        user.permissions = ['delete-ticket', 'update-ticket'];
+        next();
+      }
       if (user?.permissions) {
         const hasRequiredPermission = requiredPermissions.every(requiredPermission =>
           user?.permissions

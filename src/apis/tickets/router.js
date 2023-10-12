@@ -109,7 +109,7 @@ router
   .route("/getAllTickets/groupByTeam")
   .get(authorize, TicketController.groupAllTicketsByTeamAndGet);
 
-  .get(
+router.get(
     authorize,
     permissionMiddleware(["view-ticket-for-logged-in"]),
     TicketController.getAllTicketsForCurrentLoggedInUser

@@ -241,29 +241,52 @@ class TicketDAL {
       throw error;
     }
   }
-  static async transferJunkToTicker(data , id){
+  static async transferJunkToTicker(data, id) {
     try {
-      // get connection from the pool
-    const connection = getConnection();
-
-    // create bridge
-    const junkTicketRepository = connection.getRepository(JunkTicket);
-
-    const ticket = await junkTicketRepository.findOneBy({ id: id });
-    console.log(ticket);
-    if (!ticket) {
-      throw new Error("Junk Ticket is Not Found with the provided id");
-    }
-
-    junkTicketRepository.merge(ticket, {...ticket ,isTransfered:true } );
-  const updatedJunk = await junkTicketRepository.save(ticket);
-
-      const transfer = await this.createNewTicket(data)
-      return {transfer , updatedJunk}
+      // Get a connection from the pool
+      const connection = getConnection();
+  
+      // Create a bridge to the JunkTicket entity
+      const junkTicketRepository = connection.getRepository(JunkTicket);
+  
+      // Find the ticket by its ID
+      const ticket = await junkTicketRepository.findOneBy({id } );
+  
+      if (ticket) {
+        // Update the ticket with the new data
+        junkTicketRepository.merge(ticket, data);
+        ticket.isTransfered = true;
+  
+        // Save the updated ticket
+        const updatedTicket = await junkTicketRepository.save(ticket);
+        console.log("UPdated",updatedTicket);
+        
+        const ddddd = 
+          {
+            // "subject": updatedTicket.subject,
+            // "description": updatedTicket.body,
+            // "priority_id": data.priority_id,
+            // "team_id" : data.team_id,
+            // "type_id": data.type_id
+            "subject": updatedTicket.subject,
+             "description": updatedTicket.body,
+            "priority_id": "8bcccf5f-2b18-473c-b0b0-7e578f86cdd3",
+            "team_id" : "575ec518-d0f4-4516-be96-4ef114b4f434",
+            "type_id": "8e4564af-d024-470c-86bd-ee8ca35d0aeb"
+        }       
+        console.log(data);
+  
+        const transfer =  await this.createNewTicket(ddddd)
+  
+        return { updateTicket: updatedTicket, transfer: transfer };
+      } else {
+        throw new Error(`Ticket with ID ${id} not found`);
+      }
     } catch (error) {
       throw error;
     }
   }
+  
 
   static async deleteJunkTicket(id){
     try {
@@ -574,6 +597,7 @@ class TicketDAL {
     } catch (error) {
       throw error;
     }
+  }
   // tickets count for each team
   static async getAllTeamTicketsCount() {
     // get connection from the pool

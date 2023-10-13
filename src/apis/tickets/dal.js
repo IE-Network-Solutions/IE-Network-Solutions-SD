@@ -9,6 +9,10 @@ const TicketUser = require("../../models/TicketUser");
 const Type = require("../../models/Type");
 const UserDAL = require("../users/dal");
 const JunkTicket = require("../../models/JunkTicket");
+const ClientDAL = require("../Client/dal");
+const teamDAL = require("../team/dal");
+const PriorityDAL = require("../priority/dal");
+const TypeDAL = require("../type/dal");
 
 class TicketDAL {
   static async getAllTickets() {
@@ -261,23 +265,21 @@ class TicketDAL {
         const updatedTicket = await junkTicketRepository.save(ticket);
         console.log("UPdated",updatedTicket);
         
+        const client =await ClientDAL.getClientById(data.client_id)
+        const user = await UserDAL.getOneUser(user_id)
+        const team = await teamDAL.getTeam(data.team_id)
+        const priority = await PriorityDAL.getPriority(data.priority_id)
+        const type = await TypeDAL.getOneType(data.type_id)
+     
         const ddddd = 
           {
-            // "subject": updatedTicket.subject,
-            // "description": updatedTicket.body,
-            // "priority_id": data.priority_id,
-            // "team_id" : data.team_id,
-            // "type_id": data.type_id
             "subject": updatedTicket.subject,
              "description": updatedTicket.body||"No Description",
-            "priority_id": data.priority_id,
-            "team_id" : data.team_id,
-            "type_id": data.type_id,
-            user_id:user_id
-
-            // "priority_id": "8bcccf5f-2b18-473c-b0b0-7e578f86cdd3",
-            // "team_id" : "575ec518-d0f4-4516-be96-4ef114b4f434",
-            // "type_id": "8e4564af-d024-470c-86bd-ee8ca35d0aeb"
+            ticket_priority: priority,
+            team : team,
+            ticket_type: type,
+            created_by:user,
+            client:client
         }       
         console.log(data);
   

@@ -115,7 +115,8 @@ exports.transferJunkTicketToTicket=async(req,res,next)=>{
     if(!junk){
       return next(new AppError("Junk Ticket to update Failed!"));
     }
-    const aa = await TicketDAL.transferJunkToTicker(req.body , id)
+
+    const aa = await TicketDAL.transferJunkToTicker(req.body , id ,req.user.id)
     // if(!transfer){
     //   return next(new AppError("Failed to Transfer junk ticket to ticket, try agian!"));
     // }

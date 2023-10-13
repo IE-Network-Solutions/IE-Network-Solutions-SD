@@ -240,8 +240,8 @@ class TicketDAL {
     } catch (error) {
       throw error;
     }
-  }
-  static async transferJunkToTicker(data, id) {
+  } 
+  static async transferJunkToTicker(data, id ,user_id) {
     try {
       // Get a connection from the pool
       const connection = getConnection();
@@ -269,10 +269,15 @@ class TicketDAL {
             // "team_id" : data.team_id,
             // "type_id": data.type_id
             "subject": updatedTicket.subject,
-             "description": updatedTicket.body,
-            "priority_id": "8bcccf5f-2b18-473c-b0b0-7e578f86cdd3",
-            "team_id" : "575ec518-d0f4-4516-be96-4ef114b4f434",
-            "type_id": "8e4564af-d024-470c-86bd-ee8ca35d0aeb"
+             "description": updatedTicket.body||"No Description",
+            "priority_id": data.priority_id,
+            "team_id" : data.team_id,
+            "type_id": data.type_id,
+            user_id:user_id
+
+            // "priority_id": "8bcccf5f-2b18-473c-b0b0-7e578f86cdd3",
+            // "team_id" : "575ec518-d0f4-4516-be96-4ef114b4f434",
+            // "type_id": "8e4564af-d024-470c-86bd-ee8ca35d0aeb"
         }       
         console.log(data);
   

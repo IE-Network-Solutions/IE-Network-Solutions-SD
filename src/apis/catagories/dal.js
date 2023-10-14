@@ -3,19 +3,18 @@ const catagories = require("../../models/Catagoreis");
 
 class catagoryDAL {
 
-    // This method implements to get all catagories
+  // This method implements to get all catagories
   static async getAllCatagories() {
-    try 
-    {
-    // Create connections
+    try {
+      // Create connections
       const connection = await getConnection();
 
-    // Inject catagory model
+      // Inject catagory model
       const catagoyRepository = connection.getRepository(catagories);
-    
+
       //Returns all catagory values
-      return await catagoyRepository.find();
-      
+      return await catagoyRepository.find({ relations: ["knowledgebase.createdBy"] });
+
     } catch (error) {
       throw error;
     }
@@ -29,7 +28,7 @@ class catagoryDAL {
       //Inject catagories model
       const catagoryRepository = connection.getRepository(catagories);
 
-      return await catagoryRepository.findOne({ id: id });
+      return await catagoryRepository.findOne({ where: { id: id }, relations: ["knowledgebase.createdBy"] });
 
     } catch (error) {
       throw error;
@@ -39,7 +38,7 @@ class catagoryDAL {
   //This method implements to create new catagories
   static async createCatagory(data) {
     try {
-      const {name, description } = data;
+      const { name, description } = data;
 
       // Create connection
       const connection = getConnection();
@@ -52,49 +51,49 @@ class catagoryDAL {
       return await catagoryRepository.save(catagory);
 
     } catch (error) {
-       if (error.code === '23503') {
-      return { Message : "Foreign key Constraint FAIL please insert correct id"};
-    }
+      if (error.code === '23503') {
+        return { Message: "Foreign key Constraint FAIL please insert correct id" };
+      }
     }
   }
 
   //This method implements to update catagory by id
   static async updateCatagory(id, updatedFields) {
-    try{
+    try {
       //Create a connections
-        const connection = getConnection();
+      const connection = getConnection();
 
-        //Inject catagory model
-        const catagoryRepository = connection.getRepository(catagories);
+      //Inject catagory model
+      const catagoryRepository = connection.getRepository(catagories);
 
-        // fetch the catagory to be updated
-        const catagory = await catagoryRepository.findOneBy({ id: id });
+      // fetch the catagory to be updated
+      const catagory = await catagoryRepository.findOneBy({ id: id });
 
-        catagoryRepository.merge(catagory, updatedFields);
+      catagoryRepository.merge(catagory, updatedFields);
 
-       return await catagoryRepository.save(catagory);
+      return await catagoryRepository.save(catagory);
 
-    }catch(error){
-       if (error.code === '23503') {
-      return { Message : "Foreign key Constraint FAIL please insert correct id"};
-    }
+    } catch (error) {
+      if (error.code === '23503') {
+        return { Message: "Foreign key Constraint FAIL please insert correct id" };
+      }
     }
   }
 
   //This method implements to delete catagory by id
   static async deleteCatagory(id) {
-    try{
+    try {
       // Create connection
-    const connection = getConnection();
+      const connection = getConnection();
 
-    //Inject catagory model
-    const catagoryRepository = connection.getRepository(catagories);
+      //Inject catagory model
+      const catagoryRepository = connection.getRepository(catagories);
 
-    return await catagoryRepository.delete({ id });  
+      return await catagoryRepository.delete({ id });
 
-}catch(error){
-  throw error;
-  }
+    } catch (error) {
+      throw error;
+    }
   }
 }
 

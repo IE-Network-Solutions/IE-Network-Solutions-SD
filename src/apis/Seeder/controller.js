@@ -6,7 +6,10 @@ const PermissionSeederDAl = require('./dal');
 
 exports.seedPermissions = async (req, res, next) => {
 
-    await PermissionSeederDAl.permissionSeeder();
+    const permissions = await PermissionSeederDAl.permissionSeeder();
+    if (!permissions) {
+        return next(new AppError("Permission is unable to seed", 400));
+    }
     try {
         res.status(200).json({
             status: 200,

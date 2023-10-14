@@ -6,22 +6,25 @@ const { uuidValidator } = require("../../../utils/uuid");
 const authorize = require("../../middlewares/auth/authorization");
 const permissionMiddleware = require("../../middlewares/permission.middleware");
 
-router.route("/").get(authorize, permissionMiddleware(['view-notifications']), NotificationController.getAllNotifications);
-router.route("/userNotifications").get(authorize, permissionMiddleware(['view-user-notifications']), NotificationController.getAllUserNotifications);
-router.route("/systemNotifications").get(authorize, permissionMiddleware(['view-system-notifications']), NotificationController.getAllSystemNotifications);
-router.route("/:id").get(authorize, permissionMiddleware(['view-notification']), uuidValidator, NotificationController.getOneNotification);
+router.route("/").get(authorize, NotificationController.getAllNotifications);
+router.route("/userNotifications").get(authorize, NotificationController.getAllUserNotifications);
+router.route("/systemNotifications").get(authorize, NotificationController.getAllSystemNotifications);
+router.route("/:id").get(authorize, uuidValidator, NotificationController.getOneNotification);
 
 router
   .route("/")
-  .post(authorize, permissionMiddleware(['create-notification']), NotificationController.createNotification);
+  .post(authorize, NotificationController.createNotification);
 
 router
   .route("/deleteAllNotifications")
-  .delete(authorize, permissionMiddleware(['delete-notifications']), NotificationController.deleteAllNotifications);
+  .delete(authorize, NotificationController.deleteAllNotifications);
 
 router
   .route("/:id")
-  .delete(authorize, permissionMiddleware(['delete-notifications']), uuidValidator, NotificationController.deleteNotification);
+  .delete(authorize, uuidValidator, NotificationController.deleteNotification);
 
+router
+  .route("/:id")
+  .patch(authorize, uuidValidator, NotificationController.updateNotificationById);
 
 module.exports = router;

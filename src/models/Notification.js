@@ -8,19 +8,33 @@ const Notification = new EntitySchema({
       type: "uuid",
       generated: "uuid",
     },
+    title: {
+      type: "varchar",
+      nullable: true,
+    },
     // Whether the notification is from system or users
     type: {
-      type: "text",
+      type: "varchar",
       nullable: true,
     },
     // If user then this will be the UserUUID and if not it will be SYSTEM
     from: {
-      type: "text",
+      type: "uuid",
+      nullable: true,
+    },
+    to: {
+      type: "uuid",
       nullable: true,
     },
     // The notification message
     message: {
       type: "text",
+      nullable: true,
+    },
+    isRead: {
+      type: "boolean",
+      default: false,
+      nullable: true,
     },
     read_at: {
       type: "date",

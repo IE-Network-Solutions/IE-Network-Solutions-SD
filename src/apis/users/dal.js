@@ -3,6 +3,14 @@ const User = require("../../models/User");
 const TeamUser = require("../../models/TeamUser");
 const Team = require("../../models/Team");
 const Token = require("../../models/Token");
+const sendEmail = require("../../../utils/sendEmail");
+const createToken = require("../../../utils/generateToken");
+const { verifyToken } = require("../../middlewares/auth");
+const hash = require("../../../utils/hashpassword");
+const { generateVerificationCode } = require("../../../utils/generateVerificationCode");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const generateRandomPassword = require("../../../utils/generateRandomPassword");
 
 class UserDAL {
   // Get All Users
@@ -48,6 +56,8 @@ class UserDAL {
           "last_name",
           "user_type",
           "password",
+          "verificationCode",
+          "profile_pic"
         ],
         relations: ["team", "manager", "role.permissions", "permissions"],
       });
@@ -72,6 +82,7 @@ class UserDAL {
         .createQueryBuilder("user")
         .leftJoin("user.role", "role")
         .select(["user.email"])
+        .select(["user.id"])
         .where("role.roleName = :roleName", { roleName })
         .getMany();
 
@@ -218,7 +229,7 @@ class UserDAL {
       // get user by email
       const user = userRepository.findOne({
         where: { email: email },
-        relations: ["role", "permissions"],
+        relations: ["role", "permissions", "teams_access"],
       });
 
       // return user
@@ -311,6 +322,53 @@ class UserDAL {
     }
     await tokenRepository.update(result.id, { isRevoked: true });
     return result;
+  }
+
+  static async sendChangePasswordAlertByEmail(type, email) {
+    const connection = await getConnection();
+    const userRepository = connection.getRepository(User);
+    const user = await this.getUserByEmail(email);
+    const resetToken = await jwt.sign(user.id, process.env.JWT_SECRET);
+
+    user.verificationCode = (await generateVerificationCode()).code;
+    user.passwordChangeToken = resetToken;
+    user.tokenExpirationTime = (await generateVerificationCode()).expiresAt;
+
+    const result = await userRepository.create(user);
+    await userRepository.save(result);
+    await sendEmail(
+      process.env.SYSTEM_EMAIL,
+      email,
+      "[IE Networks Solutions] Password Reset E-mail",
+      `<h2>Hello ${user.first_name} ${user.last_name}, ${type == "client" ? "[Client]" : "[Employee]"}</h2>
+      <p> You're receiving this e-mail because you or someone else has requested a password reset for your user account.</p>
+      <h4>Click the link below to reset your password:</h4>
+    <a href="http://172.16.32.114:5173/verification/${user.id}">Click here to change your default password</a>
+    <p> Your verification code is <strong> ${user.verificationCode}</strong></p>
+       <p>Verification Code will expire at:<strong> ${(await generateVerificationCode()).expiresAt.toString()}</strong></p>
+       <p>This is your new password :<strong> ${(await generateRandomPassword(8, true, true, true, true))}</strong></p>
+       <p>If you did not request a password reset you can safely ignore this email.</p?
+    <p>Thank you!</p>`,
+      "Chage password"
+    );
+    return user;
+  }
+
+  static async sendChangePasswordRequest(id, body) {
+    const connecition = getConnection();
+    const userRepository = await connecition.getRepository(User);
+    const newPassword = await bcrypt.hash(body.newPassword, 10);
+    return await userRepository.update(
+      {
+        id: id
+      },
+      {
+        password: newPassword,
+        passwordChangeToken: null,
+        verificationCode: null,
+        password_changed: true
+      }
+    );
   }
 }
 

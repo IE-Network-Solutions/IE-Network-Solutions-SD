@@ -14,6 +14,6 @@ exports.createClientValidator = joi.object({
 exports.createTicketValidator = joi.object({
   subject: joi.string().required(),
   description: joi.string().required(),
-  priority_id: joi.string().guid({ version: "uuidv4" }).required(),
+  // priority_id: joi.string().guid({ version: "uuidv4" }).required(),
   type_id: joi.string().guid({ version: "uuidv4" }).required(),
 });

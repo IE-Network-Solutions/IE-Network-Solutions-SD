@@ -22,6 +22,7 @@ router
 router
   .route('/junk/:id')
   .get(TicketController.getJunkTicket)
+
   .post( authorize,TicketController.transferJunkTicketToTicket)
   .delete(uuidValidator, TicketController.deleteJunkTicket);
 
@@ -37,7 +38,6 @@ router
   .route("/")
   .post(
     authorize,
-    permissionMiddleware(["create-ticket"]),
     validate(createTicketValidator),
     TicketController.createNewTicket
   );
@@ -75,7 +75,6 @@ router.route("/getAllTickets/ForCurrentLoggedInUser").get(
   TicketController.getAllTicketsForCurrentLoggedInUser
 );
 
-
 router
   .route("/getAllTickets/groupByTeam")
   .get(
@@ -89,5 +88,12 @@ router
       authorize,
       TicketController.getAllTicketsForCompany
     )
+
+router
+  .route("/getAgentStatusForTeamById/:id")
+  .get(
+    authorize,
+    TicketController.getAgentStatusForTeamById
+  );
 
 module.exports = router;

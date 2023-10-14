@@ -9,7 +9,7 @@ class TodoDal {
   static async getAllTodo() {
     try {
       // get connection from the pool 
-      const connection = await getConnection(); 
+      const connection = await getConnection();
 
       // create a bridg 
       const todoRepository = await connection.getRepository(Todo);

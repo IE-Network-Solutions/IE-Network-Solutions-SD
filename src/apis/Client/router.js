@@ -42,6 +42,15 @@ clientRouter
   );
 clientRouter
   .route("/:id")
-  .delete(uuidValidator, authorize, ClientController.deleteClient);
+  .delete(authorize, uuidValidator, ClientController.deleteClient);
+
+clientRouter.route("/tickets/getAllClientTicketsByAdmin").
+  get(authorize, ClientController.getAllClientTicketsByAdmin);
+
+clientRouter.route("/tickets/getClientTicketById/:id").
+  get(authorize, ClientController.getClientTicketById);
+
+clientRouter.route("/tickets/assignClientTicketToTeamByAdmin/:id").
+  post(authorize, ClientController.assignClientTicketToTeamByAdmin);
 
 module.exports = clientRouter;

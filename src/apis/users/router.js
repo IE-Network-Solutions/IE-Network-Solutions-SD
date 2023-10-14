@@ -15,7 +15,7 @@ const { uploadOptions } = require("../../../utils/imageUpload");
 
 const permissionMiddleware = require("../../middlewares/permission.middleware");
 
-router.route("/").get(authorize, permissionMiddleware(['view-users']), UserController.getAllUsers);
+router.route("/").get(authorize, UserController.getAllUsers);
 router
   .route("/user-data")
   .get(
@@ -24,14 +24,14 @@ router
     UserController.getLoggedUserData
   );
 
-router.route("/:id").get(authorize, permissionMiddleware(['view-user']), uuidValidator, UserController.getOneUser);
+router.route("/:id").get(uuidValidator, UserController.getOneUser);
 
 router
   .route("/")
   .post(uploadOptions.single("user_profile"), UserController.createUser);
 
 router.route("/:id").patch(
-  authorize, permissionMiddleware(['update-user']), uuidValidator, uploadOptions.single("user_profile"), UserController.editUser);
+  authorize, uuidValidator, uploadOptions.single("user_profile"), UserController.editUser);
 router
   .route("/change-password/:id")
   .patch(authorize, permissionMiddleware(['change-user-password']), uuidValidator, validate(change_password), UserController.editPassword);
@@ -39,7 +39,7 @@ router
 router
   .route("/:id")
   .delete(
-    authorize, permissionMiddleware(['delete-user']), uuidValidator, UserController.deleteUser);
+    authorize, uuidValidator, UserController.deleteUser);
 router
   .route("/deleteAllUsers/:id")
   .delete(authorize, permissionMiddleware(['delete-users']), uuidValidator, UserController.deleteAllUsers);
@@ -55,5 +55,8 @@ router
 router.route("/logout").post(authorize, UserController.logout);
 
 router.route("/team-access/:id").post(authorize, UserController.teamAccess);
+router.route("/sendChangePasswordAlertByEmail").post(authorize, UserController.sendChangePasswordAlertByEmail);
+router.route("/sendChangePasswordRequest/:id").patch(UserController.sendChangePasswordRequest);
+router.route("/checkVerificationCode").post(authorize, UserController.checkVerificationCode);
 
 module.exports = router;

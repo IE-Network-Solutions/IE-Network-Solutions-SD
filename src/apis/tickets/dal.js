@@ -9,6 +9,7 @@ const TicketUser = require("../../models/TicketUser");
 const Type = require("../../models/Type");
 const UserDAL = require("../users/dal");
 const JunkTicket = require("../../models/JunkTicket");
+const TeamUser = require("../../models/TeamUser");
 const ClientDAL = require("../Client/dal");
 const teamDAL = require("../team/dal");
 const PriorityDAL = require("../priority/dal");
@@ -185,6 +186,8 @@ class TicketDAL {
           "comments.is_escalation",
           "comments.created_at",
           "comments.updated_at",
+          "team_lead.id",
+          "team_lead.first_name",
         ])
         .where("ticket.id = :id", { id })
         .andWhere("ticket.is_deleted = :is_deleted", { is_deleted })
@@ -332,7 +335,7 @@ class TicketDAL {
       const ticketRepository = connection.getRepository(Ticket);
 
       // create ticket
-      const newTicket = await ticketRepository.create({
+      const newTicket = ticketRepository.create({
         id,
         status,
         description,
@@ -346,9 +349,8 @@ class TicketDAL {
         company: company,
         created_by: created_by,
       });
-      await ticketRepository.save(newTicket);
+      return await ticketRepository.save(newTicket);
 
-      return newTicket;
     } catch (error) {
       throw error;
     }
@@ -612,7 +614,7 @@ class TicketDAL {
     // create bridge to the db
     const ticketRepository = connection.getRepository(Ticket);
 
-    const data = ticketRepository
+    const data = await ticketRepository
       .createQueryBuilder("ticket")
       .leftJoin("ticket.team", "team")
       .select([
@@ -627,13 +629,13 @@ class TicketDAL {
     return data;
   }
 
-  // assigned tickets for logged in user status not closed
+  // assigned tickets for logged in user status not closed 
   static async getAssignedTickets(userId) {
+
     const connection = getConnection();
     const name = "Closed";
     const userRepository = connection.getRepository(User);
     const ticketRepository = connection.getRepository(Ticket);
-
     const userTasks = await userRepository
       .createQueryBuilder("user")
       .leftJoin("user.assigned_tickets", "ticket")
@@ -649,9 +651,28 @@ class TicketDAL {
       .where("status.type != :name", { name: name })
       .andWhere("user.id = :id", { id: userId })
       .getRawMany();
+    console.log(userTasks, "ooooooooooooo")
 
     return userTasks;
   }
+
+  static async getAgentStatusForTeamById(teamId) {
+    const connection = getConnection();
+    const userTeamRepository = await connection.getRepository(TeamUser);
+    const teamUser = await userTeamRepository.find({ where: { team_id: teamId } });
+    return teamUser;
+  }
+
+  static async getTicketUserByUserId(userId) {
+
+    const connection = getConnection();
+    const ticketUserRepository = await connection.getRepository(TicketUser);
+    const ticketUser = await ticketUserRepository.find({
+      where: { user_id: userId }, relations: ["ticket.ticket_status","user"], groupBy: "ticket.ticket_status.type"
+    });
+    return ticketUser;
+  }
+
   static async getAllTicketsForCompany(userId){
     try {
       // const user = UserDAL.getOneUser(userId)
@@ -664,5 +685,7 @@ class TicketDAL {
     }
   }
 }
+
+
 
 module.exports = TicketDAL;

@@ -8,7 +8,7 @@ class PermissionSeederDAl {
         const connection = getConnection();
         const permissionRepository = connection.getRepository(Permission);
         try {
-            await permissionRepository.insert(permissionConstants);
+            return await permissionRepository.insert(permissionConstants);
         }
         catch (error) {
             return error;

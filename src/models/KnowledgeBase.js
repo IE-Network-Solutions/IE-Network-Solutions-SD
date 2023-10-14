@@ -11,17 +11,11 @@ const KnowledgeBase = new EntitySchema({
     title: {
       type: "varchar",
     },
-    category: {
-      type: "varchar",
-    },
     description: {
       type: "text",
     },
     createdBy: {
       nullable: false,
-      type: "varchar"
-    },
-    image: {
       type: "varchar"
     },
     catagoryId: {
@@ -46,7 +40,7 @@ const KnowledgeBase = new EntitySchema({
       },
     },
 
-    catagoryId: {
+    catagory: {
       type: "many-to-one",
       target: "Catagory",
       joinColumn: {

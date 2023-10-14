@@ -6,77 +6,77 @@ const Role = require('../../models/Role');
 const User = require('../../models/User');
 const UserPermission = require('../../models/UserPermissions');
 class UserPermissonDAL {
-    static async getAllUserPermission(){
-        try{
+    static async getAllUserPermission() {
+        try {
             const connection = await getConnection();
             const UserPermissionRepo = await connection.getRepository(UserPermission);
-            return await UserPermissionRepo.find({relations : ['permission']});
+            return await UserPermissionRepo.find({ relations: ['permission'] });
 
-        }catch(error){
+        } catch (error) {
             throw error;
         }
     }
-    
-    static async getUserPermissionById( id){
-        try{
+
+    static async getUserPermissionById(id) {
+        try {
             const connecition = await getConnection();
             const UserPermissionRepo = await connecition.getRepository(UserPermission);
-            return await UserPermissionRepo.find( { where : { user_id : id }, relations : ['permission'] });
-        }catch(error){
+            return await UserPermissionRepo.find({ where: { user_id: id }, relations: ['permission'] });
+        } catch (error) {
             console.log(error)
             throw error
         }
     }
-    static async deleteUserPermissionById(id){
-        try{
+    static async deleteUserPermissionById(id) {
+        try {
             const conneciton = await getConnection();
             const UserPermissionRepo = await conneciton.getRepository(UserPermissonDAL);
-            const permission = UserPermissionRepo.find({where : {pemission_id:id}});
-            if(!permission){
+            const permission = UserPermissionRepo.find({ where: { pemission_id: id } });
+            if (!permission) {
                 return;
             }
             return await UserPermissionRepo.remove(permission);
-        }catch(error){
+        } catch (error) {
 
         }
     }
 
-    static async assignPermissionToUser(userId, permissionId){
-        try{
+    static async assignPermissionToUser(userId, permissionId) {
+        try {
             const connection = await getConnection();
 
             const userRepo = await connection.getRepository(User);
-            const user =  await userRepo.findOne({where : { id: userId }});
+            const user = await userRepo.findOne({ where: { id: userId } });
 
             const permissionRepo = await connection.getRepository(Permission);
             const permissionList = await permissionRepo.findByIds(permissionId);
 
             const UserPermissionRepo = await connection.getRepository(UserPermission);
             const userPermission = permissionList.map((permission) => {
-                const assignedPermission =  UserPermissionRepo.create({
+                const assignedPermission = UserPermissionRepo.create({
                     user: user,
                     permission,
                 })
                 return assignedPermission;
-        })
-           return await UserPermissionRepo.save(userPermission);
-        }catch(error){
+            })
+            return await UserPermissionRepo.save(userPermission);
+        } catch (error) {
             throw error;
         }
     }
 
-    static async updateUserPermissionById(id, userpermission){
-        try{
-                const connection = await getConnection();
-                const PermissionRepo = await connection.getRepository(Permission);
-                const data = await PermissionRepo.findOne({where : {id :id}});
-                const permission = await PermissionRepo.merge(data, userpermission)
-                return await PermissionRepo.save(permission);
+    static async updateUserPermissionById(id, userpermission) {
+        try {
+            const connection = await getConnection();
+            const PermissionRepo = await connection.getRepository(Permission);
+            const data = await PermissionRepo.findOne({ where: { id: id } });
+            const permission = await PermissionRepo.merge(data, userpermission)
+            return await PermissionRepo.save(permission);
         }
-        catch(error){
+        catch (error) {
 
         }
-}
+    }
 }
 
 module.exports = UserPermissonDAL;

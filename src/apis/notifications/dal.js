@@ -11,7 +11,8 @@ class NotificationDAL {
             const notificationRepository = connection.getRepository(Notification);
 
             // Get Data
-            const notes = await notificationRepository.find();
+            const notes = await notificationRepository.find({ relations: ["created_by"] });
+            console.log("user", notes)
             return notes;
         } catch (error) {
             throw error;
@@ -26,7 +27,7 @@ class NotificationDAL {
             const notificationRepository = connection.getRepository(Notification);
 
             // Get Data
-            const notes = await notificationRepository.findBy({type: "User"});
+            const notes = await notificationRepository.findBy({ type: "user" });
             return notes;
         } catch (error) {
             throw error;
@@ -41,7 +42,7 @@ class NotificationDAL {
             const notificationRepository = connection.getRepository(Notification);
 
             // Get Data
-            const notes = await notificationRepository.findBy({type: "System"});
+            const notes = await notificationRepository.findBy({ type: "system" });
             return notes;
         } catch (error) {
             throw error;
@@ -57,7 +58,7 @@ class NotificationDAL {
             const notificationRepository = connection.getRepository(Notification);
 
             // Get Data
-            const foundNotification = await notificationRepository.findBy({ id: id });
+            const foundNotification = await notificationRepository.findOne({ where: { id: id } });
             return foundNotification;
         } catch (error) {
             throw error;
@@ -65,17 +66,23 @@ class NotificationDAL {
     }
 
     // Create New Notification
-    static async createNotification(data, isFromSystem, userID) {
+    static async createNotification(body) {
+
         try {
-            // Create Notification Object
-            const notification = data;
-            
-            // Form Connection
+            // console.log(body.to, "ddgdgd")
             const connection = getConnection();
             const notificationRepository = connection.getRepository(Notification);
-
-            // Create Notification
-            const newNotification = await notificationRepository.create(notification);
+            const newNotification = notificationRepository.create({
+                title: body.title,
+                from: body.from,
+                to: body.to,
+                message: body.message,
+                type: body.type,
+                isRead: body.isRead,
+                created_at: body.created_at,
+                created_by: body.created_by
+            });
+            console.log(newNotification.to, "ddgdgdsl")
             await notificationRepository.save(newNotification);
             return newNotification;
         } catch (error) {
@@ -89,11 +96,8 @@ class NotificationDAL {
             // Form Connection
             const connection = getConnection();
             const notificationRepository = connection.getRepository(Notification);
-
             // Delete Notification
-            const deletedUser = await notificationRepository.delete({ id: id });
-
-            return "Notification Deleted Successfully!";
+            return await notificationRepository.delete({ id: id });
         } catch (error) {
             throw error;
         }
@@ -115,6 +119,14 @@ class NotificationDAL {
         } catch (error) {
             throw error;
         }
+    }
+    static async updateNotificationById(id, body) {
+        const connection = getConnection();
+        const notificationRepository = connection.getRepository(Notification);
+        const notification = await notificationRepository.findOne({ where: { id: id } });
+        const result = notificationRepository.merge(notification, body);
+        return await notificationRepository.save(result);
+
     }
 
 }

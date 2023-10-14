@@ -9,6 +9,10 @@ const TicketUser = require("../../models/TicketUser");
 const Type = require("../../models/Type");
 const UserDAL = require("../users/dal");
 const JunkTicket = require("../../models/JunkTicket");
+const ClientDAL = require("../Client/dal");
+const teamDAL = require("../team/dal");
+const PriorityDAL = require("../priority/dal");
+const TypeDAL = require("../type/dal");
 
 class TicketDAL {
   static async getAllTickets() {
@@ -240,30 +244,54 @@ class TicketDAL {
     } catch (error) {
       throw error;
     }
-  }
-  static async transferJunkToTicker(data, id) {
+  } 
+  static async transferJunkToTicker(data, id ,user_id) {
     try {
-      // get connection from the pool
+      // Get a connection from the pool
       const connection = getConnection();
-
-      // create bridge
+  
+      // Create a bridge to the JunkTicket entity
       const junkTicketRepository = connection.getRepository(JunkTicket);
-
-      const ticket = await junkTicketRepository.findOneBy({ id: id });
-      console.log(ticket);
-      if (!ticket) {
-        throw new Error("Junk Ticket is Not Found with the provided id");
+  
+      // Find the ticket by its ID
+      const ticket = await junkTicketRepository.findOneBy({id } );
+  
+      if (ticket) {
+        ticket.isTransfered = true;
+  
+        // Save the updated ticket
+        const updatedTicket = await junkTicketRepository.save(ticket);
+        console.log("UPdated",updatedTicket);
+        
+        const client =await ClientDAL.getClientById(data.client_id)
+        const user = await UserDAL.getOneUser(user_id)
+        const team = await teamDAL.getTeam(data.team_id)
+        const priority = await PriorityDAL.getPriority(data.priority_id)
+        // const type = await TypeDAL.getOneType(data.type_id)
+     
+        const newT = 
+          {
+            "subject": updatedTicket.subject,
+             "description": updatedTicket.body||"No Description",
+            ticket_priority: priority,
+            team : team,
+            // ticket_type: type,
+            created_by:user,
+            client:client
+        }       
+        console.log(data);
+  
+        const transfer =  await this.createNewTicket(newT)
+  
+        return { updateTicket: updatedTicket, transfer: transfer };
+      } else {
+        throw new Error(`Ticket with ID ${id} not found`);
       }
-
-      junkTicketRepository.merge(ticket, { ...ticket, isTransfered: true });
-      const updatedJunk = await junkTicketRepository.save(ticket);
-
-      const transfer = await this.createNewTicket(data);
-      return { transfer, updatedJunk };
     } catch (error) {
       throw error;
     }
   }
+  
 
   static async deleteJunkTicket(id) {
     try {
@@ -623,6 +651,17 @@ class TicketDAL {
       .getRawMany();
 
     return userTasks;
+  }
+  static async getAllTicketsForCompany(userId){
+    try {
+      // const user = UserDAL.getOneUser(userId)
+
+      // console.log(user);
+      
+      
+    } catch (error) {
+      throw error
+    }
   }
 }
 

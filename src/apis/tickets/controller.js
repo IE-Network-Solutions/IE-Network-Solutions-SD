@@ -115,10 +115,11 @@ exports.transferJunkTicketToTicket=async(req,res,next)=>{
     if(!junk){
       return next(new AppError("Junk Ticket to update Failed!"));
     }
-    const {transfer , updatedJunk} = await TicketDAL.transferJunkToTicker(req.body , id)
-    if(!transfer){
-      return next(new AppError("Failed to Transfer junk ticket to ticket, try agian!"));
-    }
+
+    const aa = await TicketDAL.transferJunkToTicker(req.body , id ,req.user.id)
+    // if(!transfer){
+    //   return next(new AppError("Failed to Transfer junk ticket to ticket, try agian!"));
+    // }
   //  const email = await sendEmail("form" , "to" , "dskf" , "kdsfj" , "dkjf" , "dklfj")
     // console.log("email",req.body);
     // console.log(
@@ -128,7 +129,7 @@ exports.transferJunkTicketToTicket=async(req,res,next)=>{
 
     res.status(200).json({
       status: "Success",
-      data: [{"transfered":{ transfer} ,"Junk Ticket":updatedJunk}],
+      data: aa.updateTicket,
     });
   } catch (error) {
     throw error
@@ -500,14 +501,6 @@ exports.getAllTicketsForCurrentLoggedInUser = async (req, res, next) => {
       userTicket: ticketsForCurrentLoggedInUser,
       listOfTicketsByAgent: listOfTicketsByAgent,
       groupedTeam: groupedTeam
-    // Filter tickets where the createdBy field's id matches the current user's id.
-    // const ticketsForCurrentLoggedInUser = allTickets.filter(
-    //   (ticket) => ticket.created_by.id === currentLoggedInUser.id
-    // );
-    // res.status(200).json({
-    //   status: "Success",
-    //   userInfo: currentLoggedInUser,
-    //   userTicket: ticketsForCurrentLoggedInUser,
     });
   } catch (error) {
     next(error);
@@ -582,3 +575,19 @@ exports.getAssignedTicketsForLoggedinUser = async (req, res, next) => {
     throw error;
   }
 };
+
+
+exports.getAllTicketsForCompany=async(req,res)=>{
+  try {
+   
+    // console.log(req.user.id);
+    // const data = await TicketDAL.getAllTicketsForCompany(userId)
+   
+    res.status(200).json({
+      status: "Success",
+      // data: req.user.id,
+    });
+  } catch (error) {
+    throw error;
+  }
+}

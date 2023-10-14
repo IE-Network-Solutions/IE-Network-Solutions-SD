@@ -501,7 +501,6 @@ exports.getAllTicketsForCurrentLoggedInUser = async (req, res, next) => {
       userTicket: ticketsForCurrentLoggedInUser,
       listOfTicketsByAgent: listOfTicketsByAgent,
       groupedTeam: groupedTeam
-    // Filter tickets where the createdBy field's id matches the current user's id.
     });
   } catch (error) {
     next(error);

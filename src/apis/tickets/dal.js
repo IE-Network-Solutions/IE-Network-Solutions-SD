@@ -195,22 +195,22 @@ class TicketDAL {
       throw error;
     }
   }
-  static async getAllJunkTickets(){
+  static async getAllJunkTickets() {
     try {
-        // get connection from the pool
-        const connection = await getConnection();
+      // get connection from the pool
+      const connection = await getConnection();
 
-        // create a bridge between the entity and the database
-        const ticketRepository = await connection.getRepository(JunkTicket);
-  
-        // get data
-        return await ticketRepository.find();
+      // create a bridge between the entity and the database
+      const ticketRepository = await connection.getRepository(JunkTicket);
+
+      // get data
+      return await ticketRepository.find();
     } catch (error) {
-      throw error
+      throw error;
     }
   }
 
-  static async getAllUnTransferedJunkTickets(){
+  static async getAllUnTransferedJunkTickets() {
     try {
       // get connection from the pool
       const connection = await getConnection();
@@ -220,11 +220,11 @@ class TicketDAL {
 
       // get data
       return await ticketRepository.findBy({
-        isTransfered:false
+        isTransfered: false,
       });
-  } catch (error) {
-    throw error
-  }
+    } catch (error) {
+      throw error;
+    }
   }
 
   static async getJunkTicketById(id) {
@@ -293,17 +293,17 @@ class TicketDAL {
   }
   
 
-  static async deleteJunkTicket(id){
+  static async deleteJunkTicket(id) {
     try {
-       // get connection from the pool
-    const connection = getConnection();
+      // get connection from the pool
+      const connection = getConnection();
 
-    // create bridge
-    const junkTicketRepository = connection.getRepository(JunkTicket);
+      // create bridge
+      const junkTicketRepository = connection.getRepository(JunkTicket);
 
-    return await junkTicketRepository.delete(id);
+      return await junkTicketRepository.delete(id);
     } catch (error) {
-      throw error
+      throw error;
     }
   }
   //This method implements to create new ticket
@@ -595,10 +595,11 @@ class TicketDAL {
     try {
       const connection = await getConnection();
       const userTicketRepository = await connection.getRepository(TicketUser);
-      const result = await userTicketRepository.find({ where: { user_id: userId } })
+      const result = await userTicketRepository.find({
+        where: { user_id: userId },
+      });
       // console.log("result", result)
       return result;
-
     } catch (error) {
       throw error;
     }
@@ -637,7 +638,14 @@ class TicketDAL {
       .createQueryBuilder("user")
       .leftJoin("user.assigned_tickets", "ticket")
       .leftJoin("ticket.ticket_status", "status")
-      .select(["user.id", "ticket.id", "ticket.subject", "ticket.description"])
+      .select([
+        "user.id",
+        "user.first_name",
+        "user.last_name",
+        "ticket.id",
+        "ticket.subject",
+        "ticket.description",
+      ])
       .where("status.type != :name", { name: name })
       .andWhere("user.id = :id", { id: userId })
       .getRawMany();

@@ -257,8 +257,6 @@ class TicketDAL {
       const ticket = await junkTicketRepository.findOneBy({id } );
   
       if (ticket) {
-        // Update the ticket with the new data
-        junkTicketRepository.merge(ticket, data);
         ticket.isTransfered = true;
   
         // Save the updated ticket
@@ -269,21 +267,21 @@ class TicketDAL {
         const user = await UserDAL.getOneUser(user_id)
         const team = await teamDAL.getTeam(data.team_id)
         const priority = await PriorityDAL.getPriority(data.priority_id)
-        const type = await TypeDAL.getOneType(data.type_id)
+        // const type = await TypeDAL.getOneType(data.type_id)
      
-        const ddddd = 
+        const newT = 
           {
             "subject": updatedTicket.subject,
              "description": updatedTicket.body||"No Description",
             ticket_priority: priority,
             team : team,
-            ticket_type: type,
+            // ticket_type: type,
             created_by:user,
             client:client
         }       
         console.log(data);
   
-        const transfer =  await this.createNewTicket(ddddd)
+        const transfer =  await this.createNewTicket(newT)
   
         return { updateTicket: updatedTicket, transfer: transfer };
       } else {
@@ -645,6 +643,17 @@ class TicketDAL {
       .getRawMany();
 
     return userTasks;
+  }
+  static async getAllTicketsForCompany(userId){
+    try {
+      // const user = UserDAL.getOneUser(userId)
+
+      // console.log(user);
+      
+      
+    } catch (error) {
+      throw error
+    }
   }
 }
 

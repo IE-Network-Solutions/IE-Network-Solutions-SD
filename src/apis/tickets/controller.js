@@ -129,7 +129,7 @@ exports.transferJunkTicketToTicket=async(req,res,next)=>{
 
     res.status(200).json({
       status: "Success",
-      data: aa,
+      data: aa.updateTicket,
     });
   } catch (error) {
     throw error
@@ -576,3 +576,19 @@ exports.getAssignedTicketsForLoggedinUser = async (req, res, next) => {
     throw error;
   }
 };
+
+
+exports.getAllTicketsForCompany=async(req,res)=>{
+  try {
+   
+    // console.log(req.user.id);
+    // const data = await TicketDAL.getAllTicketsForCompany(userId)
+   
+    res.status(200).json({
+      status: "Success",
+      // data: req.user.id,
+    });
+  } catch (error) {
+    throw error;
+  }
+}

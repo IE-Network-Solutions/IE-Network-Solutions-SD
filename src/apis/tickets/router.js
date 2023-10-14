@@ -82,5 +82,11 @@ router
     permissionMiddleware(["view-grouped-ticket-by-team"]),
     TicketController.groupAllTicketsByTeamAndGet
   );
+  router
+    .route('/companyticket')
+    .get(
+      authorize,
+      TicketController.getAllTicketsForCompany
+    )
 
 module.exports = router;

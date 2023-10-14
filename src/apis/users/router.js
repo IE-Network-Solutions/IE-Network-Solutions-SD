@@ -15,7 +15,7 @@ const { uploadOptions } = require("../../../utils/imageUpload");
 
 const permissionMiddleware = require("../../middlewares/permission.middleware");
 
-router.route("/").get(authorize, permissionMiddleware(['view-users']), UserController.getAllUsers);
+router.route("/").get(authorize, UserController.getAllUsers);
 router
   .route("/user-data")
   .get(

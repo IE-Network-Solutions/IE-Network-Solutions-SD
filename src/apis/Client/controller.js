@@ -10,6 +10,7 @@ const teamDAL = require("../team/dal");
 const generateRandomPassword = require("../../../utils/generateRandomPassword");
 const UserDAL = require("../users/dal");
 const { sendEmailNotification } = require("../../../utils/sendNotification");
+const NotificationDAL = require("../notifications/dal");
 
 exports.allClients = async (req, res, next) => {
   try {
@@ -155,8 +156,10 @@ exports.createNewTicket = async (req, res, next) => {
     const data = req.body;
     const user = req.user;
 
-    const admin = await UserDAL.getAllAdmins();
+    const admins = await UserDAL.getAllAdmins();
 
+    const to = admins[0].id;
+    const from = req.user.id;
     if (user.user_type != "client") {
       return next(new AppError("unauthorized user", 500));
     }
@@ -199,11 +202,27 @@ exports.createNewTicket = async (req, res, next) => {
 
     //   create new ticket
     const newTicket = await ClientDAL.createTicket(data);
-    await sendEmailNotification(
-      req.user.email,
-      process.env.SYSTEM_EMAIL,
-      "[IE Networks Solutions] Email is sent by the client for new Ticket",
-      `Hello Admin,
+
+    admins.map((admin) => (
+      NotificationDAL.createNotification({
+        title: "Creating ticket",
+        from: from,
+        to: admin.id,
+        message: `Ticket created with the subject of: ${newTicket?.subject} and ticket id is ${newTicket.id}`,
+        type: "user",
+        isRead: false,
+        created_at: new Date(),
+        created_by: req.user.id
+      }
+      )
+    )),
+
+
+      await sendEmailNotification(
+        req.user.email,
+        process.env.SYSTEM_EMAIL,
+        "[IE Networks Solutions] Email is sent by the client for new Ticket",
+        `Hello Admin,
       Ticket details:
       Ticket id: ${newTicket.id}
       Subject: ${newTicket.subject}
@@ -211,8 +230,8 @@ exports.createNewTicket = async (req, res, next) => {
       Created At: ${newTicket.created_at}
       Ticket type: ${newTicket.ticket_type.type}
       Thank you!`,
-      "Change password"
-    );
+        "Change password"
+      );
     res.status(201).json({
       status: "new Ticket is created Successfully",
       data: newTicket,
@@ -259,6 +278,14 @@ exports.assignClientTicketToTeamByAdmin = async (req, res, next) => {
     const teamsId = req.body.teams;
     const ticketId = req.params.id;
 
+    console.log(teamsId[0], "sl tem")
+
+
+    const currentLoggedInUser = req.user;
+    const allAdmin = await UserDAL.getAllAdmins();
+    const currentLoggedInAdmin = allAdmin.filter(admin => admin?.id === currentLoggedInUser.id);
+
+
     if (roleName.roleName != "Admin") {
       return next(new AppError("You have not a role to assign client ticket to team", 400))
     }
@@ -274,11 +301,38 @@ exports.assignClientTicketToTeamByAdmin = async (req, res, next) => {
       }
     })
     const result = await ClientDAL.assignClientTicketToTeamByAdmin(ticketId, teamsId)
+    console.log("teams", teamsId)
+    teamsId.map((team) => (
 
-    res.status(200).json({
-      message: "Success",
-      data: result
-    })
+      NotificationDAL.createNotification({
+        title: "Assign client to team",
+        from: currentLoggedInUser.id,
+        to: team,
+        message: `Ticket is assigned by admin to : ${team} and team id is ${team}`,
+        type: "user",
+        isRead: false,
+        created_at: new Date(),
+        created_by: req.user.id
+      }
+
+      )
+
+    )),
+      // await NotificationDAL.createNotification({
+      //   title: "Assign client ticket to team by admin",
+      //   from: currentLoggedInAdmin.email,
+      //   to: teamsId,
+      //   message: "This notification is created from admin when the admin assign client ticket to team",
+      //   type: "user",
+      //   isRead: false,
+      //   created_at: new Date(),
+      //   created_by: req.user.id
+      // }
+      // )
+      res.status(200).json({
+        message: "Success",
+        data: result
+      })
 
   } catch (error) {
     return res.status(500).json(next(new AppError(error, 500)))

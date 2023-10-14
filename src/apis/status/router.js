@@ -12,7 +12,7 @@ router.route("/:id").get(authorize, uuidValidator, StatusController.getStatus);
 
 router
   .route("/")
-  .post(authorize, permissionMiddleware(['create-ticket-status']), validate(statusValidator), StatusController.createStatus);
+  .post(authorize, validate(statusValidator), StatusController.createStatus);
 
 router.route("/").patch(authorize, permissionMiddleware(['update-ticket-status']), StatusController.editStatus);
 

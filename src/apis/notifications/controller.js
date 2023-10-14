@@ -14,16 +14,17 @@ exports.introduction = async (req, res, next) => {
 
 exports.getAllNotifications = async (req, res, next) => {
     try {
+        const currentLoggedInUser = req.user;
         // Get All Notifications
-        const notifications = await NotificationDAL.getAllNotifications();
-        if (!notifications) {
+        const allNotifications = await NotificationDAL.getAllNotifications();
+        if (!allNotifications) {
             return next(new AppError("Notification Not Found", 404))
         }
 
-        // Respond
+        const notificationForCurrentLoggedInUser = allNotifications.filter(notification => notification?.to === currentLoggedInUser.id);
         res.status(200).json({
             status: "Success",
-            data: notifications,
+            data: notificationForCurrentLoggedInUser,
         });
     } catch (error) {
         throw error;
@@ -31,7 +32,6 @@ exports.getAllNotifications = async (req, res, next) => {
 }
 
 exports.getAllUserNotifications = async (req, res, next) => {
-    console.log("USER");
     try {
         // Get All User Notifications
         let notifications = await NotificationDAL.getAllUserNotifications();

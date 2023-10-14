@@ -82,6 +82,7 @@ class UserDAL {
         .createQueryBuilder("user")
         .leftJoin("user.role", "role")
         .select(["user.email"])
+        .select(["user.id"])
         .where("role.roleName = :roleName", { roleName })
         .getMany();
 

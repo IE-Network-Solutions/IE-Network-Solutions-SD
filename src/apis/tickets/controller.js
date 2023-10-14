@@ -11,6 +11,9 @@ const ClientDAL = require("../Client/dal");
 const sendEmail = require("../../../utils/sendEmail");
 const teamDAL = require("../team/dal");
 const { sendEmailNotification } = require("../../../utils/sendNotification");
+const NotificationDAL = require("../notifications/dal");
+const TeamUser = require("../../models/TeamUser");
+const { forEach } = require("../../../utils/permissionConstants");
 
 /**
  *
@@ -177,12 +180,15 @@ exports.createNewTicket = async (req, res, next) => {
     const data = req.body;
     const created_by = req.user;
     data.created_by = created_by;
+    const status = await StatusDAL.getStatusByType("Closed");
+    data.status = status;
 
     const admins = await UserDAL.getAllAdmins();
     // console.log(admins);
 
-    const to = admins.map((admin) => admin.email);
-    const from = req.user.email;
+    // const to = admins[0].id;
+    const from = req.user.id;
+    // console.log("email", to)
     // get type
     const type = await TypeDAL.getOneType(data.type_id);
     if (!type) {
@@ -234,6 +240,18 @@ exports.createNewTicket = async (req, res, next) => {
     }
     //   create new ticket
     const newTicket = await TicketDAL.createNewTicket(data);
+    NotificationDAL.createNotification({
+      title: "Creating ticket",
+      from: from,
+      to: req.body.team_id,
+      message: `Ticket created with the subject of: ${newTicket?.subject} and ticket id is ${newTicket.id}`,
+      type: "user",
+      isRead: false,
+      created_at: new Date(),
+      created_by: req.user.id
+    })
+
+
     await sendEmailNotification(
       req.user.email,
       process.env.SYSTEM_EMAIL,
@@ -368,9 +386,9 @@ exports.assignUserToTicket = async (req, res, next) => {
     }
     const teamLeadId = ticketData.team.team_lead.id;
 
-    if (userId != teamLeadId) {
-      return next(new AppError("you don't have access assigne users for this ticket", 500));
-    }
+    // if (userId != teamLeadId) {
+    //   return next(new AppError("you don't have access assigne users for this ticket", 500));
+    // }
     //   validate uuid
     userIds.map((uuid) => {
       if (!validateUuid(uuid)) {
@@ -388,6 +406,20 @@ exports.assignUserToTicket = async (req, res, next) => {
 
     // assign users
     const ticketUsers = await TicketDAL.assignUsersToTicket(ticketId, userIds);
+    userIds.map((user) => (
+      NotificationDAL.createNotification({
+        title: "Assign agent",
+        from: req.user.id,
+        to: user,
+        message: ` user with id of ${user} is assigned for ${ticketId}`,
+        type: "user",
+        isRead: false,
+        created_at: new Date(),
+        created_by: req.user.id
+      })
+    ))
+
+
 
     res.status(200).json({
       status: "Success",
@@ -592,3 +624,109 @@ exports.getAssignedTicketsForLoggedinUser = async (req, res, next) => {
     throw error;
   }
 };
+
+// exports.getAgentStatusForTeamById = async (req, res, next) => {
+//   try {
+//     const teamId = req.params.id;
+//     const currentLoggedInUser = req.user.role.roleName;
+//     if (currentLoggedInUser != "team-lead") {
+//       return next(new AppError("Unable to see agent status", 400));
+//     }
+
+//     const teamUser = await TicketDAL.getAgentStatusForTeamById(teamId);
+//     const userIds = teamUser.map((user) => { return user.user_id });
+
+//     const result = await TicketDAL.getTicketUserByUserId();
+//     const teamTicket = result.filter(user => user?.user_id === userIds.map(ids => { return ids }));
+//     console.log("result", teamTicket)
+//     // return result;
+//     // });
+
+
+//     // console.log(userTicket, "dfghjk")
+//     // const allTickets = await TicketDAL.getAllTickets();
+//     // const teamTicket = allTickets.filter(ticket => ticket?.team?.id === teamId);
+//     // const groupedUser = teamTicket.reduce((groupedUser, singleUser) => {
+//     //   const userId = singleUser.created_by ? singleUser.created_by.id : "Unassigned";
+//     //   const existingUser = groupedUser.find(item => item.userId === userId);
+
+//     //   if (existingUser) {
+//     //     existingUser.created_by.push(singleUser);
+//     //     existingUser.totalTickets++; // Increment the totalTickets counter
+//     //   } else {
+//     //     groupedUser.push({ userId: userId, totalTickets: 1, created_by: [singleUser] });
+//     //   }
+
+//     //   return groupedUser;
+//     // }, []);
+
+
+//     res.status(200).json({
+//       status: "Success",
+//       teamTicket: teamTicket
+//     });
+//   } catch (error) {
+//     throw error;
+//   }
+// };
+
+exports.getAgentStatusForTeamById = async (req, res, next) => {
+  try {
+    const teamId = req.params.id;
+    const currentLoggedInUser = req.user.role.roleName;
+
+    if (currentLoggedInUser !== "team-lead") {
+      return res.status(400).json({ status: "Error", message: "Unable to see agent status" });
+    }
+
+    const teamUser = await TicketDAL.getAgentStatusForTeamById(teamId);
+    const userIds = teamUser.map((user) => user.user_id);
+
+    let allUserTickets = []
+
+    for (const user of userIds) {
+      const result = await TicketDAL.getTicketUserByUserId(user);
+
+      allUserTickets.push(result);
+    }
+
+    let returnedData = allUserTickets.map(users => {
+      let userCount = { total: users.length }
+
+      if (users.length) {
+        userCount["userDetail"] = users[0].user
+        users.forEach((us) => {
+
+          if (Object.keys(userCount).includes(us.ticket.ticket_status?.type)) {
+            userCount[us.ticket.ticket_status?.type] += 1
+          }
+          else {
+            userCount[us.ticket.ticket_status?.type] = 1
+          }
+        })
+
+
+
+      }
+
+
+      return userCount
+    });
+
+
+
+
+    res.status(200).json({
+      status: "Success",
+      userTicket: returnedData
+    });
+  } catch (error) {
+    console.error(error); // Log the error for debugging
+    res.status(500).json({ status: "Error", message: "Internal Server Error" });
+  }
+}
+
+
+
+
+

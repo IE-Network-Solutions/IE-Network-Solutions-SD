@@ -117,6 +117,17 @@ class StatusDAL {
       throw error;
     }
   }
+
+  static async getStatusByType(open) {
+    try {
+      const connection = getConnection();
+      const statusRepository = connection.getRepository(Status);
+      return await statusRepository.findOne({ where: { type: open } });;
+    } catch (error) {
+      throw error;
+    }
+  }
+
 }
 
 module.exports = StatusDAL;

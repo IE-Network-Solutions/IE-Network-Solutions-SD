@@ -9,6 +9,7 @@ const TicketUser = require("../../models/TicketUser");
 const Type = require("../../models/Type");
 const UserDAL = require("../users/dal");
 const JunkTicket = require("../../models/JunkTicket");
+const TeamUser = require("../../models/TeamUser");
 
 class TicketDAL {
   static async getAllTickets() {
@@ -615,7 +616,7 @@ class TicketDAL {
     return data;
   }
 
-  // assigned tickets for logged in user status not closed
+  // assigned tickets for logged in user status not closed 
   static async getAssignedTickets(userId) {
 
     const connection = getConnection();
@@ -634,6 +635,26 @@ class TicketDAL {
 
     return userTasks;
   }
+
+  static async getAgentStatusForTeamById(teamId) {
+    const connection = getConnection();
+    const userTeamRepository = await connection.getRepository(TeamUser);
+    const teamUser = await userTeamRepository.find({ where: { team_id: teamId } });
+    return teamUser;
+  }
+
+  static async getTicketUserByUserId(userId) {
+
+    const connection = getConnection();
+    const ticketUserRepository = await connection.getRepository(TicketUser);
+    const ticketUser = await ticketUserRepository.find({
+      where: { user_id: userId }, relations: ["ticket.ticket_status","user"], groupBy: "ticket.ticket_status.type"
+    });
+    return ticketUser;
+  }
+
 }
+
+
 
 module.exports = TicketDAL;

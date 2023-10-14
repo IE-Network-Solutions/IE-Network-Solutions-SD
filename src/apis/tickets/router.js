@@ -37,7 +37,6 @@ router
   .route("/")
   .post(
     authorize,
-    permissionMiddleware(["create-ticket"]),
     validate(createTicketValidator),
     TicketController.createNewTicket
   );
@@ -81,6 +80,13 @@ router
     authorize,
     permissionMiddleware(["view-grouped-ticket-by-team"]),
     TicketController.groupAllTicketsByTeamAndGet
+  );
+
+router
+  .route("/getAgentStatusForTeamById/:id")
+  .get(
+    authorize,
+    TicketController.getAgentStatusForTeamById
   );
 
 module.exports = router;

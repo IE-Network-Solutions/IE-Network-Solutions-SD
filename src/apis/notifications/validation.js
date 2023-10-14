@@ -5,6 +5,7 @@ exports.noteValidator = joi.object({
   title: joi.string().required(),
   message: joi.string().required(),
   from: joi.string().email().required(),
+  to: joi.array().required(),
   user_id: joi.string().guid(),
   isRead: joi.boolean().required()
 });

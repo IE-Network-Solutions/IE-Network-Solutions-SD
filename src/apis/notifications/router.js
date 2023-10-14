@@ -27,5 +27,4 @@ router
   .route("/:id")
   .patch(authorize, uuidValidator, NotificationController.updateNotificationById);
 
-
 module.exports = router;

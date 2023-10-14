@@ -11,7 +11,8 @@ class NotificationDAL {
             const notificationRepository = connection.getRepository(Notification);
 
             // Get Data
-            const notes = await notificationRepository.find();
+            const notes = await notificationRepository.find({ relations: ["created_by"] });
+            console.log("user", notes)
             return notes;
         } catch (error) {
             throw error;
@@ -65,11 +66,23 @@ class NotificationDAL {
     }
 
     // Create New Notification
-    static async createNotification(notification) {
+    static async createNotification(body) {
+
         try {
+            // console.log(body.to, "ddgdgd")
             const connection = getConnection();
             const notificationRepository = connection.getRepository(Notification);
-            const newNotification = await notificationRepository.create(notification);
+            const newNotification = notificationRepository.create({
+                title: body.title,
+                from: body.from,
+                to: body.to,
+                message: body.message,
+                type: body.type,
+                isRead: body.isRead,
+                created_at: body.created_at,
+                created_by: body.created_by
+            });
+            console.log(newNotification.to, "ddgdgdsl")
             await notificationRepository.save(newNotification);
             return newNotification;
         } catch (error) {

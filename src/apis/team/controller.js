@@ -36,11 +36,11 @@ exports.createTeam = async (req, res, next) => {
     data.team_lead = team_lead;
 
     // validate department
-    const department = await DepartmentDAL.getDepartment(data.department_id);
-    if (!department) {
-      return next(new AppError("department does not exist"));
-    }
-    data.department = department;
+    // const department = await DepartmentDAL.getDepartment(data.department_id);
+    // if (!department) {
+    //   return next(new AppError("department does not exist"));
+    // }
+    // data.department = department;
 
     // create team
     const team = await teamDAL.createTeam(data);

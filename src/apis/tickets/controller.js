@@ -119,20 +119,26 @@ exports.transferJunkTicketToTicket = async (req, res, next) => {
     if (!junk) {
       return next(new AppError("Junk Ticket to update Failed!"));
     }
-    const { transfer, updatedJunk } = await TicketDAL.transferJunkToTicker(req.body, id)
-    if (!transfer) {
-      return next(new AppError("Failed to Transfer junk ticket to ticket, try agian!"));
-    }
-    //  const email = await sendEmail("form" , "to" , "dskf" , "kdsfj" , "dkjf" , "dklfj")
-    // console.log("email",email);
+
+    const aa = await TicketDAL.transferJunkToTicker(req.body , id ,req.user.id)
+    // if(!transfer){
+    //   return next(new AppError("Failed to Transfer junk ticket to ticket, try agian!"));
+    // }
+  //  const email = await sendEmail("form" , "to" , "dskf" , "kdsfj" , "dkjf" , "dklfj")
+    // console.log("email",req.body);
+    // console.log(
+    //   "Transfered", transfer,
+    //   "Updated Data",
+    //   updatedJunk);
 
     res.status(200).json({
       status: "Success",
-      data: [{ "transfered": { transfer }, "Junk Ticket": updatedJunk }],
+      data: aa.updateTicket,
     });
   } catch (error) {
-
-  }
+    throw error
+    
+     }
 }
 
 
@@ -726,7 +732,17 @@ exports.getAgentStatusForTeamById = async (req, res, next) => {
   }
 }
 
-
-
-
-
+exports.getAllTicketsForCompany=async(req,res)=>{
+  try {
+   
+    // console.log(req.user.id);
+    // const data = await TicketDAL.getAllTicketsForCompany(userId)
+   
+    res.status(200).json({
+      status: "Success",
+      // data: req.user.id,
+    });
+  } catch (error) {
+    throw error;
+  }
+}

@@ -10,6 +10,10 @@ const Type = require("../../models/Type");
 const UserDAL = require("../users/dal");
 const JunkTicket = require("../../models/JunkTicket");
 const TeamUser = require("../../models/TeamUser");
+const ClientDAL = require("../Client/dal");
+const teamDAL = require("../team/dal");
+const PriorityDAL = require("../priority/dal");
+const TypeDAL = require("../type/dal");
 
 class TicketDAL {
   static async getAllTickets() {
@@ -205,7 +209,7 @@ class TicketDAL {
       // get data
       return await ticketRepository.find();
     } catch (error) {
-      throw error
+      throw error;
     }
   }
 
@@ -219,10 +223,10 @@ class TicketDAL {
 
       // get data
       return await ticketRepository.findBy({
-        isTransfered: false
+        isTransfered: false,
       });
     } catch (error) {
-      throw error
+      throw error;
     }
   }
 
@@ -243,38 +247,45 @@ class TicketDAL {
     } catch (error) {
       throw error;
     }
-  }
-  static async transferJunkToTicker(data, id) {
+  } 
+  static async transferJunkToTicker(data, id ,user_id) {
     try {
       // Get a connection from the pool
       const connection = getConnection();
-
+  
       // Create a bridge to the JunkTicket entity
       const junkTicketRepository = connection.getRepository(JunkTicket);
-
+  
       // Find the ticket by its ID
-      const ticket = await junkTicketRepository.findOneBy({ id });
-
+      const ticket = await junkTicketRepository.findOneBy({id } );
+  
       if (ticket) {
-        // Update the ticket with the new data
-        junkTicketRepository.merge(ticket, data);
-        ticket.isTransfered = false;
-
+        ticket.isTransfered = true;
+  
         // Save the updated ticket
         const updatedTicket = await junkTicketRepository.save(ticket);
-
-        const ddddd =
-        {
-          "subject": updatedTicket.subject,
-          "description": updatedTicket.body,
-          "priority_id": data.priority_id,
-          "team_id": data.team_id,
-          "type_id": data.type_id
-        }
+        console.log("UPdated",updatedTicket);
+        
+        const client =await ClientDAL.getClientById(data.client_id)
+        const user = await UserDAL.getOneUser(user_id)
+        const team = await teamDAL.getTeam(data.team_id)
+        const priority = await PriorityDAL.getPriority(data.priority_id)
+        // const type = await TypeDAL.getOneType(data.type_id)
+     
+        const newT = 
+          {
+            "subject": updatedTicket.subject,
+             "description": updatedTicket.body||"No Description",
+            ticket_priority: priority,
+            team : team,
+            // ticket_type: type,
+            created_by:user,
+            client:client
+        }       
         console.log(data);
-
-        const transfer = await this.createNewTicket(ddddd)
-
+  
+        const transfer =  await this.createNewTicket(newT)
+  
         return { updateTicket: updatedTicket, transfer: transfer };
       } else {
         throw new Error(`Ticket with ID ${id} not found`);
@@ -283,6 +294,7 @@ class TicketDAL {
       throw error;
     }
   }
+  
 
   static async deleteJunkTicket(id) {
     try {
@@ -294,7 +306,7 @@ class TicketDAL {
 
       return await junkTicketRepository.delete(id);
     } catch (error) {
-      throw error
+      throw error;
     }
   }
   //This method implements to create new ticket
@@ -585,10 +597,11 @@ class TicketDAL {
     try {
       const connection = await getConnection();
       const userTicketRepository = await connection.getRepository(TicketUser);
-      const result = await userTicketRepository.find({ where: { user_id: userId } })
+      const result = await userTicketRepository.find({
+        where: { user_id: userId },
+      });
       // console.log("result", result)
       return result;
-
     } catch (error) {
       throw error;
     }
@@ -627,7 +640,14 @@ class TicketDAL {
       .createQueryBuilder("user")
       .leftJoin("user.assigned_tickets", "ticket")
       .leftJoin("ticket.ticket_status", "status")
-      .select(["user.id", "ticket.id", "ticket.subject", "ticket.description"])
+      .select([
+        "user.id",
+        "user.first_name",
+        "user.last_name",
+        "ticket.id",
+        "ticket.subject",
+        "ticket.description",
+      ])
       .where("status.type != :name", { name: name })
       .andWhere("user.id = :id", { id: userId })
       .getRawMany();
@@ -653,6 +673,17 @@ class TicketDAL {
     return ticketUser;
   }
 
+  static async getAllTicketsForCompany(userId){
+    try {
+      // const user = UserDAL.getOneUser(userId)
+
+      // console.log(user);
+      
+      
+    } catch (error) {
+      throw error
+    }
+  }
 }
 
 

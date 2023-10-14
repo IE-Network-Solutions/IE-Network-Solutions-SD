@@ -22,7 +22,8 @@ router
 router
   .route('/junk/:id')
   .get(TicketController.getJunkTicket)
-  .post(TicketController.transferJunkTicketToTicket)
+
+  .post( authorize,TicketController.transferJunkTicketToTicket)
   .delete(uuidValidator, TicketController.deleteJunkTicket);
 
 
@@ -81,6 +82,12 @@ router
     permissionMiddleware(["view-grouped-ticket-by-team"]),
     TicketController.groupAllTicketsByTeamAndGet
   );
+  router
+    .route('/companyticket')
+    .get(
+      authorize,
+      TicketController.getAllTicketsForCompany
+    )
 
 router
   .route("/getAgentStatusForTeamById/:id")

@@ -625,51 +625,6 @@ exports.getAssignedTicketsForLoggedinUser = async (req, res, next) => {
   }
 };
 
-// exports.getAgentStatusForTeamById = async (req, res, next) => {
-//   try {
-//     const teamId = req.params.id;
-//     const currentLoggedInUser = req.user.role.roleName;
-//     if (currentLoggedInUser != "team-lead") {
-//       return next(new AppError("Unable to see agent status", 400));
-//     }
-
-//     const teamUser = await TicketDAL.getAgentStatusForTeamById(teamId);
-//     const userIds = teamUser.map((user) => { return user.user_id });
-
-//     const result = await TicketDAL.getTicketUserByUserId();
-//     const teamTicket = result.filter(user => user?.user_id === userIds.map(ids => { return ids }));
-//     console.log("result", teamTicket)
-//     // return result;
-//     // });
-
-
-//     // console.log(userTicket, "dfghjk")
-//     // const allTickets = await TicketDAL.getAllTickets();
-//     // const teamTicket = allTickets.filter(ticket => ticket?.team?.id === teamId);
-//     // const groupedUser = teamTicket.reduce((groupedUser, singleUser) => {
-//     //   const userId = singleUser.created_by ? singleUser.created_by.id : "Unassigned";
-//     //   const existingUser = groupedUser.find(item => item.userId === userId);
-
-//     //   if (existingUser) {
-//     //     existingUser.created_by.push(singleUser);
-//     //     existingUser.totalTickets++; // Increment the totalTickets counter
-//     //   } else {
-//     //     groupedUser.push({ userId: userId, totalTickets: 1, created_by: [singleUser] });
-//     //   }
-
-//     //   return groupedUser;
-//     // }, []);
-
-
-//     res.status(200).json({
-//       status: "Success",
-//       teamTicket: teamTicket
-//     });
-//   } catch (error) {
-//     throw error;
-//   }
-// };
-
 exports.getAgentStatusForTeamById = async (req, res, next) => {
   try {
     const teamId = req.params.id;

@@ -203,7 +203,12 @@ const User = new EntitySchema({
         },
       },
     },
-  },
+    managed_teams: {
+      type: "one-to-many",
+      target: "Team",
+      inverseSide: "team_lead"
+    }
+  }
 });
 
 module.exports = User;

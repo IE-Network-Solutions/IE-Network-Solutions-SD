@@ -28,8 +28,9 @@ exports.createTeam = async (req, res, next) => {
     data.created_by = req.user;
 
     // validate team
-    const team_lead = await UserDAL.getOneUser(data.team_lead_id);
+    const team_lead = await UserDAL.getOneUser(data.teamlead_id);
 
+    console.log("team lead", team_lead)
     if (!team_lead) {
       return next(new AppError("team lead does not exist"));
     }
@@ -76,7 +77,7 @@ exports.deleteTeamById = async (req, res, next) => {
         new AppError("Team with the given id is not found.", 404)
       );
     }
-    await teamDAL.deleteTeamById(id);
+    await teamDAL.deleteTeamById(req.params.id);
     res.status(200).json({
       status: 200,
       message: "Team is successfully deleted"

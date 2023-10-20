@@ -12,9 +12,9 @@ router.route("/:id").get(authorize, uuidValidator, StatusController.getStatus);
 
 router
   .route("/")
-  .post(authorize, validate(statusValidator), StatusController.createStatus);
+  .post(authorize, permissionMiddleware(['create-status']), validate(statusValidator), StatusController.createStatus);
 
-router.route("/").patch(authorize, permissionMiddleware(['update-ticket-status']), StatusController.editStatus);
+router.route("/").patch(authorize, permissionMiddleware(['edit-status']), StatusController.editStatus);
 
 router
   .route("/deleteAllStatuses")
@@ -22,6 +22,6 @@ router
 
 router
   .route("/:id")
-  .delete(authorize, permissionMiddleware(['delete-ticket-status']), uuidValidator, StatusController.deleteStatus);
+  .delete(authorize, permissionMiddleware(['delete-status']), uuidValidator, StatusController.deleteStatus);
 
 module.exports = router;

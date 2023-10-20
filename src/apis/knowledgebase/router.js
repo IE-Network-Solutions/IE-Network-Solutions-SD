@@ -15,11 +15,11 @@ router.route("/")
     .post(authorize, permissionMiddleware(['create-Knowledge-base']), validate(createKnowledgeBaseValidator), uploadOptions.single("image"), knowledgeBaseController.createKnowledgeBase);
 
 router.route("/:id")
-    .patch(authorize, uuidValidator, knowledgeBaseController.updateKnowledgeBaseById)
-    .get(authorize, uuidValidator, knowledgebaseController.getKnowlegeBaseById)
-    .delete(authorize, uuidValidator, knowledgebaseController.deleteKnowledgeBaseById);
+    .patch(authorize, permissionMiddleware(['update-Knowledge-base']), uuidValidator, knowledgeBaseController.updateKnowledgeBaseById)
+    .get(authorize, permissionMiddleware(['view-Knowledge-base']), uuidValidator, knowledgebaseController.getKnowlegeBaseById)
+    .delete(authorize, permissionMiddleware(['delete-Knowledge-base']), uuidValidator, knowledgebaseController.deleteKnowledgeBaseById);
 
 router.route("/catagoryId/:id")
-    .get(authorize, knowledgeBaseController.getKnowledgeBaseByCatagoryId)
+    .get(authorize, permissionMiddleware(['view-knowledge-base-category']), knowledgeBaseController.getKnowledgeBaseByCatagoryId)
 
 module.exports = router;

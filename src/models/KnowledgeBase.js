@@ -20,6 +20,7 @@ const KnowledgeBase = new EntitySchema({
     },
     catagoryId: {
       type: "varchar",
+      nullable: true
     },
     created_at: {
       type: "timestamp",
@@ -47,6 +48,8 @@ const KnowledgeBase = new EntitySchema({
         name: "catagoryId",
         referencedColumnName: "id",
       },
+      onDelete: "SET NULL",
+      onUpdate: 'CASCADE'
     }
   },
 });

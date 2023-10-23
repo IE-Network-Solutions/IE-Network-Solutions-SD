@@ -26,7 +26,7 @@ const startCountdown = (minutes) => {
 }
 
 const generateVerificationCode = async () => {
-    const expirationTimestamp = getFormattedTime(Date.now() + 2 * 60 * 1000);
+    const expirationTimestamp = getFormattedTime(Date.now() + 60 * 60 * 1000);
     console.log("time", expirationTimestamp)
     startCountdown(expirationTimestamp);
     const verificationCode = Math.floor(1000 + Math.random() * 9000);

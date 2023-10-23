@@ -668,7 +668,7 @@ class TicketDAL {
     const connection = getConnection();
     const ticketUserRepository = await connection.getRepository(TicketUser);
     const ticketUser = await ticketUserRepository.find({
-      where: { user_id: userId }, relations: ["ticket.ticket_status","user"], groupBy: "ticket.ticket_status.type"
+      where: { user_id: userId }, relations: ["ticket.ticket_status", "user"], groupBy: "ticket.ticket_status.type"
     });
     return ticketUser;
   }

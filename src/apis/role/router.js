@@ -9,7 +9,7 @@ router.route("/").get(
 router.route("/:id").get(
   authorize, RoleController.getRoleById);
 router.route("/").post(
-  authorize, RoleController.createRole);
+  authorize, permissionMiddleware(["create-role"]), RoleController.createRole);
 router
   .route("/findOneRoleByName/:roleName")
   .post(

@@ -120,11 +120,11 @@ exports.transferJunkTicketToTicket = async (req, res, next) => {
       return next(new AppError("Junk Ticket to update Failed!"));
     }
 
-    const aa = await TicketDAL.transferJunkToTicker(req.body , id ,req.user.id)
+    const aa = await TicketDAL.transferJunkToTicker(req.body, id, req.user.id)
     // if(!transfer){
     //   return next(new AppError("Failed to Transfer junk ticket to ticket, try agian!"));
     // }
-  //  const email = await sendEmail("form" , "to" , "dskf" , "kdsfj" , "dkjf" , "dklfj")
+    //  const email = await sendEmail("form" , "to" , "dskf" , "kdsfj" , "dkjf" , "dklfj")
     // console.log("email",req.body);
     // console.log(
     //   "Transfered", transfer,
@@ -137,8 +137,8 @@ exports.transferJunkTicketToTicket = async (req, res, next) => {
     });
   } catch (error) {
     throw error
-    
-     }
+
+  }
 }
 
 
@@ -631,51 +631,6 @@ exports.getAssignedTicketsForLoggedinUser = async (req, res, next) => {
   }
 };
 
-// exports.getAgentStatusForTeamById = async (req, res, next) => {
-//   try {
-//     const teamId = req.params.id;
-//     const currentLoggedInUser = req.user.role.roleName;
-//     if (currentLoggedInUser != "team-lead") {
-//       return next(new AppError("Unable to see agent status", 400));
-//     }
-
-//     const teamUser = await TicketDAL.getAgentStatusForTeamById(teamId);
-//     const userIds = teamUser.map((user) => { return user.user_id });
-
-//     const result = await TicketDAL.getTicketUserByUserId();
-//     const teamTicket = result.filter(user => user?.user_id === userIds.map(ids => { return ids }));
-//     console.log("result", teamTicket)
-//     // return result;
-//     // });
-
-
-//     // console.log(userTicket, "dfghjk")
-//     // const allTickets = await TicketDAL.getAllTickets();
-//     // const teamTicket = allTickets.filter(ticket => ticket?.team?.id === teamId);
-//     // const groupedUser = teamTicket.reduce((groupedUser, singleUser) => {
-//     //   const userId = singleUser.created_by ? singleUser.created_by.id : "Unassigned";
-//     //   const existingUser = groupedUser.find(item => item.userId === userId);
-
-//     //   if (existingUser) {
-//     //     existingUser.created_by.push(singleUser);
-//     //     existingUser.totalTickets++; // Increment the totalTickets counter
-//     //   } else {
-//     //     groupedUser.push({ userId: userId, totalTickets: 1, created_by: [singleUser] });
-//     //   }
-
-//     //   return groupedUser;
-//     // }, []);
-
-
-//     res.status(200).json({
-//       status: "Success",
-//       teamTicket: teamTicket
-//     });
-//   } catch (error) {
-//     throw error;
-//   }
-// };
-
 exports.getAgentStatusForTeamById = async (req, res, next) => {
   try {
     const teamId = req.params.id;
@@ -732,12 +687,12 @@ exports.getAgentStatusForTeamById = async (req, res, next) => {
   }
 }
 
-exports.getAllTicketsForCompany=async(req,res)=>{
+exports.getAllTicketsForCompany = async (req, res) => {
   try {
-   
+
     // console.log(req.user.id);
     // const data = await TicketDAL.getAllTicketsForCompany(userId)
-   
+
     res.status(200).json({
       status: "Success",
       // data: req.user.id,

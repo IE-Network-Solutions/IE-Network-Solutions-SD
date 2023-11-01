@@ -137,7 +137,7 @@ module.exports = [
     { name: 'View ticket assign to me', slug: 'view-ticket-assign-to-me' },
 
     { name: 'Create note', slug: 'create-note' },
-    { name: 'Create escalation', slug: 'create-escalation' },
+    { name: 'Create comment escalation', slug: 'create-comment-escalation' },
     { name: 'Close ticket', slug: 'close-ticket' },
     { name: 'Replay ticket', slug: 'replay-ticket' },
     { name: 'Update assign-agents', slug: 'update-assign-agents' },

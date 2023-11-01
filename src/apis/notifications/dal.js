@@ -80,9 +80,9 @@ class NotificationDAL {
                 type: body.type,
                 isRead: body.isRead,
                 created_at: body.created_at,
-                created_by: body.created_by
+                created_by: body.created_by,
+                CCUsers: body.CCUsers
             });
-            console.log(newNotification.to, "ddgdgdsl")
             await notificationRepository.save(newNotification);
             return newNotification;
         } catch (error) {

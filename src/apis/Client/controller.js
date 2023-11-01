@@ -77,7 +77,6 @@ exports.updateClient = async (req, res, next) => {
   try {
     const id = req.params.id;
     const updatedFields = req.body;
-    console.log(req.body);
     // check if client exist or not
     const clientData = await ClientDAL.getClientById(id);
 
@@ -100,7 +99,6 @@ exports.updateClient = async (req, res, next) => {
       }
       updatedFields.company = company;
     }
-    console.log(updatedFields, "suraaaaaaaaaaa");
     const client = await ClientDAL.updateClient(id, updatedFields);
 
     res.status(200).json({
@@ -135,13 +133,12 @@ exports.deleteClient = async (req, res, next) => {
 
 exports.clientTickets = async (req, res, next) => {
   try {
+
     const user = req.user;
     if (user.user_type != "client") {
       return next(new AppError("Unauthorized user"));
     }
-
     const tickets = await ClientDAL.getClientTickets(user);
-    console.log("client ticket", tickets)
     res.status(200).json({
       status: "Success",
       data: tickets,
@@ -181,7 +178,6 @@ exports.createNewTicket = async (req, res, next) => {
 
     // get client
     const client = await ClientDAL.getClientById(user.id);
-    console.log(client);
     if (!client) {
       return next(new AppError("such client does not exist", 404));
     }
@@ -278,8 +274,6 @@ exports.assignClientTicketToTeamByAdmin = async (req, res, next) => {
     const teamsId = req.body.teams;
     const ticketId = req.params.id;
 
-    console.log(teamsId[0], "sl tem")
-
 
     const currentLoggedInUser = req.user;
     const allAdmin = await UserDAL.getAllAdmins();
@@ -301,7 +295,6 @@ exports.assignClientTicketToTeamByAdmin = async (req, res, next) => {
       }
     })
     const result = await ClientDAL.assignClientTicketToTeamByAdmin(ticketId, teamsId)
-    console.log("teams", teamsId)
     teamsId.map((team) => (
 
       NotificationDAL.createNotification({

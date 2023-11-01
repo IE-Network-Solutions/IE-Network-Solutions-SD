@@ -5,7 +5,6 @@ const UserDAL = require('../users/dal');
 exports.getAllPermissions = async (req, res, next) => {
     try {
         const permission = await PermissionDAL.getAllPermissions();
-        console.log(permission)
         if (permission.length == 0) {
             return next(new AppError("Permission is Table is Empity", 404))
         }
@@ -27,7 +26,6 @@ exports.getPermissionById = async (req, res, next) => {
     try {
         const id = req.params.id;
         const permission = await PermissionDAL.getPermissionById(id);
-        console.log(permission);
         if (!permission) {
             return next(new AppError(`User with id ${id} is NOT FOUND`))
         }
@@ -124,7 +122,6 @@ exports.deleteSpecificUserPermission = async (req, res, next) => {
         const userId = req.params.userId;
         const permissionId = req.params.permissionId;
         const users = await UserDAL.deletePermissionForSpecificUser(userId, permissionId);
-        console.log(users);
         res.status(200).json({
             status: "Success",
             message: "User permission is deleted successfully"

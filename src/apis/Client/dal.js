@@ -250,25 +250,21 @@ class ClientDAL {
     }
   }
 
-  static async getClientTickets(data) {
+  static async getClientTickets(client) {
     try {
-      const client = data;
-      // get connection from the pool
       const connection = getConnection();
-
-      // create bridge
       const clientRepository = await connection.getRepository(Ticket);
+      const client_tickets = await clientRepository
+        .createQueryBuilder("ticket")
+        .leftJoinAndSelect("ticket.ticket_status", "ticket_status")
+        .leftJoinAndSelect("ticket.ticket_type", "ticket_type")
+        .leftJoinAndSelect("ticket.ticket_priority", "ticket_priority")
+        .leftJoinAndSelect("ticket.team", "team")
+        .leftJoinAndSelect("ticket.comments", "comments")
+        .leftJoinAndSelect("ticket.client", "client")
+        .where("ticket.client = :clientId", { clientId: client.id })
+        .getMany();
 
-      const client_tickets = await clientRepository.find({
-        where: { client: client, is_deleted: false },
-        relations: [
-          "ticket_status",
-          "ticket_type",
-          "ticket_priority",
-          "team",
-          "comments",
-        ],
-      });
       return client_tickets;
     } catch (error) {
       throw error

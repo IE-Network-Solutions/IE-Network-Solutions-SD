@@ -19,11 +19,11 @@ const Notification = new EntitySchema({
     },
     // If user then this will be the UserUUID and if not it will be SYSTEM
     from: {
-      type: "uuid",
+      type: "varchar",
       nullable: true,
     },
     to: {
-      type: "uuid",
+      type: "varchar",
       nullable: true,
     },
     // The notification message
@@ -34,6 +34,11 @@ const Notification = new EntitySchema({
     isRead: {
       type: "boolean",
       default: false,
+      nullable: true,
+    },
+
+    CCUsers: {
+      type: "varchar",
       nullable: true,
     },
     read_at: {
@@ -62,8 +67,8 @@ const Notification = new EntitySchema({
         referencedColumnName: "id",
       },
     },
-    created_to:{
-      type:   "many-to-one",
+    created_to: {
+      type: "many-to-one",
       target: "User",
       joinColumn: {
         name: "user_id",

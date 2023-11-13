@@ -3,6 +3,8 @@ const Comment = require("../../models/Comment");
 const UserDAL = require("../users/dal");
 const AppError = require("../../../utils/apperror");
 const sendEmail = require("../../../utils/sendEmail");
+const Ticket = require("../../models/Ticket");
+const StatusDAL = require("../status/dal");
 
 class CommentDAL {
   // Get All Comments
@@ -94,7 +96,7 @@ class CommentDAL {
   }
 
   // Create escalation
-  static async createEscalationComment(data) {
+  static async createEscalationComment(data, ticketId) {
     try {
       // Get User
       const { user, title, description, ticket, emailTo, emailCc } = data;
@@ -102,6 +104,7 @@ class CommentDAL {
       // Form Connection
       const connection = getConnection();
       const commentRepository = connection.getRepository(Comment);
+      const ticketRepository = await connection.getRepository(Ticket);
 
       // Create Comment
       const newComment = await commentRepository.create({
@@ -113,6 +116,9 @@ class CommentDAL {
         emailTo: emailTo,
         emailCc: emailCc,
       });
+      const escalate = await StatusDAL.getStatusByType("Escalet")
+      await ticketRepository.update({ id: ticketId }, { ticket_status: escalate.id });
+
       await commentRepository.save(newComment);
 
       // return new comment

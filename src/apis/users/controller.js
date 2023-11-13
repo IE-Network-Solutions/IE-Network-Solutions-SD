@@ -12,6 +12,7 @@ const teamDAL = require("../team/dal");
 const validateUuid = require("uuid-validate");
 const jwt = require("jsonwebtoken");
 const { checkVerificationCode } = require("../../../utils/checkVerificationCode");
+const { generateVerificationCode, getFormattedTime } = require("../../../utils/generateVerificationCode");
 
 exports.introduction = async (req, res, next) => {
   // Respond
@@ -82,6 +83,8 @@ exports.createUser = async (req, res, next) => {
     const user_profile = req.file ? req.file.path : null;
     user.profile_pic = user_profile;
     user.password = hash(generateRandomPassword(8, true, true, true));
+    user.user_id = req?.user?.id;
+    console.log("user id", user)
     // user.password = hash("%TGBnhy6");
 
     // check if email exsist or not
@@ -382,7 +385,7 @@ exports.teamAccess = async (req, res, next) => {
 };
 
 exports.sendChangePasswordAlertByEmail = async (req, res, next) => {
-  const user = await UserDAL.sendChangePasswordAlertByEmail(req.user.email);
+  const user = await UserDAL.sendChangePasswordAlertByEmail(req.user.email, req.user.email);
   if (!user) {
     return next(new AppError("User not Found with the email you provided"));
   }
@@ -394,18 +397,28 @@ exports.sendChangePasswordAlertByEmail = async (req, res, next) => {
 }
 exports.checkVerificationCode = async (req, res, next) => {
   const { code } = req.body;
-  const user = await UserDAL.getUserByEmail(req.user.email);
-  const parsedData = JSON.parse(user.verificationCode);
-  if (!await checkVerificationCode(parsedData?.code, code)) {
-    return next(new AppError("Incorrect verification code"));
+  const user = await UserDAL.getOneUser(req.params.id);
+  if (!await checkVerificationCode(user.verificationCode, code)) {
+    return next(new AppError("Incorrect verification code", 400));
   }
-  if (parsedData?.expiresAt < Date.now()) {
-    return next(new AppError("The verification code is Expired", "400"));
-  }
-  return res.status(200).json({
-    data: "mm"
 
-  })
+  if (Date.now() > user.tokenExpirationTime) {
+    await sendEmail(
+      user.email,
+      user?.created_by?.email,
+      "Verification code",
+      "The verification code expired, please activate my verification code to reset my default passoward",
+      "cc"
+    )
+    return next(new AppError("The verification code is Expired", 400));
+  }
+
+  return res.status(200).json(
+    {
+      status: "Success",
+      data: code
+
+    })
 }
 exports.sendChangePasswordRequest = async (req, res, next) => {
   try {

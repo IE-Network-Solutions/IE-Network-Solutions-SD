@@ -57,6 +57,6 @@ router.route("/logout").post(authorize, UserController.logout);
 router.route("/team-access/:id").post(authorize, UserController.teamAccess);
 router.route("/sendChangePasswordAlertByEmail").post(authorize, UserController.sendChangePasswordAlertByEmail);
 router.route("/sendChangePasswordRequest/:id").patch(UserController.sendChangePasswordRequest);
-router.route("/checkVerificationCode").post(authorize, UserController.checkVerificationCode);
+router.route("/checkVerificationCode/:id").post(UserController.checkVerificationCode);
 
 module.exports = router;

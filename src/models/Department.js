@@ -29,6 +29,8 @@ const Department = new EntitySchema({
         name: "user_id",
         referencedColumnName: "id",
       },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
     tickets: {
       type: "one-to-many",
@@ -45,6 +47,8 @@ const Department = new EntitySchema({
         name: "departmentlead_id",
         referencedColumnName: "id",
       },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
   },
 });

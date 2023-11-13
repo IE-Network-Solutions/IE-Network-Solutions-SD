@@ -11,6 +11,8 @@ const generateRandomPassword = require("../../../utils/generateRandomPassword");
 const UserDAL = require("../users/dal");
 const { sendEmailNotification } = require("../../../utils/sendNotification");
 const NotificationDAL = require("../notifications/dal");
+const { generateVerificationCode } = require("../../../utils/generateVerificationCode");
+const sendEmail = require("../../../utils/sendEmail");
 
 exports.allClients = async (req, res, next) => {
   try {
@@ -61,7 +63,8 @@ exports.createClient = async (req, res, next) => {
     data.user_profile = user_profile;
 
     data.password = hash(generateRandomPassword(8, true, true, true));
-
+    data.created_by = req.user.id;
+    console.log("user id", data)
     const client = await ClientDAL.createClient(data);
     await UserDAL.sendChangePasswordAlertByEmail("client", req.body.email);
     res.status(201).json({
@@ -327,6 +330,19 @@ exports.assignClientTicketToTeamByAdmin = async (req, res, next) => {
         data: result
       })
 
+  } catch (error) {
+    return res.status(500).json(next(new AppError(error, 500)))
+  }
+};
+
+exports.sendActivationCode = async (req, res, next) => {
+  try {
+    const user = await UserDAL.getOneUser(req.params.id);
+    const code = await UserDAL.sendChangePasswordAlertByEmail("client", user?.email)
+    res.status(200).json({
+      status: "Success",
+      data: code
+    })
   } catch (error) {
     return res.status(500).json(next(new AppError(error, 500)))
   }

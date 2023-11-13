@@ -169,7 +169,6 @@ class ClientDAL {
           "comments.updated_at",
         ])
         .getOne();
-
       // return single data
       return client;
     } catch (error) {
@@ -189,6 +188,7 @@ class ClientDAL {
         company_id,
         user_profile,
         phone_number,
+        created_by
       } = data;
       // get connection from the pool
       const connection = getConnection();
@@ -215,7 +215,10 @@ class ClientDAL {
         company: company,
         profile_pic: user_profile,
         phone_number,
+        created_by: created_by
+
       });
+
       await clientRepository.save(newClient);
       return newClient;
     } catch (error) {
@@ -302,29 +305,16 @@ class ClientDAL {
   }
 
   static async deleteClient(id) {
-    try {
-      // get connection from the pool
-      const connection = getConnection();
-
-      // create bridge
-      const clientRepository = connection.getRepository(User);
-
-      const deleted = await clientRepository.delete(id);
-      if (!deleted) {
-        throw "failed to delete client , try again!"
-      }
-      throw "client deleted Successfully";
-    }
-    catch (error) {
-      throw error
-    }
+    const connection = getConnection();
+    const clientRepository = connection.getRepository(User);
+    return await clientRepository.delete({ id });
   }
 
   static async getAllClientTicketsByAdmin() {
     try {
       const connection = getConnection();
       const clientRepository = connection.getRepository(Ticket);
-      return await clientRepository.find({ relations: ['team'] });
+      return await clientRepository.find({ relations: ['created_by', 'team'] });
     }
     catch (error) {
       throw error
@@ -334,7 +324,7 @@ class ClientDAL {
   static async getClientTicketById(ticketId) {
     const connection = getConnection();
     const clientRepository = await connection.getRepository(Ticket);
-    return clientRepository.findOne({ where: { id: ticketId }, relations: ["team"] });
+    return clientRepository.findOne({ where: { id: ticketId }, relations: ["client", "team"] });
   }
 
   static async assignClientTicketToTeamByAdmin(ticketId, teamsId) {

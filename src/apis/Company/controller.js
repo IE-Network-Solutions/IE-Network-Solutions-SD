@@ -18,7 +18,7 @@ exports.allCompanies = async (req, res, next) => {
       data: companies,
     });
   } catch (error) {
-    return next(new AppError(`Error with internal server or ${error.message}` , 500))
+    return next(new AppError(`Error with internal server or ${error.message}`, 500))
   }
 };
 
@@ -37,7 +37,7 @@ exports.singleCompany = async (req, res, next) => {
       data: company,
     });
   } catch (error) {
-    return next(new AppError(`Error with internal server or ${error.message}` , 500))
+    return next(new AppError(`Error with internal server or ${error.message}`, 500))
   }
 };
 
@@ -55,7 +55,7 @@ exports.createCompany = async (req, res, next) => {
       data: company,
     });
   } catch (error) {
-    return next(new AppError(`Error with internal server or ${error.message}` , 500))
+    return next(new AppError(`Error with internal server or ${error.message}`, 500))
   }
 };
 
@@ -82,26 +82,21 @@ exports.updateCompany = async (req, res, next) => {
       data: company,
     });
   } catch (error) {
-    return next(new AppError(`Error with internal server or ${error.message}` , 500))
+    return next(new AppError(`Error with internal server or ${error.message}`, 500))
   }
 };
 
 exports.deleteCompany = async (req, res, next) => {
   try {
     const id = req.params.id;
-    // validate if company exist or not
     const companyData = await companyDAL.getCompanyById(id);
-
     if (!companyData)
       return next(new AppError("company with the given id not found"));
-
-    await companyDAL.deleteCompany(id);
-
     res.status(200).json({
       status: "Success",
-      data: null,
+      data: await companyDAL.deleteCompany(id),
     });
   } catch (error) {
-    return next(new AppError(`Error with internal server or ${error.message}` , 500))
+    return next(new AppError(`Error with internal server or ${error.message}`, 500))
   }
 };

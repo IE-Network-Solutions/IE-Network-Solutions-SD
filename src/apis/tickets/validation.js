@@ -20,6 +20,7 @@ exports.updateTicketValidator = joi.object({
   department_id: joi.string().guid({ version: "uuidv4" }),
   status_id: joi.string().guid({ version: "uuidv4" }),
   type_id: joi.string().guid({ version: "uuidv4" }),
+  team_id: joi.string().guid({ version: "uuidv4" }),
   client_id: joi.string().guid({ version: "uuidv4" }),
   due_date: joi.date(),
   closed: joi.boolean(),

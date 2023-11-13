@@ -44,13 +44,13 @@ const Permission = new EntitySchema({
     user: {
       type: 'many-to-many',
       target: 'User',
-      onDelete: 'CASCADE',
-      onUpdate: 'CASCADE',
       joinTable: {
         name: 'user_permission',
         joinColumn: { name: 'permission_id', referencedColumnName: 'id' },
         inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' },
       },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
   }
 })

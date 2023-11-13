@@ -6,6 +6,7 @@ const TicketDAL = require("../tickets/dal");
 const config = require("../../../utils/configs");
 const sendEmail = require("../../../utils/sendEmail");
 const NotificationDAL = require("../notifications/dal");
+const StatusDAL = require("../status/dal");
 
 exports.introduction = async (req, res, next) => {
   // Respond
@@ -91,6 +92,18 @@ exports.createComment = async (req, res, next) => {
       newComment.description,
       emailCc
     );
+
+    await NotificationDAL.createNotification({
+      title: "Comment",
+      from: from,
+      to: emailTo,
+      message: "This is Notification is concerned with replay comment",
+      type: "",
+      isRead: false,
+      created_at: new Date(),
+      created_by: req.user.id,
+      CCUsers: emailCc
+    })
     // Respond
     res.status(200).json({
       status: "Success",
@@ -185,7 +198,6 @@ exports.createEscalation = async (req, res, next) => {
     if (!ticket) {
       return next(new AppError("ticket does not exist", 404));
     }
-
     comment.ticket = ticket;
     assigned_users = ticket.assigned_users;
 
@@ -208,7 +220,7 @@ exports.createEscalation = async (req, res, next) => {
     }
 
     // Create Comment
-    const newComment = await CommentDAL.createEscalationComment(comment);
+    const newComment = await CommentDAL.createEscalationComment(comment, ticket.id);
     const sendmail = await sendEmail(
       from,
       emailTo,

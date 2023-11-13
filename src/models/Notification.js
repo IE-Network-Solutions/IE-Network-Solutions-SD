@@ -66,6 +66,8 @@ const Notification = new EntitySchema({
         name: "user_id",
         referencedColumnName: "id",
       },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
     created_to: {
       type: "many-to-one",
@@ -74,6 +76,8 @@ const Notification = new EntitySchema({
         name: "user_id",
         referencedColumnName: "id",
       },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     }
   },
 });

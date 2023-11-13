@@ -36,8 +36,8 @@ const config = {
   },
   company_email: process.env.COMP_EMAIL,
 
-  PUBLIC_VAPID_KEY:process.env.PUBLIC_VAPID_KEY,
-  PRIVATE_VAPID_KEY:process.env.PRIVATE_VAPID_KEY
+  PUBLIC_VAPID_KEY: process.env.PUBLIC_VAPID_KEY,
+  PRIVATE_VAPID_KEY: process.env.PRIVATE_VAPID_KEY
 };
 
 module.exports = config;

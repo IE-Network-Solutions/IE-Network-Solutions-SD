@@ -186,7 +186,7 @@ exports.createNewTicket = async (req, res, next) => {
     const data = req.body;
     const created_by = req.user;
     data.created_by = created_by;
-    const status = await StatusDAL.getStatusByType("Closed");
+    const status = await StatusDAL.getStatusByType("Open");
     data.status = status;
 
     const admins = await UserDAL.getAllAdmins();
@@ -300,7 +300,7 @@ exports.updateTicket = async (req, res, next) => {
     const updatedFields = req.body;
     const user = req.user;
     // check if the user updating is the one who created or the admin
-    if (!(user.id == user.created_by) || !(user.role.roleName == "Admin")) {
+    if (!(user.role.roleName == "Admin")) {
       return next(new AppError("Unauthorized to update this ticket"));
     }
 
@@ -574,11 +574,6 @@ exports.groupAllTicketsByTeamAndGet = async (req, res, next) => {
       return result;
     }, {});
 
-    // if (currentLoggedInUser.user_type != "Admin") {
-    //   return next(new AppError("Current user Unable to View"));
-    // }
-
-    // Now 'groupedTickets' will contain tickets grouped by team name or "Unassigned" if not associated with any team
     res.status(200).json({
       status: "Success",
       currentLoggedInUser: currentLoggedInUser,
@@ -591,7 +586,6 @@ exports.groupAllTicketsByTeamAndGet = async (req, res, next) => {
 
 exports.getTicketsByStatus = async (req, res, next) => {
   try {
-    console.log("jjjjjjjjjjjjj")
     const data = await TicketDAL.ticketsTotalByStatus();
 
     res.status(200).json({
@@ -605,7 +599,6 @@ exports.getTicketsByStatus = async (req, res, next) => {
 
 exports.getTicketsCountByTeam = async (req, res, next) => {
   try {
-    console.log("nahommmmmmmmmmmmmmm")
     const data = await TicketDAL.getAllTeamTicketsCount();
 
     res.status(200).json({
@@ -642,6 +635,43 @@ exports.getAgentStatusForTeamById = async (req, res, next) => {
 
     const teamUser = await TicketDAL.getAgentStatusForTeamById(teamId);
     const userIds = teamUser.map((user) => user.user_id);
+    let allUserTickets = []
+
+    for (const user of userIds) {
+      const result = await TicketDAL.getTicketUserByUserId(user);
+      allUserTickets.push(result);
+    }
+    let returnedData = allUserTickets.map(users => {
+      let userCount = { total: users.length }
+
+      if (users.length) {
+        userCount["userDetail"] = users[0].user
+        users.forEach((us) => {
+
+          if (Object.keys(userCount).includes(us.ticket.ticket_status?.type)) {
+            userCount[us.ticket.ticket_status?.type] += 1
+          }
+          else {
+            userCount[us.ticket.ticket_status?.type] = 1
+          }
+        })
+      }
+      return userCount
+    });
+    res.status(200).json({
+      status: "Success",
+      userTicket: returnedData
+    });
+  } catch (error) {
+    console.error(error); // Log the error for debugging
+    res.status(500).json({ status: "Error", message: "Internal Server Error" });
+  }
+}
+
+exports.getAllAgentStatus = async (req, res, next) => {
+  try {
+    const teamUser = await TicketDAL.getAllAgentStatus();
+    const userIds = teamUser.map((user) => user.user_id);
 
     let allUserTickets = []
 
@@ -665,18 +695,9 @@ exports.getAgentStatusForTeamById = async (req, res, next) => {
             userCount[us.ticket.ticket_status?.type] = 1
           }
         })
-
-
-
       }
-
-
       return userCount
     });
-
-
-
-
     res.status(200).json({
       status: "Success",
       userTicket: returnedData
@@ -701,3 +722,40 @@ exports.getAllTicketsForCompany = async (req, res) => {
     throw error;
   }
 }
+
+exports.getAllEscalates = async (req, res) => {
+  try {
+    const escalateStatus = await StatusDAL.getStatusByType("Escalet"); // Get the escalate status object
+    const allTickets = await TicketDAL.getAllTickets(); // Get all tickets from the database
+
+    // Filter tickets based on the escalate status ID
+    const allEscalates = allTickets.filter(ticket => ticket?.ticket_status?.id === escalateStatus.id);
+
+    res.status(200).json({
+      status: "Success",
+      data: allEscalates
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "Error",
+      message: "Internal server error"
+    });
+  }
+};
+
+exports.viewTicketdetailByAdminById = async (req, res) => {
+  try {
+    const ticket = await TicketDAL.getTicketById(req.params.id);
+    res.status(200).json({
+      status: "Success",
+      data: ticket
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "Error",
+      message: "Internal server error"
+    });
+  }
+};
+
+

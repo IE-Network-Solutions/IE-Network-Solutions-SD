@@ -14,7 +14,7 @@ router
   .route("/")
   .post(authorize, permissionMiddleware(['create-status']), validate(statusValidator), StatusController.createStatus);
 
-router.route("/").patch(authorize, permissionMiddleware(['edit-status']), StatusController.editStatus);
+router.route("/").patch(authorize, permissionMiddleware(['update-ticket-status']), StatusController.editStatus);
 
 router
   .route("/deleteAllStatuses")

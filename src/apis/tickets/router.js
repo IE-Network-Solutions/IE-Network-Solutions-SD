@@ -94,4 +94,28 @@ router
     TicketController.getAgentStatusForTeamById
   );
 
+router
+  .route("/get-all/escaletes")
+  .get(
+    authorize,
+    TicketController.getAllEscalates
+  );
+
+router
+  .route("/get-agent-status/all")
+  .get(
+    authorize,
+    TicketController.getAllAgentStatus
+  );
+
+router
+  .route("/view-ticket-detail/by-admin-by-id/:id")
+  .get(
+    authorize,
+    TicketController.viewTicketdetailByAdminById
+  );
+
+
+
+
 module.exports = router;

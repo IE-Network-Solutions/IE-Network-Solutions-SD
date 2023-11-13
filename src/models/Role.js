@@ -35,9 +35,11 @@ const Role = new EntitySchema({
     users: {
       type: "one-to-many",
       target: "User",
-      joinColumn:true,
-      cascade : false,
+      joinColumn: true,
+      cascade: false,
       inverseSide: "role",
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
   },
 });

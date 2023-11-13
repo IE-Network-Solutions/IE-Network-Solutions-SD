@@ -39,6 +39,8 @@ const KnowledgeBase = new EntitySchema({
         name: "createdBy",
         referencedColumnName: "id",
       },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
 
     catagory: {

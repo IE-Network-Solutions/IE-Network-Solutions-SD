@@ -37,6 +37,8 @@ const Priority = new EntitySchema({
         name: "user_id",
         referencedColumnName: "id",
       },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
     tickets: {
       type: "one-to-many",
@@ -45,6 +47,8 @@ const Priority = new EntitySchema({
         name: "ticket_id",
         referencedColumnName: "id",
       },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
   },
 });

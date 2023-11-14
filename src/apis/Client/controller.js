@@ -64,7 +64,6 @@ exports.createClient = async (req, res, next) => {
 
     data.password = hash(generateRandomPassword(8, true, true, true));
     data.created_by = req.user.id;
-    console.log("user id", data)
     const client = await ClientDAL.createClient(data);
     await UserDAL.sendChangePasswordAlertByEmail("client", req.body.email);
     res.status(201).json({

@@ -205,9 +205,9 @@ class CompanyDAL {
   static async updateCompany(id, updatedFields) {
     try {
       // create bridge
+      const connection = getConnection();
       const companyRepository = connection.getRepository(Company);
       const company = await companyRepository.findOne({ where: { id: id } });
-      console.log("kirubelllllllll");
       if (!company) {
         throw new Error("company not found");
       }

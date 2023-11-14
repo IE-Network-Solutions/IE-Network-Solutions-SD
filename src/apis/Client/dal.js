@@ -232,12 +232,12 @@ class ClientDAL {
       if (!validateUuid(updatedFields.company_id)) throw "Invalid Company Id"
 
       // create bridge
+      const connection = getConnection();
       const clientRepository = connection.getRepository(User);
       const client = await clientRepository.findOne({ where: { id: id } });
       if (!client) {
         throw new Error("client not found!");
       }
-      console.log("kiraaaaaa", updatedFields);
       clientRepository.merge(client, updatedFields);
 
       // update if company is changed

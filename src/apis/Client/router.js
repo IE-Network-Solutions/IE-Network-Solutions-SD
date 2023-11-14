@@ -26,7 +26,7 @@ clientRouter
   .route("/")
   .post(
     authorize,
-    permissionMiddleware(['create-client']),
+    permissionMiddleware(['create-contact']),
     uploadOptions.single("user_profile"),
     validate(createClientValidator),
     ClientController.createClient
@@ -56,5 +56,11 @@ clientRouter.route("/tickets/getClientTicketById/:id").
 
 clientRouter.route("/tickets/assignClientTicketToTeamByAdmin/:id").
   post(authorize, ClientController.assignClientTicketToTeamByAdmin);
+
+clientRouter.route("/tickets/:id").
+  post(authorize, ClientController.assignClientTicketToTeamByAdmin);
+
+clientRouter.route("/tickets/send-activation-code/by-admin/:id").
+  post(authorize, ClientController.sendActivationCode);
 
 module.exports = clientRouter;

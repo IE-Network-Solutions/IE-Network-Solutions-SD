@@ -14,6 +14,8 @@ const ClientDAL = require("../Client/dal");
 const teamDAL = require("../team/dal");
 const PriorityDAL = require("../priority/dal");
 const TypeDAL = require("../type/dal");
+const sortBy = require('../../../utils/sortor.utils');
+const findAll = require('../../../utils/plugins/findAll.utils');
 
 class TicketDAL {
   static async getAllTickets() {
@@ -23,7 +25,7 @@ class TicketDAL {
       const connection = await getConnection();
 
       // create a bridg
-      const ticketRepository = await connection.getRepository(Ticket);
+      const ticketRepository = await connection.getRepository(Ticket).extend({ findAll, sortBy });
 
       // fetch tickets with related data
       const tickets = await ticketRepository
@@ -247,45 +249,42 @@ class TicketDAL {
     } catch (error) {
       throw error;
     }
-  } 
-  static async transferJunkToTicker(data, id ,user_id) {
+  }
+  static async transferJunkToTicker(data, id, user_id) {
     try {
       // Get a connection from the pool
       const connection = getConnection();
-  
+
       // Create a bridge to the JunkTicket entity
       const junkTicketRepository = connection.getRepository(JunkTicket);
-  
+
       // Find the ticket by its ID
-      const ticket = await junkTicketRepository.findOneBy({id } );
-  
+      const ticket = await junkTicketRepository.findOneBy({ id });
+
       if (ticket) {
         ticket.isTransfered = true;
-  
+
         // Save the updated ticket
         const updatedTicket = await junkTicketRepository.save(ticket);
-        console.log("UPdated",updatedTicket);
-        
-        const client =await ClientDAL.getClientById(data.client_id)
+        const client = await ClientDAL.getClientById(data.client_id)
         const user = await UserDAL.getOneUser(user_id)
         const team = await teamDAL.getTeam(data.team_id)
         const priority = await PriorityDAL.getPriority(data.priority_id)
         // const type = await TypeDAL.getOneType(data.type_id)
-     
-        const newT = 
-          {
-            "subject": updatedTicket.subject,
-             "description": updatedTicket.body||"No Description",
-            ticket_priority: priority,
-            team : team,
-            // ticket_type: type,
-            created_by:user,
-            client:client
-        }       
-        console.log(data);
-  
-        const transfer =  await this.createNewTicket(newT)
-  
+
+        const newT =
+        {
+          "subject": updatedTicket.subject,
+          "description": updatedTicket.body || "No Description",
+          ticket_priority: priority,
+          team: team,
+          // ticket_type: type,
+          created_by: user,
+          client: client
+        }
+
+        const transfer = await this.createNewTicket(newT)
+
         return { updateTicket: updatedTicket, transfer: transfer };
       } else {
         throw new Error(`Ticket with ID ${id} not found`);
@@ -294,7 +293,7 @@ class TicketDAL {
       throw error;
     }
   }
-  
+
 
   static async deleteJunkTicket(id) {
     try {
@@ -364,7 +363,6 @@ class TicketDAL {
     const ticketRepository = connection.getRepository(Ticket);
 
     const ticket = await ticketRepository.findOneBy({ id: id });
-    console.log(ticket);
     if (!ticket) {
       throw new Error("Ticket is Not Found with the provided id");
     }
@@ -651,7 +649,6 @@ class TicketDAL {
       .where("status.type != :name", { name: name })
       .andWhere("user.id = :id", { id: userId })
       .getRawMany();
-    console.log(userTasks, "ooooooooooooo")
 
     return userTasks;
   }
@@ -661,6 +658,12 @@ class TicketDAL {
     const userTeamRepository = await connection.getRepository(TeamUser);
     const teamUser = await userTeamRepository.find({ where: { team_id: teamId } });
     return teamUser;
+  }
+
+  static async getAllAgentStatus() {
+    const connection = getConnection();
+    const userTeamRepository = await connection.getRepository(TeamUser);
+    return await userTeamRepository.find();
   }
 
   static async getTicketUserByUserId(userId) {
@@ -673,13 +676,13 @@ class TicketDAL {
     return ticketUser;
   }
 
-  static async getAllTicketsForCompany(userId){
+  static async getAllTicketsForCompany(userId) {
     try {
       // const user = UserDAL.getOneUser(userId)
 
       // console.log(user);
-      
-      
+
+
     } catch (error) {
       throw error
     }

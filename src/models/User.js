@@ -74,7 +74,7 @@ const User = new EntitySchema({
       nullable: true
     },
     tokenExpirationTime: {
-      type: "varchar",
+      type: "bigint",
       nullable: true
     },
 
@@ -107,11 +107,15 @@ const User = new EntitySchema({
       type: "one-to-many",
       target: "KnowledgeBase",
       inverseSide: "createdBy",
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
     todos: {
       type: "one-to-many",
       target: "Todo",
       inverseSide: "user",
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
     role: {
       type: "many-to-one",
@@ -127,6 +131,8 @@ const User = new EntitySchema({
       type: "many-to-one",
       target: "Company",
       inverseSide: "clients",
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
     permissions: {
       type: "many-to-many",
@@ -152,6 +158,8 @@ const User = new EntitySchema({
       joinColumn: {
         name: "team_id",
       },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
     ticket_type: {
       type: "many-to-one",
@@ -160,6 +168,8 @@ const User = new EntitySchema({
         name: "type_id",
         referencedColumnName: "id",
       },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
     ticket_priority: {
       type: "many-to-one",
@@ -168,6 +178,8 @@ const User = new EntitySchema({
         name: "priority_id",
         referencedColumnName: "id",
       },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
     ticket_status: {
       type: "many-to-one",
@@ -176,6 +188,8 @@ const User = new EntitySchema({
         name: "status_id",
         referencedColumnName: "id",
       },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
     manager: {
       type: "many-to-one",
@@ -184,11 +198,15 @@ const User = new EntitySchema({
         name: "manager_id",
         referencedColumnName: "id",
       },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
     client_tickets: {
       type: "one-to-many",
       target: "Ticket",
       inverseSide: "client",
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
     teams_access: {
       type: "many-to-many",
@@ -202,12 +220,26 @@ const User = new EntitySchema({
           name: "team_id",
         },
       },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
     managed_teams: {
       type: "one-to-many",
       target: "Team",
-      inverseSide: "team_lead"
-    }
+      inverseSide: "team_lead",
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
+    },
+    created_by: {
+      type: "many-to-one",
+      target: "User",
+      joinColumn: {
+        name: "created_by",
+        referencedColumnName: "id",
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
+    },
   }
 });
 

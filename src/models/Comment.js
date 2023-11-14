@@ -51,6 +51,8 @@ const Comment = new EntitySchema({
         name: "user_id",
         referencedColumnName: "id",
       },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
     ticket: {
       type: "many-to-one",
@@ -59,6 +61,8 @@ const Comment = new EntitySchema({
         name: "ticket_id",
         referencedColumnName: "id",
       },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
   },
 });

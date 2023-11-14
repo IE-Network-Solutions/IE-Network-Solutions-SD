@@ -8,29 +8,27 @@ const getFormattedTime = (expirationTime) => {
     return `${formattedMinutes}:${formattedSeconds}`;
 }
 
-const startCountdown = (minutes) => {
-    let seconds = minutes * 60;
-    const countdownInterval = setInterval(() => {
-        const formattedMinutes = Math.floor(seconds / 60).toString().padStart(2, '0');
-        const formattedSeconds = (seconds % 60).toString().padStart(2, '0');
-        console.log(`${formattedMinutes}:${formattedSeconds}`);
+// const startCountdown = (minutes) => {
+//     let seconds = minutes * 60;
+//     const countdownInterval = setInterval(() => {
+//         const formattedMinutes = Math.floor(seconds / 60).toString().padStart(2, '0');
+//         const formattedSeconds = (seconds % 60).toString().padStart(2, '0');
+//         console.log(`${formattedMinutes}:${formattedSeconds}`);
 
-        // Check if the countdown has reached 00:00
-        if (seconds <= 0) {
-            clearInterval(countdownInterval); // Stop the countdown
-            console.log("Countdown has ended!");
-        }
+//         // Check if the countdown has reached 00:00
+//         if (seconds <= 0) {
+//             clearInterval(countdownInterval); // Stop the countdown
+//             console.log("Countdown has ended!");
+//         }
 
-        seconds--;
-    }, 1000); // Update the countdown every 1 second (1000 milliseconds)
-}
-
+//         seconds--;
+//     }, 1000); // Update the countdown every 1 second (1000 milliseconds)
+// }
 const generateVerificationCode = async () => {
-    const expirationTimestamp = getFormattedTime(Date.now() + 60 * 60 * 1000);
-    console.log("time", expirationTimestamp)
-    startCountdown(expirationTimestamp);
+    const expirationTimestamp = Date.now() + 5 * 60 * 1000;
     const verificationCode = Math.floor(1000 + Math.random() * 9000);
     return { code: verificationCode, expiresAt: expirationTimestamp };
-}
+};
 
-module.exports = { generateVerificationCode };
+
+module.exports = { generateVerificationCode, getFormattedTime };

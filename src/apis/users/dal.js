@@ -11,6 +11,8 @@ const { generateVerificationCode } = require("../../../utils/generateVerificatio
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const generateRandomPassword = require("../../../utils/generateRandomPassword");
+const config = require("../../../utils/configs");
+const { sendEmailNotification } = require("../../../utils/sendNotification");
 
 class UserDAL {
   // Get All Users
@@ -57,9 +59,11 @@ class UserDAL {
           "user_type",
           "password",
           "verificationCode",
-          "profile_pic"
+          "tokenExpirationTime",
+          "profile_pic",
+          "created_by"
         ],
-        relations: ["team", "manager", "role.permissions", "permissions"],
+        relations: ["team", "manager", "role.permissions", "permissions", "created_by"],
       });
       return foundUser;
     } catch (error) {
@@ -334,17 +338,18 @@ class UserDAL {
     user.passwordChangeToken = resetToken;
     user.tokenExpirationTime = (await generateVerificationCode()).expiresAt;
 
+
     const result = await userRepository.create(user);
     await userRepository.save(result);
     await sendEmail(
-      process.env.SYSTEM_EMAIL,
+      config.email.systemEmail,
       email,
       "[IE Networks Solutions] Password Reset E-mail",
       `<h2>Hello ${user.first_name} ${user.last_name}, ${type == "client" ? "[Client]" : "[Employee]"}</h2>
       <p> You're receiving this e-mail because you or someone else has requested a password reset for your user account.</p>
       <h4>Click the link below to reset your password:</h4>
     <a href="http://172.16.32.114:5173/verification/${user.id}">Click here to change your default password</a>
-    <p> Your verification code is <strong> ${user.verificationCode}</strong></p>
+    <p> Your verification code is <strong>  ${user.verificationCode}</strong></p>
        <p>Verification Code will expire at:<strong> ${(await generateVerificationCode()).expiresAt.toString()}</strong></p>
        <p>This is your new password :<strong> ${(await generateRandomPassword(8, true, true, true, true))}</strong></p>
        <p>If you did not request a password reset you can safely ignore this email.</p?

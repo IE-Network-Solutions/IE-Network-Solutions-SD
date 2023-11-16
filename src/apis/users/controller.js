@@ -2,7 +2,6 @@ const AppError = require("../../../utils/apperror");
 const UserDAL = require("./dal");
 const RoleDAL = require("../role/dal");
 const DepartmentDAL = require("../department/dal");
-const jwt = require("../../middlewares/auth");
 const hash = require("../../../utils/hashpassword");
 const generateRandomPassword = require("../../../utils/generateRandomPassword");
 const checkHash = require("../../../utils/comparePassword");
@@ -11,6 +10,9 @@ const sendEmail = require("../../../utils/sendEmail");
 const authToken = require("../../middlewares/auth/authToken");
 const teamDAL = require("../team/dal");
 const validateUuid = require("uuid-validate");
+const jwt = require("jsonwebtoken");
+const { checkVerificationCode } = require("../../../utils/checkVerificationCode");
+const { generateVerificationCode, getFormattedTime } = require("../../../utils/generateVerificationCode");
 
 exports.introduction = async (req, res, next) => {
   // Respond
@@ -76,10 +78,14 @@ exports.getLoggedUserData = async (req, res, next) => {
 exports.createUser = async (req, res, next) => {
   try {
     // Get Req Body
+
     let user = req.body;
     const user_profile = req.file ? req.file.path : null;
     user.profile_pic = user_profile;
-    user.password = hash("%TGBnhy6");
+    user.password = hash(generateRandomPassword(8, true, true, true));
+    user.user_id = req?.user?.id;
+    console.log("user id", user)
+    // user.password = hash("%TGBnhy6");
 
     // check if email exsist or not
     const checkUser = await UserDAL.getUserByEmail(user.email);
@@ -103,14 +109,14 @@ exports.createUser = async (req, res, next) => {
 
     // Create New User
     let newUser = await UserDAL.createUser(user);
-
+    await UserDAL.sendChangePasswordAlertByEmail("employee", req.body.email);
     // Respond
     res.status(200).json({
       status: "Success",
       data: newUser,
     });
   } catch (error) {
-    return next(new AppError("Role id is must be unique"));
+    return next(new AppError(error));
   }
 };
 
@@ -332,8 +338,7 @@ exports.forgotPassword = async (req, res, next) => {
 
 exports.logout = async (req, res, next) => {
   const currentLoggedInUserToken = await UserDAL.logout(req.user.id);
-
-
+  // const user = await UserDAL.getOneUser(currentLoggedInUserToken.userId)
   console.log(currentLoggedInUserToken)
   if (!req.user.id) {
     return next(new AppError("There is Error", 400))
@@ -341,7 +346,8 @@ exports.logout = async (req, res, next) => {
   res.status(200).json({
     status: "success",
     message: "User is successfully logout",
-    statusCode: 200
+    statusCode: 200,
+    // data: user
   });
 };
 
@@ -377,3 +383,73 @@ exports.teamAccess = async (req, res, next) => {
     throw error;
   }
 };
+
+exports.sendChangePasswordAlertByEmail = async (req, res, next) => {
+  const user = await UserDAL.sendChangePasswordAlertByEmail(req.user.email, req.user.email);
+  if (!user) {
+    return next(new AppError("User not Found with the email you provided"));
+  }
+
+  res.status(200).json({
+    status: "Success",
+    data: user
+  });
+}
+exports.checkVerificationCode = async (req, res, next) => {
+  const { code } = req.body;
+  const user = await UserDAL.getOneUser(req.params.id);
+  if (!await checkVerificationCode(user.verificationCode, code)) {
+    return next(new AppError("Incorrect verification code", 400));
+  }
+
+  if (Date.now() > user.tokenExpirationTime) {
+    await sendEmail(
+      user.email,
+      user?.created_by?.email,
+      "Verification code",
+      "The verification code expired, please activate my verification code to reset my default passoward",
+      "cc"
+    )
+    return next(new AppError("The verification code is Expired", 400));
+  }
+
+  return res.status(200).json(
+    {
+      status: "Success",
+      data: code
+
+    })
+}
+exports.sendChangePasswordRequest = async (req, res, next) => {
+  try {
+    const { newPassword } = req.body;
+
+    // const decodedToken = jwt.verify(req.params.id, process.env.JWT_SECRET);
+    const user = await UserDAL.getOneUser(req.params.id);
+
+    if (!user) {
+      return next(new AppError("User Not Found.", "404"))
+    }
+    // if (newPassword != confirmPassword) {
+    //   return next(new AppError("Password and confirmation do not match.", "400"))
+    // }
+
+    await UserDAL.sendChangePasswordRequest(req.params.id, req.body);
+    const result = await UserDAL.getOneUser(req.params.id);
+    if (!result) {
+      return next(new AppError("User not found"));
+    }
+
+    res.status(200).json({
+      status: "Success",
+      data: result
+    });
+  }
+  catch (error) {
+    if (error instanceof jwt.JsonWebTokenError && error.message === 'invalid signature') {
+      return res.status(401).json({ error: 'Invalid token signature' });
+    }
+  }
+
+}
+

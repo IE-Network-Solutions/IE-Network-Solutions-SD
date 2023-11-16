@@ -28,6 +28,8 @@ const Note = new EntitySchema({
         name: "user_id",
         referencedColumnName: "id",
       },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
     ticket: {
       type: "many-to-one",

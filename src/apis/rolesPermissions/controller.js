@@ -129,7 +129,6 @@ exports.updateRolePermissionById = async (req, res, next) => {
         const id = req.params.id;
         const data = req.body.permission_id;
         const isExist = await RolePermissionDAL.getRolePermissionById(id);
-        console.log(isExist[0].permission_id)
         if (isExist[0].permission_id === null) {
             return next(new AppError("Role Permission id is Not Found"));
         }

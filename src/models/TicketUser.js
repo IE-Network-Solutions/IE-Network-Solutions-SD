@@ -21,6 +21,8 @@ const TicketUser = new EntitySchema({
         name: "ticket_id",
         referencedColumnName: "id",
       },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
     user: {
       type: "many-to-one",
@@ -29,6 +31,8 @@ const TicketUser = new EntitySchema({
         name: "user_id",
         referencedColumnName: "id",
       },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
   },
 });

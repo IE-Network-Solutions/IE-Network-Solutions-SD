@@ -18,9 +18,9 @@ exports.getAllCatagories = async (req, res, next) => {
 
 // This method implements to create new catagories
 exports.createCatagory = async (req, res, next) => {
-  try { 
+  try {
     // get catagory request body
-    const data = req.body; 
+    const data = req.body;
 
     // Create new catagory
     const catagory = await catagoryDAL.createCatagory(data);
@@ -43,7 +43,7 @@ exports.getCatagoryById = async (req, res, next) => {
 
     const catagory = await catagoryDAL.getCatagoryById(id);
 
-    if (!catagory){
+    if (!catagory) {
       return next(
         new AppError("Catagory with the given id is not found", 404));
     }
@@ -63,7 +63,7 @@ exports.updateCatagory = async (req, res, next) => {
 
     const updatedFields = req.body;
 
-   const catagory = await catagoryDAL.updateCatagory( id, updatedFields );
+    const catagory = await catagoryDAL.updateCatagory(id, updatedFields);
 
     if (!catagory) {
       return next(new AppError("Catagory with the given id is not found."));
@@ -83,15 +83,16 @@ exports.deleteCatagory = async (req, res, next) => {
   try {
     const id = req.params.id;
 
-    const  catagaory = await catagoryDAL.getCatagoryById(id);
+    const catagaory = await catagoryDAL.getCatagoryById(id);
 
     if (!catagaory) {
       return next(new AppError("Catagory with the given id is not found."));
     }
+    await catagoryDAL.deleteCatagory(id);
 
     res.status(200).json({
       status: "Success",
-      data: catagaory,
+      message: "Category is deleted successfully",
     });
   } catch (error) {
     throw error;

@@ -11,7 +11,7 @@ const authToken = (req, next) => {
     req.headers.authorization &&
     req.headers.authorization.split(" ")[0] === "Bearer"
   ) {
-    // console.log(req.header.authorization.split(" ")[0]);
+  
     token = req.headers.authorization.split(" ")[1];
     if (!token) {
       return next(new AppError("Please Login!", 401));

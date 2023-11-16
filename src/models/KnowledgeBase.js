@@ -11,9 +11,6 @@ const KnowledgeBase = new EntitySchema({
     title: {
       type: "varchar",
     },
-    category: {
-      type: "varchar",
-    },
     description: {
       type: "text",
     },
@@ -21,11 +18,9 @@ const KnowledgeBase = new EntitySchema({
       nullable: false,
       type: "varchar"
     },
-    image: {
-      type: "varchar"
-    },
     catagoryId: {
       type: "varchar",
+      nullable: true
     },
     created_at: {
       type: "timestamp",
@@ -44,15 +39,19 @@ const KnowledgeBase = new EntitySchema({
         name: "createdBy",
         referencedColumnName: "id",
       },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
 
-    catagoryId: {
+    catagory: {
       type: "many-to-one",
       target: "Catagory",
       joinColumn: {
         name: "catagoryId",
         referencedColumnName: "id",
       },
+      onDelete: "SET NULL",
+      onUpdate: 'CASCADE'
     }
   },
 });

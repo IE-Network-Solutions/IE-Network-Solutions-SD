@@ -5,6 +5,10 @@ const AppError = require("../../../utils/apperror");
 const Company = require("../../models/Company");
 const Ticket = require("../../models/Ticket");
 const validateUuid = require("uuid-validate");
+const Team = require("../../models/Team");
+const TicketUser = require("../../models/TicketUser");
+const TicketDAL = require("../tickets/dal");
+const { forEach } = require("../../../utils/permissionConstants");
 
 
 class ClientDAL {
@@ -27,6 +31,7 @@ class ClientDAL {
         .leftJoin("tickets.ticket_priority", "priority")
         .leftJoin("tickets.ticket_status", "status")
         .leftJoin("tickets.team", "team")
+        .leftJoin("tickets.created_by", "created_by")
         .leftJoin("team.team_lead", "team_lead")
         .leftJoin("tickets.client", "client")
         .leftJoin("tickets.comments", "comments")
@@ -77,6 +82,11 @@ class ClientDAL {
           "comments.is_escalation",
           "comments.created_at",
           "comments.updated_at",
+          "created_by.id",
+          "created_by.first_name",
+          "created_by.last_name",
+          "created_by.email",
+          "created_by.user_type"
         ])
         .getMany();
 
@@ -97,7 +107,7 @@ class ClientDAL {
 
       // create a bridge between the entity and the database
       const clientRepository = await connection.getRepository(User);
-      
+
       // get data
       const client = await clientRepository
         .createQueryBuilder("user")
@@ -159,7 +169,6 @@ class ClientDAL {
           "comments.updated_at",
         ])
         .getOne();
-
       // return single data
       return client;
     } catch (error) {
@@ -179,6 +188,7 @@ class ClientDAL {
         company_id,
         user_profile,
         phone_number,
+        created_by
       } = data;
       // get connection from the pool
       const connection = getConnection();
@@ -186,17 +196,17 @@ class ClientDAL {
       const clientRepository = connection.getRepository(User);
 
       // check if the email is used or not.
-      const emailCheck = await clientRepository.findOne({ where: { email }  });
+      const emailCheck = await clientRepository.findOne({ where: { email } });
       if (emailCheck) {
         throw "email is used ,please use another!";
       }
 
       const companyRepository = connection.getRepository(Company);
       const company = await companyRepository.findOne({ where: { id: company_id } });
-      if(!company){
+      if (!company) {
         throw "Company is not found!"
       }
-      const newClient= await clientRepository.create({
+      const newClient = await clientRepository.create({
         id,
         first_name,
         last_name,
@@ -205,59 +215,59 @@ class ClientDAL {
         company: company,
         profile_pic: user_profile,
         phone_number,
+        created_by: created_by
+
       });
-       await clientRepository.save(newClient);
+
+      await clientRepository.save(newClient);
       return newClient;
     } catch (error) {
-      throw error 
+      throw error
     }
   }
 
   static async updateClient(id, updatedFields) {
-   try {
-    if (!validateUuid(id)) throw "Invalid Id"
-    if (!validateUuid(updatedFields.company_id)) throw "Invalid Company Id"
-
-    // create bridge
-    const clientRepository = connection.getRepository(User);
-    const client = await clientRepository.findOne({ where: { id: id } });
-    if (!client) {
-      throw new Error("client not found!");
-    }
-    console.log("kiraaaaaa", updatedFields);
-    clientRepository.merge(client, updatedFields);
-
-    // update if company is changed
-    if (updatedFields.company) {
-      client.company = updatedFields.company;
-    }
-
-    await clientRepository.save(client);
-
-    return client;
-  }catch(error){
-    throw error;
-  }}
-
-  static async getClientTickets(data) {
     try {
-      const client = data;
-      // get connection from the pool
-      const connection = getConnection();
+      if (!validateUuid(id)) throw "Invalid Id"
+      if (!validateUuid(updatedFields.company_id)) throw "Invalid Company Id"
 
       // create bridge
-      const clientRepository = connection.getRepository(Ticket);
+      const connection = getConnection();
+      const clientRepository = connection.getRepository(User);
+      const client = await clientRepository.findOne({ where: { id: id } });
+      if (!client) {
+        throw new Error("client not found!");
+      }
+      clientRepository.merge(client, updatedFields);
 
-      const client_tickets = clientRepository.find({
-        where: { client: client, is_deleted: false },
-        relations: [
-          "ticket_status",
-          "ticket_type",
-          "ticket_priority",
-          "department",
-          "comments",
-        ],
-      });
+      // update if company is changed
+      if (updatedFields.company) {
+        client.company = updatedFields.company;
+      }
+
+      await clientRepository.save(client);
+
+      return client;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async getClientTickets(client) {
+    try {
+      const connection = getConnection();
+      const clientRepository = await connection.getRepository(Ticket);
+      const client_tickets = await clientRepository
+        .createQueryBuilder("ticket")
+        .leftJoinAndSelect("ticket.ticket_status", "ticket_status")
+        .leftJoinAndSelect("ticket.ticket_type", "ticket_type")
+        .leftJoinAndSelect("ticket.ticket_priority", "ticket_priority")
+        .leftJoinAndSelect("ticket.team", "team")
+        .leftJoinAndSelect("ticket.comments", "comments")
+        .leftJoinAndSelect("ticket.client", "client")
+        .where("ticket.client = :clientId", { clientId: client.id })
+        .getMany();
+
       return client_tickets;
     } catch (error) {
       throw error
@@ -295,23 +305,41 @@ class ClientDAL {
   }
 
   static async deleteClient(id) {
-   try {
-     // get connection from the pool
-     const connection = getConnection();
-
-    // create bridge
+    const connection = getConnection();
     const clientRepository = connection.getRepository(User);
+    return await clientRepository.delete({ id });
+  }
 
-    const deleted = await clientRepository.delete(id);
-    if (!deleted) {
-      throw "failed to delete client , try again!"
+  static async getAllClientTicketsByAdmin() {
+    try {
+      const connection = getConnection();
+      const clientRepository = connection.getRepository(Ticket);
+      return await clientRepository.find({ relations: ['created_by', 'team'] });
     }
-    throw "client deleted Successfully";
+    catch (error) {
+      throw error
+    }
   }
-  catch(error){
-    throw error
+
+  static async getClientTicketById(ticketId) {
+    const connection = getConnection();
+    const clientRepository = await connection.getRepository(Ticket);
+    return clientRepository.findOne({ where: { id: ticketId }, relations: ["client", "team"] });
   }
-}
+
+  static async assignClientTicketToTeamByAdmin(ticketId, teamsId) {
+    try {
+      const connection = getConnection();
+      const ticketRepository = await connection.getRepository(Ticket);
+
+      for (const teamId of teamsId) {
+        await ticketRepository.update(ticketId, { team: teamId });
+      };
+      return await this.getClientTicketById(ticketId);
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 module.exports = ClientDAL;

@@ -51,10 +51,12 @@ exports.createKnowledgeBase = async (req, res, next) => {
   try {
     // get input data.
     const data = req.body;
+    data.image = req.file ? req.file.path : null;;
+
 
     //   create new knowledgeBase
     const knowledgeBase = await KnowledgeBaseDAL.createKnowledgeBase(data);
-
+    console.log("accepted", req.body, "knowledgebase", knowledgeBase)
     //Create knowledge base and return the data
     res.status(201).json({
       status: "Success",
@@ -112,7 +114,27 @@ exports.deleteKnowledgeBaseById = async (req, res, next) => {
 
     res.status(200).json({
       status: "Knowledge base is successfully deleted",
-      data: await KnowledgeBaseDAL.deleteOneKnowledgebase(id),
+      data: await KnowledgeBaseDAL.deleteKnowledgeBaseById(id),
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.getKnowledgeBaseByCatagoryId = async (req, res, next) => {
+
+  try {
+    const id = req.params.id;
+    const result = await KnowledgeBaseDAL.getKnowledgeBaseByCatagoryId(id);
+    if (!result) {
+      return next(
+        new AppError("Catagory with the given id is not found.", 404)
+      );
+    }
+
+    res.status(200).json({
+      status: "Success",
+      data: result,
     });
   } catch (error) {
     throw error;

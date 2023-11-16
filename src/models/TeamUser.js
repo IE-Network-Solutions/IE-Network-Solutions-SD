@@ -4,6 +4,7 @@ const { EntitySchema } = require("typeorm");
 const TeamUser = new EntitySchema({
   name: "TeamUser",
   columns: {
+
     team_id: {
       primary: true,
       type: "int",
@@ -21,6 +22,8 @@ const TeamUser = new EntitySchema({
         name: "team_id",
         referencedColumnName: "id",
       },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
     user: {
       type: "many-to-one",
@@ -29,6 +32,8 @@ const TeamUser = new EntitySchema({
         name: "user_id",
         referencedColumnName: "id",
       },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
   },
 });

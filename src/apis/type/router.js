@@ -11,12 +11,12 @@ const permissionMiddleware = require("../../middlewares/permission.middleware");
 router.route("/").get(TypeController.getAllTypes);
 router.route("/:id").get(uuidValidator, TypeController.getOneType);
 
-router.route("/").post(authorize, permissionMiddleware(['create-ticket-type']), TypeController.createType);
+router.route("/").post(authorize, permissionMiddleware(['create-type']), TypeController.createType);
 
-router.route("/").patch(authorize, permissionMiddleware(['update-ticket-type']), TypeController.editType);
+router.route("/").patch(authorize, permissionMiddleware(['edit-type']), TypeController.editType);
 
-router.route("/deleteAllTypes").delete(authorize, permissionMiddleware(['delete-ticket-types']), TypeController.deleteAllTypes);
+router.route("/deleteAllTypes").delete(authorize, permissionMiddleware(['delete-types']), TypeController.deleteAllTypes);
 
-router.route("/:id").delete(authorize, permissionMiddleware(['delete-ticket-type']), uuidValidator, TypeController.deleteType);
+router.route("/:id").delete(authorize, permissionMiddleware(['delete-type']), uuidValidator, TypeController.deleteType);
 
 module.exports = router;

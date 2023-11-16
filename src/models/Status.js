@@ -11,6 +11,7 @@ const Priority = new EntitySchema({
     type: {
       type: "varchar",
       nullable: false,
+      default: "Open"
     },
     status_color: {
       type: "varchar",
@@ -37,6 +38,8 @@ const Priority = new EntitySchema({
         name: "user_id",
         referencedColumnName: "id",
       },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
     created_on: {
       type: "one-to-many",
@@ -45,6 +48,8 @@ const Priority = new EntitySchema({
         name: "ticket_id",
         referencedColumnName: "id",
       },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
   },
 });

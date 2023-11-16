@@ -169,6 +169,7 @@ exports.createEscalation = async (req, res, next) => {
     console.log(emailTo, emailCc, "emailllllllllllllllllllll");
     // check if ticket exist or not
     const ticket = await TicketDAL.getTicketById(comment.ticket_id);
+    
     if (!ticket) {
       return next(new AppError("ticket does not exist", 404));
     }

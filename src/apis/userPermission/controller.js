@@ -118,7 +118,7 @@ exports.assignPermissionToUser = async (req, res, next) => {
   try {
     const userId = req.params.id;
     const permissionsId = req.body.permissions;
-
+    console.log(userId);
     permissionsId.map((uuid) => {
       if (!uuidValidator(uuid)) {
         return next(new AppError("Invalid Permission Id", 500));

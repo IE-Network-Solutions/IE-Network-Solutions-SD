@@ -16,6 +16,9 @@ const PriorityDAL = require("../priority/dal");
 const TypeDAL = require("../type/dal");
 const sortBy = require('../../../utils/sortor.utils');
 const findAll = require('../../../utils/plugins/findAll.utils');
+const _ = require('lodash');
+const StatusDAL = require("../status/dal");
+
 
 class TicketDAL {
   static async getAllTickets() {
@@ -367,8 +370,16 @@ class TicketDAL {
       throw new Error("Ticket is Not Found with the provided id");
     }
 
-    ticketRepository.merge(ticket, updatedFields);
-    return await ticketRepository.save(ticket);
+    const status = await StatusDAL.getStatus(updatedFields.status_id);
+
+    if (status.type == "Closed") {
+      await statusRepository.update(ticket, { ticket_status: status.id });
+      await statusRepository.update(ticket, { closed: true });
+    }
+    const tickets = await ticketRepository.merge(ticket, updatedFields);
+    const result = await ticketRepository.save(tickets);
+    console.log("status", result);
+    return result;
   }
 
   static async deleteTicketById(id) {
@@ -671,9 +682,21 @@ class TicketDAL {
     const connection = getConnection();
     const ticketUserRepository = await connection.getRepository(TicketUser);
     const ticketUser = await ticketUserRepository.find({
-      where: { user_id: userId }, relations: ["ticket.ticket_status", "user"], groupBy: "ticket.ticket_status.type"
+      where: { user_id: userId }, relations: ["ticket.ticket_status", "user", "user.role"], groupBy: "ticket.ticket_status.type"
     });
     return ticketUser;
+  }
+  static async getTeamTicketByTeamId(teamId) {
+    const connection = getConnection();
+    const ticketRepository = connection.getRepository(Ticket);
+    const tickets = await ticketRepository
+      .createQueryBuilder("ticket")
+      .leftJoinAndSelect("ticket.team", "team") // Assuming there's a relationship between Ticket and Team
+      .leftJoinAndSelect("ticket.ticket_status", "ticket_status")
+      .where("ticket.team_id = :teamId", { teamId })
+      .getMany();
+
+    return tickets;
   }
 
   static async getAllTicketsForCompany(userId) {
@@ -682,6 +705,22 @@ class TicketDAL {
 
       // console.log(user);
 
+
+    } catch (error) {
+      throw error
+    }
+  }
+
+  static async closeTicket(ticketId, statusId) {
+    try {
+      const connection = getConnection();
+      const statusRepository = await connection.getRepository(Ticket);
+      const status = await StatusDAL.getStatus(statusId);
+      if (status.type == "Closed") {
+        await statusRepository.update(ticketId, { ticket_status: statusId });
+        return await statusRepository.update(ticketId, { closed: true });
+      }
+      return await statusRepository.update(ticketId, { ticket_status: statusId });
 
     } catch (error) {
       throw error

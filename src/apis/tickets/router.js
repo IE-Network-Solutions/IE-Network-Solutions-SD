@@ -115,6 +115,13 @@ router
     TicketController.viewTicketdetailByAdminById
   );
 
+router
+  .route("/close-ticket/by-ticket-id/:id")
+  .patch(
+    authorize,
+    TicketController.closeTicket
+  );
+
 
 
 

@@ -10,51 +10,30 @@ const { uuidValidator } = require("../../../utils/uuid");
 const authorize = require("../../middlewares/auth/authorization");
 const permissionMiddleware = require("../../middlewares/permission.middleware");
 
-router
-      .route("/junk")
-      .get(TicketController.getAllJunkTickets)
-router
-      .route('/junk/untransfered')
-      .get(TicketController.getAllUnTransferedJunkTickets)
+router.route("/filter").get(authorize, permissionMiddleware(["filter-tickets"]), TicketController.applyFilterOnTickets);
 
 router
-    .route('/junk/:id')
-    .get(TicketController.getJunkTicket)
-    .post(TicketController.transferJunkTicketToTicket)
-    .delete( uuidValidator, TicketController.deleteJunkTicket);
+  .route("/junk")
+  .get(TicketController.getAllJunkTickets)
+router
+  .route('/junk/untransfered')
+  .get(TicketController.getAllUnTransferedJunkTickets)
+
+router
+  .route('/junk/:id')
+  .get(TicketController.getJunkTicket)
+
+  .post(authorize, TicketController.transferJunkTicketToTicket)
+  .delete(uuidValidator, TicketController.deleteJunkTicket);
 
 
-router.route("/:id").get(TicketController.getTicketById);
-router.route("/filter").get(authorize, TicketController.applyFilterOnTickets);
-router.route("/").get(authorize, TicketController.getAllTickets);
-router.route("/:id").get(authorize, TicketController.getTicketById);
-router.route("/tickt-status").get(TicketController.getTicketsByStatus);
-router.route("/tickt-team-count").get(TicketController.getTicketsCountByTeam);
-router.route("/tickt-status").get(TicketController.getTicketsByStatus);
 router
   .route("/user-assigned-ticket")
-  .get(authorize, TicketController.getAssignedTicketsForLoggedinUser);
-router
-  .route("/filter")
-  .get(
-    authorize,
-    permissionMiddleware(["filter-tickets"]),
-    TicketController.applyFilterOnTickets
-  );
-router
-  .route("/")
-  .get(
-    authorize,
-    permissionMiddleware(["view-tickets"]),
-    TicketController.getAllTickets
-  );
-router
-  .route("/:id")
-  .get(
-    authorize,
-    permissionMiddleware(["view-ticket"]),
-    TicketController.getTicketById
-  );
+  .get(authorize, permissionMiddleware(["view-assign-agents"]), TicketController.getAssignedTicketsForLoggedinUser)
+router.route("/tickt-status").get(authorize, TicketController.getTicketsByStatus);
+router.route("/tickt-team-count").get(authorize, permissionMiddleware(["view-assign-agents"]), TicketController.getTicketsCountByTeam);
+router.route("/").get(authorize, permissionMiddleware(["view-tickets"]), TicketController.getAllTickets);
+router.route("/:id").get(authorize, permissionMiddleware(["view-ticket"]), TicketController.getTicketById);
 router
   .route("/")
   .post(
@@ -66,20 +45,10 @@ router
 router
   .route("/:id")
   .patch(
-    authorize,
-    permissionMiddleware(["update-ticket"]),
-    validate(updateTicketValidator),
-    TicketController.updateTicket
-  );
+    authorize, permissionMiddleware(["update-ticket"]), validate(updateTicketValidator), TicketController.updateTicket);
 router
   .route("/:id")
-  .delete(
-    authorize,
-    permissionMiddleware(["delete-ticket"]),
-    uuidValidator,
-    authorize,
-    TicketController.deleteTicket
-  );
+  .delete(authorize, permissionMiddleware(["delete-tickets"]), uuidValidator, authorize, TicketController.deleteTicket);
 router
   .route("/assign-user/:id")
   .post(
@@ -92,26 +61,17 @@ router
 
 router
   .route("/remove-user/:id")
-  .post(
-    authorize,
-    permissionMiddleware(["remove-assigned-user-ticket"]),
-    uuidValidator,
-    TicketController.removeAssigned
-  );
-
-router
-  .route("/getAllTickets/ForCurrentLoggedInUser")
-  .get(authorize, TicketController.getAllTicketsForCurrentLoggedInUser);
+  .post(authorize, permissionMiddleware(["remove-assigned-user-ticket"]), uuidValidator, TicketController.removeAssigned);
 
 router
   .route("/getAllTickets/groupByTeam")
   .get(authorize, TicketController.groupAllTicketsByTeamAndGet);
 
-  // .get(
-  //   authorize,
-  //   permissionMiddleware(["view-ticket-for-logged-in"]),
-  //   TicketController.getAllTicketsForCurrentLoggedInUser
-  // );
+router.route("/getAllTickets/ForCurrentLoggedInUser").get(
+  authorize,
+  permissionMiddleware(["view-ticket-for-logged-in"]),
+  TicketController.getAllTicketsForCurrentLoggedInUser
+);
 
 router
   .route("/getAllTickets/groupByTeam")
@@ -120,5 +80,49 @@ router
     permissionMiddleware(["view-grouped-ticket-by-team"]),
     TicketController.groupAllTicketsByTeamAndGet
   );
+router
+  .route('/companyticket')
+  .get(
+    authorize,
+    TicketController.getAllTicketsForCompany
+  )
+
+router
+  .route("/getAgentStatusForTeamById/:id")
+  .get(
+    authorize,
+    TicketController.getAgentStatusForTeamById
+  );
+
+router
+  .route("/get-all/escaletes")
+  .get(
+    authorize,
+    TicketController.getAllEscalates
+  );
+
+router
+  .route("/get-agent-status/all")
+  .get(
+    authorize,
+    TicketController.getAllAgentStatus
+  );
+
+router
+  .route("/view-ticket-detail/by-admin-by-id/:id")
+  .get(
+    authorize,
+    TicketController.viewTicketdetailByAdminById
+  );
+
+router
+  .route("/close-ticket/by-ticket-id/:id")
+  .patch(
+    authorize,
+    TicketController.closeTicket
+  );
+
+
+
 
 module.exports = router;

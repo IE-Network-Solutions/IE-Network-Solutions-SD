@@ -1,6 +1,7 @@
 const { getConnection } = require("typeorm");
 const KnowledgeBase = require("../../models/KnowledgeBase");
 const { validate: isUUID } = require("uuid");
+const AppError = require("../../../utils/apperror");
 class KnowledgeBaseDAL {
 
 
@@ -14,7 +15,7 @@ class KnowledgeBaseDAL {
       const knowledgebaseRepository = connection.getRepository(KnowledgeBase);
 
       // Returns Knowledge base data relate with create by user
-      return await knowledgebaseRepository.find({ relations: ['createdBy', 'catagoryId'] });
+      return await knowledgebaseRepository.find({ relations: ['createdBy', 'catagory'] });
 
     } catch (error) {
       throw error
@@ -32,7 +33,7 @@ class KnowledgeBaseDAL {
       const knowledgebaseRepository = connection.getRepository(KnowledgeBase);
 
       // Returns Knowledge base data relate with create by user
-      return await knowledgebaseRepository.findOne({ where: { id: id }, relations: ['createdBy', 'catagoryId'] });
+      return await knowledgebaseRepository.findOne({ where: { id: id }, relations: ['createdBy', 'catagory'] });
 
     } catch (error) {
       throw error;
@@ -44,7 +45,7 @@ class KnowledgeBaseDAL {
     try {
 
       // Accept all knowledge base values
-      const { title, category, description, image, createdBy, catagoryId } = data;
+      const { title, description, createdBy, catagoryId } = data;
 
       // Create connection
       const connection = getConnection();
@@ -52,9 +53,11 @@ class KnowledgeBaseDAL {
       // Inject knowledge base model
       const knowledgebaseRepository = connection.getRepository(KnowledgeBase);
 
+      console.log(catagoryId)
+
       // Create knowledge base value in memory
-      const knowledgebase = await knowledgebaseRepository.create({
-        title, category, description, image, createdBy, catagoryId
+      const knowledgebase = knowledgebaseRepository.create({
+        title, description, createdBy, catagoryId
       });
 
       // Save knowledge base values and Return new data
@@ -127,6 +130,20 @@ class KnowledgeBaseDAL {
 
       // return updated knowledgeBase data.
       return updatedKnowledgeBase;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async getKnowledgeBaseByCatagoryId(id) {
+    try {
+      if (!isUUID(id)) {
+        return null;
+      }
+      const connection = await getConnection();
+      const knowledgeBaseRepository = connection.getRepository(KnowledgeBase);
+      const getKnowlegeBaseById = await knowledgeBaseRepository.find({ where: { catagoryId: id }, relations: ['createdBy'] });
+      return getKnowlegeBaseById;
     } catch (error) {
       throw error;
     }

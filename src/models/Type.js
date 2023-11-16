@@ -33,6 +33,8 @@ const Type = new EntitySchema({
         name: "user_id",
         referencedColumnName: "id",
       },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
     tickets: {
       type: "one-to-many",
@@ -41,6 +43,8 @@ const Type = new EntitySchema({
         name: "ticket_id",
         referencedColumnName: "id",
       },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
   },
 });

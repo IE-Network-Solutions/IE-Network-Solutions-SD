@@ -14,7 +14,8 @@ const Token = new EntitySchema({
         isRevoked: {
             type: 'boolean',
         }
-    },
+    }
+
 });
 
 module.exports = Token;

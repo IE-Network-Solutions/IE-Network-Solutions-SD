@@ -95,7 +95,6 @@ exports.updateRoleById = async (req, res, next) => {
 
     // check if role with the given id is found or not?
     const checkRole = await RoleDAL.getRoleById(id);
-    console.log(checkRole);
 
     if (!checkRole) {
       return next(new AppError("Role with the given id is not found.", 404));
@@ -137,7 +136,6 @@ exports.deleteRoleById = async (req, res, next) => {
       return next(new AppError("Role with the given id is not found.", 404));
     }
     const deletedRole = await RoleDAL.deleteRoleById(id);
-    console.log(deletedRole);
     res.status(200).json({
       status: "Success",
       message: "Role is deleted successfully",

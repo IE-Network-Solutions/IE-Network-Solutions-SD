@@ -9,6 +9,16 @@ const TicketUser = require("../../models/TicketUser");
 const Type = require("../../models/Type");
 const UserDAL = require("../users/dal");
 const JunkTicket = require("../../models/JunkTicket");
+const TeamUser = require("../../models/TeamUser");
+const ClientDAL = require("../Client/dal");
+const teamDAL = require("../team/dal");
+const PriorityDAL = require("../priority/dal");
+const TypeDAL = require("../type/dal");
+const sortBy = require('../../../utils/sortor.utils');
+const findAll = require('../../../utils/plugins/findAll.utils');
+const _ = require('lodash');
+const StatusDAL = require("../status/dal");
+
 
 class TicketDAL {
   static async getAllTickets() {
@@ -18,7 +28,7 @@ class TicketDAL {
       const connection = await getConnection();
 
       // create a bridg
-      const ticketRepository = await connection.getRepository(Ticket);
+      const ticketRepository = await connection.getRepository(Ticket).extend({ findAll, sortBy });
 
       // fetch tickets with related data
       const tickets = await ticketRepository
@@ -181,6 +191,8 @@ class TicketDAL {
           "comments.is_escalation",
           "comments.created_at",
           "comments.updated_at",
+          "team_lead.id",
+          "team_lead.first_name",
         ])
         .where("ticket.id = :id", { id })
         .andWhere("ticket.is_deleted = :is_deleted", { is_deleted })
@@ -241,29 +253,50 @@ class TicketDAL {
       throw error;
     }
   }
-  static async transferJunkToTicker(data, id) {
+  static async transferJunkToTicker(data, id, user_id) {
     try {
-      // get connection from the pool
+      // Get a connection from the pool
       const connection = getConnection();
 
-      // create bridge
+      // Create a bridge to the JunkTicket entity
       const junkTicketRepository = connection.getRepository(JunkTicket);
 
-      const ticket = await junkTicketRepository.findOneBy({ id: id });
-      console.log(ticket);
-      if (!ticket) {
-        throw new Error("Junk Ticket is Not Found with the provided id");
+      // Find the ticket by its ID
+      const ticket = await junkTicketRepository.findOneBy({ id });
+
+      if (ticket) {
+        ticket.isTransfered = true;
+
+        // Save the updated ticket
+        const updatedTicket = await junkTicketRepository.save(ticket);
+        const client = await ClientDAL.getClientById(data.client_id)
+        const user = await UserDAL.getOneUser(user_id)
+        const team = await teamDAL.getTeam(data.team_id)
+        const priority = await PriorityDAL.getPriority(data.priority_id)
+        // const type = await TypeDAL.getOneType(data.type_id)
+
+        const newT =
+        {
+          "subject": updatedTicket.subject,
+          "description": updatedTicket.body || "No Description",
+          ticket_priority: priority,
+          team: team,
+          // ticket_type: type,
+          created_by: user,
+          client: client
+        }
+
+        const transfer = await this.createNewTicket(newT)
+
+        return { updateTicket: updatedTicket, transfer: transfer };
+      } else {
+        throw new Error(`Ticket with ID ${id} not found`);
       }
-
-      junkTicketRepository.merge(ticket, { ...ticket, isTransfered: true });
-      const updatedJunk = await junkTicketRepository.save(ticket);
-
-      const transfer = await this.createNewTicket(data);
-      return { transfer, updatedJunk };
     } catch (error) {
       throw error;
     }
   }
+
 
   static async deleteJunkTicket(id) {
     try {
@@ -304,7 +337,7 @@ class TicketDAL {
       const ticketRepository = connection.getRepository(Ticket);
 
       // create ticket
-      const newTicket = await ticketRepository.create({
+      const newTicket = ticketRepository.create({
         id,
         status,
         description,
@@ -318,9 +351,8 @@ class TicketDAL {
         company: company,
         created_by: created_by,
       });
-      await ticketRepository.save(newTicket);
+      return await ticketRepository.save(newTicket);
 
-      return newTicket;
     } catch (error) {
       throw error;
     }
@@ -334,13 +366,20 @@ class TicketDAL {
     const ticketRepository = connection.getRepository(Ticket);
 
     const ticket = await ticketRepository.findOneBy({ id: id });
-    console.log(ticket);
     if (!ticket) {
       throw new Error("Ticket is Not Found with the provided id");
     }
 
-    ticketRepository.merge(ticket, updatedFields);
-    return await ticketRepository.save(ticket);
+    const status = await StatusDAL.getStatus(updatedFields.status_id);
+
+    if (status.type == "Closed") {
+      await statusRepository.update(ticket, { ticket_status: status.id });
+      await statusRepository.update(ticket, { closed: true });
+    }
+    const tickets = await ticketRepository.merge(ticket, updatedFields);
+    const result = await ticketRepository.save(tickets);
+    console.log("status", result);
+    return result;
   }
 
   static async deleteTicketById(id) {
@@ -584,7 +623,7 @@ class TicketDAL {
     // create bridge to the db
     const ticketRepository = connection.getRepository(Ticket);
 
-    const data = ticketRepository
+    const data = await ticketRepository
       .createQueryBuilder("ticket")
       .leftJoin("ticket.team", "team")
       .select([
@@ -599,13 +638,13 @@ class TicketDAL {
     return data;
   }
 
-  // assigned tickets for logged in user status not closed
+  // assigned tickets for logged in user status not closed 
   static async getAssignedTickets(userId) {
+
     const connection = getConnection();
     const name = "Closed";
     const userRepository = connection.getRepository(User);
     const ticketRepository = connection.getRepository(Ticket);
-
     const userTasks = await userRepository
       .createQueryBuilder("user")
       .leftJoin("user.assigned_tickets", "ticket")
@@ -624,6 +663,71 @@ class TicketDAL {
 
     return userTasks;
   }
+
+  static async getAgentStatusForTeamById(teamId) {
+    const connection = getConnection();
+    const userTeamRepository = await connection.getRepository(TeamUser);
+    const teamUser = await userTeamRepository.find({ where: { team_id: teamId } });
+    return teamUser;
+  }
+
+  static async getAllAgentStatus() {
+    const connection = getConnection();
+    const userTeamRepository = await connection.getRepository(TeamUser);
+    return await userTeamRepository.find();
+  }
+
+  static async getTicketUserByUserId(userId) {
+
+    const connection = getConnection();
+    const ticketUserRepository = await connection.getRepository(TicketUser);
+    const ticketUser = await ticketUserRepository.find({
+      where: { user_id: userId }, relations: ["ticket.ticket_status", "user", "user.role"], groupBy: "ticket.ticket_status.type"
+    });
+    return ticketUser;
+  }
+  static async getTeamTicketByTeamId(teamId) {
+    const connection = getConnection();
+    const ticketRepository = connection.getRepository(Ticket);
+    const tickets = await ticketRepository
+      .createQueryBuilder("ticket")
+      .leftJoinAndSelect("ticket.team", "team") // Assuming there's a relationship between Ticket and Team
+      .leftJoinAndSelect("ticket.ticket_status", "ticket_status")
+      .where("ticket.team_id = :teamId", { teamId })
+      .getMany();
+
+    return tickets;
+  }
+
+  static async getAllTicketsForCompany(userId) {
+    try {
+      // const user = UserDAL.getOneUser(userId)
+
+      // console.log(user);
+
+
+    } catch (error) {
+      throw error
+    }
+  }
+
+  static async closeTicket(ticketId, statusId) {
+    try {
+      const connection = getConnection();
+      const statusRepository = await connection.getRepository(Ticket);
+      const status = await StatusDAL.getStatus(statusId);
+      if (status.type == "Closed") {
+        await statusRepository.update(ticketId, { ticket_status: statusId });
+        return await statusRepository.update(ticketId, { closed: true });
+      }
+      return await statusRepository.update(ticketId, { ticket_status: statusId });
+
+    } catch (error) {
+      throw error
+    }
+  }
 }
+
+
 
 module.exports = TicketDAL;

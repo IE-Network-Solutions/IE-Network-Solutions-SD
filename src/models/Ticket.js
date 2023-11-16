@@ -51,6 +51,8 @@ const Ticket = new EntitySchema({
           referencedColumnName: "id",
         },
       },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
     ticket_priority: {
       type: "many-to-one",
@@ -59,6 +61,8 @@ const Ticket = new EntitySchema({
         name: "priority_id",
         referencedColumnName: "id",
       },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
     created_by: {
       type: "many-to-one",
@@ -67,6 +71,8 @@ const Ticket = new EntitySchema({
         name: "created_by",
         referencedColumnName: "id",
       },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
     ticket_status: {
       type: "many-to-one",
@@ -75,6 +81,8 @@ const Ticket = new EntitySchema({
         name: "status_id",
         referencedColumnName: "id",
       },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
     ticket_type: {
       type: "many-to-one",
@@ -83,6 +91,8 @@ const Ticket = new EntitySchema({
         name: "type_id",
         referencedColumnName: "id",
       },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
     team: {
       type: "many-to-one",
@@ -91,6 +101,8 @@ const Ticket = new EntitySchema({
         name: "team_id",
         referencedColumnName: "id",
       },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
     client: {
       type: "many-to-one",
@@ -99,6 +111,8 @@ const Ticket = new EntitySchema({
         name: "client_id",
         referencedColumnName: "id",
       },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
     company: {
       type: "many-to-one",
@@ -107,11 +121,15 @@ const Ticket = new EntitySchema({
         name: "company_id",
         referencedColumnName: "id",
       },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
     comments: {
       type: "one-to-many",
       target: "Comment",
       inverseSide: "ticket",
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
   },
 });

@@ -1,4 +1,4 @@
-const { EntitySchema } = require("typeorm"); 
+const { EntitySchema } = require("typeorm");
 
 const Todo = new EntitySchema({
   name: "Todo",
@@ -41,6 +41,8 @@ const Todo = new EntitySchema({
         name: "user_id",
         referencedColumnName: "id",
       },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
   },
 });

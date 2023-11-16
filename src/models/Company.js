@@ -52,11 +52,15 @@ const Company = new EntitySchema({
       type: "one-to-many",
       target: "User",
       inverseSide: "company",
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
     tickets: {
       type: "one-to-many",
       target: "Ticket",
       inverseSide: "company",
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
   },
 });

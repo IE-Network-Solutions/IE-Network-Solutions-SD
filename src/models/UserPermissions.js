@@ -5,11 +5,11 @@ const UserPermission = new EntitySchema({
   columns: {
     user_id: {
       type: "uuid",
-       primary:true,
+      primary: true,
     },
-     permission_id: {
+    permission_id: {
       type: "uuid",
-      primary:true,
+      primary: true,
     },
   },
   relations: {
@@ -17,11 +17,15 @@ const UserPermission = new EntitySchema({
       type: 'many-to-one',
       target: 'User',
       joinColumn: { name: 'user_id', referencedColumnName: 'id' },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
     permission: {
       type: 'many-to-one',
       target: 'Permission',
       joinColumn: { name: 'permission_id', referencedColumnName: 'id' },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
   },
 });

@@ -1,4 +1,4 @@
-const { EntitySchema } = require("typeorm"); 
+const { EntitySchema } = require("typeorm");
 
 const Catagories = new EntitySchema({
   name: "Catagory",
@@ -24,10 +24,10 @@ const Catagories = new EntitySchema({
     },
   },
   relations: {
-     catagory : {
+    knowledgebase: {
       type: "one-to-many",
       target: "KnowledgeBase",
-      inverseSide: "catagoryId",
+      inverseSide: "catagory",
     },
   },
 });

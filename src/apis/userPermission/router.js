@@ -16,3 +16,4 @@ router.route("/:id").patch(authorize, permissionMiddleware(['update-user-permiss
 
 
 module.exports = router;
+

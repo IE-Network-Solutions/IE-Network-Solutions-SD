@@ -31,7 +31,7 @@ const permissionSeeder = require("../src/apis/Seeder/router");
 const cron = require("node-cron");
 const RoleRoute = require("../src/apis/role/router");
 const TeamRoute = require("../src/apis/team/router");
-// const NotificationRoute = require('../src/apis/notification/router')
+const NotificationRoute = require('../src/apis/notifications/router')
 const app = express();
 
 /**
@@ -49,8 +49,8 @@ app.use(express.urlencoded({ extended: false }));
 // a way to get static files
 app.use("/api/v1/uploads", express.static("uploads"));
 
-//*/30 * * * * *' // for 3o seconds
-cron.schedule("*/30 * * * * *", imapFetch); //run every fifteen minutes
+//*/30 * * * * *' // for 3o seconds 
+// cron.schedule('*/30 * * * * *', imapFetch); //run every fifteen minutes
 // cron.schedule("00 */15 * * * *",  imapFetch); //run every fifteen minutes\
 
 app.use("/api/v1/tickets", ticketRoute);
@@ -73,7 +73,7 @@ app.use("/api/v1/statuses", StatusesRoute);
 app.use("/api/v1/departments", DepartmentRoute);
 app.use("/api/v1/types", TypeRoute);
 app.use("/api/v1/teams", TeamRoute);
-// app.use("/api/v1/notification" , NotificationRoute )
+app.use("/api/v1/notification", NotificationRoute)
 app.use("/api/v1/permissionSeeder", permissionSeeder);
 
 // Unknown URL Error Message

@@ -329,6 +329,7 @@ exports.updateTicket = async (req, res, next) => {
     }
 
     // check if status exist or not
+    console.log("status", updatedFields)
     if (updatedFields.status_id) {
       const status = await StatusDAL.getStatus(updatedFields.status_id);
       if (!status) {
@@ -349,7 +350,7 @@ exports.updateTicket = async (req, res, next) => {
     }
 
     const ticket = await TicketDAL.updateTicket(id, updatedFields);
-
+    console.log("ticket", ticket, "updatedFields", updatedFields)
     res.status(200).json({
       status: `Ticket with id ${id} is Successfully updated`,
       data: ticket,
@@ -635,6 +636,7 @@ exports.getAgentStatusForTeamById = async (req, res, next) => {
 
     const teamUser = await TicketDAL.getAgentStatusForTeamById(teamId);
     const userIds = teamUser.map((user) => user.user_id);
+
     let allUserTickets = []
 
     for (const user of userIds) {
@@ -658,6 +660,7 @@ exports.getAgentStatusForTeamById = async (req, res, next) => {
       }
       return userCount
     });
+
     res.status(200).json({
       status: "Success",
       userTicket: returnedData
@@ -671,36 +674,31 @@ exports.getAgentStatusForTeamById = async (req, res, next) => {
 exports.getAllAgentStatus = async (req, res, next) => {
   try {
     const teamUser = await TicketDAL.getAllAgentStatus();
-    const userIds = teamUser.map((user) => user.user_id);
+    const teamsId = teamUser.map((team) => team.team_id);
 
-    let allUserTickets = []
-
-    for (const user of userIds) {
-      const result = await TicketDAL.getTicketUserByUserId(user);
-
-      allUserTickets.push(result);
+    let allTeamTickets = [];
+    let singleTeam = [];
+    for (const teamId of teamsId) {
+      singleTeam = await TicketDAL.getTeamTicketByTeamId(teamId);
+      singleTeam.map((team) => {
+        allTeamTickets.push(team);
+      })
     }
 
-    let returnedData = allUserTickets.map(users => {
-      let userCount = { total: users.length }
-
-      if (users.length) {
-        userCount["userDetail"] = users[0].user
-        users.forEach((us) => {
-
-          if (Object.keys(userCount).includes(us.ticket.ticket_status?.type)) {
-            userCount[us.ticket.ticket_status?.type] += 1
-          }
-          else {
-            userCount[us.ticket.ticket_status?.type] = 1
-          }
-        })
+    const groupedTeam = allTeamTickets.reduce((groupedTeam, singleTeam) => {
+      const teamName = singleTeam.team ? singleTeam.team.name : "Unassigned";
+      const existingTeam = groupedTeam.find(item => item.teamName === teamName);
+      if (existingTeam) {
+        existingTeam.tickets.push(singleTeam);
+      } else {
+        groupedTeam.push({ teamName: teamName, tickets: [singleTeam] });
       }
-      return userCount
-    });
+      return groupedTeam;
+    }, []);
+
     res.status(200).json({
       status: "Success",
-      userTicket: returnedData
+      data: groupedTeam
     });
   } catch (error) {
     console.error(error); // Log the error for debugging
@@ -746,6 +744,31 @@ exports.getAllEscalates = async (req, res) => {
 exports.viewTicketdetailByAdminById = async (req, res) => {
   try {
     const ticket = await TicketDAL.getTicketById(req.params.id);
+    res.status(200).json({
+      status: "Success",
+      data: ticket
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "Error",
+      message: "Internal server error"
+    });
+  }
+};
+
+exports.closeTicket = async (req, res) => {
+  try {
+    const status = await StatusDAL.getStatusByType("Closed");
+    const ticket = await TicketDAL.closeTicket(req.params.id, status.id);
+    const user = await TicketDAL.getTicketById(req.params.id);
+    await sendEmail(
+      req.user.email,
+      user.client.email,
+      "Ticket Notification",
+      "Your Ticket is Successfully closed",
+      "cc"
+    )
+    console.log(user.client.email)
     res.status(200).json({
       status: "Success",
       data: ticket

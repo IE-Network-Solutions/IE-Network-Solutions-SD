@@ -7,7 +7,7 @@ class catagoryDAL {
   static async getAllCatagories() {
     try {
       // Create connections
-      const connection = await getConnection();
+      const connection = getConnection();
 
       // Inject catagory model
       const catagoyRepository = connection.getRepository(catagories);

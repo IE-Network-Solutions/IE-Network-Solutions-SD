@@ -39,6 +39,6 @@ router.route("/deleteAllComments").delete(authorize, permissionMiddleware(['dele
 
 router
   .route("/:id")
-  .delete(authorize, uuidValidator, CommentController.deleteComment);
+  .delete(authorize, permissionMiddleware(['delete-client-ticket']), uuidValidator, CommentController.deleteComment);
 
 module.exports = router;

@@ -30,87 +30,87 @@ exports.imapFetch = async () => {
   }
 
   try {
-    imap.once('ready', function() {
+    imap.once('ready', function () {
       openInbox(
-        function(err, box) {
-        if (err) throw err;
+        function (err, box) {
+          if (err) throw err;
 
-        const fetchRange = getFetchRange(box);
+          const fetchRange = getFetchRange(box);
 
-        var f = imap.seq.fetch(fetchRange, {
-          bodies: ['HEADER.FIELDS (FROM TO SUBJECT DATE)', ''],
-          struct: true,
-        });
-
-        f.on('message',
-         async function(msg, seqno) {
-          // console.log('Message #%d', seqno);
-          var prefix = '(#' + seqno + ') ';
-          const messageData = {
-            prefix: prefix,
-            headers: null,
-            body: null,
-            attributes: null
-          };
-
-          // Extract headers of the message
-          msg.on('body', function(stream, info) {
-            var buffer = '';
-            stream.on('data', function(chunk) {
-              buffer += chunk.toString('utf8');
-            });
-            stream.once('end', function() {
-              // console.log(prefix + 'Parsed header: %s', inspect(Imap.parseHeader(buffer)));
-              messageData.headers = Imap.parseHeader(buffer);
-            });
+          var f = imap.seq.fetch(fetchRange, {
+            bodies: ['HEADER.FIELDS (FROM TO SUBJECT DATE)', ''],
+            struct: true,
           });
 
-          // Extract attributes (flags) of the message
-          msg.once('attributes', async function(attrs) {
-            // console.log(prefix + 'Attributes: %s', await inspect(attrs, false, 12));
-            messageData.attributes = attrs;
-            if (messageData.attributes.flags && !messageData.attributes.flags.includes('\\Seen')) {
-              await saveEmailToDatabase(messageData, imap);
-            }
+          f.on('message',
+            async function (msg, seqno) {
+              // console.log('Message #%d', seqno);
+              var prefix = '(#' + seqno + ') ';
+              const messageData = {
+                prefix: prefix,
+                headers: null,
+                body: null,
+                attributes: null
+              };
+
+              // Extract headers of the message
+              msg.on('body', function (stream, info) {
+                var buffer = '';
+                stream.on('data', function (chunk) {
+                  buffer += chunk.toString('utf8');
+                });
+                stream.once('end', function () {
+                  // console.log(prefix + 'Parsed header: %s', inspect(Imap.parseHeader(buffer)));
+                  messageData.headers = Imap.parseHeader(buffer);
+                });
+              });
+
+              // Extract attributes (flags) of the message
+              msg.once('attributes', async function (attrs) {
+                // console.log(prefix + 'Attributes: %s', await inspect(attrs, false, 12));
+                messageData.attributes = attrs;
+                if (messageData.attributes.flags && !messageData.attributes.flags.includes('\\Seen')) {
+                  await saveEmailToDatabase(messageData, imap);
+                }
+              });
+
+              // Extract the body of the message
+              msg.once('body', function (stream, info) {
+                var buffer = '';
+                stream.on('data', function (chunk) {
+                  buffer += chunk.toString('utf8');
+                });
+                stream.once('end', async function () {
+                  // console.log(prefix + 'Body: %s', buffer);
+                  // Parse the email using mailparser
+                  const parsedEmail = await simpleParser(buffer);
+                  messageData.body = parsedEmail.text;
+                  // console.log("---------------------------")
+                  // console.log( "Body Buffer",parsedEmail.text || '')
+                  // console.log("---------------------------")
+
+                });
+              });
+            });
+
+          f.once('error', function (err) {
+            console.log('Fetch error: ' + err);
           });
 
-          // Extract the body of the message
-          msg.once('body', function(stream, info) {
-            var buffer = '';
-            stream.on('data', function(chunk) {
-              buffer += chunk.toString('utf8');
-            });
-            stream.once('end',async function() {
-              // console.log(prefix + 'Body: %s', buffer);
-              // Parse the email using mailparser
-      const parsedEmail = await simpleParser(buffer);
-              messageData.body = parsedEmail.text ;
-              // console.log("---------------------------")
-              // console.log( "Body Buffer",parsedEmail.text || '')
-              // console.log("---------------------------")
-
-            });
+          f.once('end', function () {
+            updateLastProcessedSeqNo(box);
+            console.log('Done fetching all messages!');
+            imap.end();
           });
         });
-
-        f.once('error', function(err) {
-          console.log('Fetch error: ' + err);
-        });
-
-        f.once('end', function() {
-          updateLastProcessedSeqNo(box);
-          console.log('Done fetching all messages!');
-          imap.end();
-        });
-      });
     });
 
-    imap.once('error', function(err) {
+    imap.once('error', function (err) {
       console.log(err);
       console.log('An Error occurred');
     });
 
-    imap.once('end', function() {
+    imap.once('end', function () {
       console.log('Connection ended');
     });
 
@@ -140,37 +140,37 @@ function updateLastProcessedSeqNo(box) {
 async function saveEmailToDatabase(messageData, imap) {
   try {
     const senderEmail = messageData.headers.from[0];
-    
+
     let Sender;
-// Find the position of '<' and '>'
-const startIndex = senderEmail.indexOf('<');
-const endIndex = senderEmail.indexOf('>');
+    // Find the position of '<' and '>'
+    const startIndex = senderEmail.indexOf('<');
+    const endIndex = senderEmail.indexOf('>');
 
-if (startIndex !== -1 && endIndex !== -1) {
-  // Extract the string between '<' and '>'
-  const email = senderEmail.substring(startIndex + 1, endIndex);
-   Sender =`${ email}`
-//   senderEmail = Sender
+    if (startIndex !== -1 && endIndex !== -1) {
+      // Extract the string between '<' and '>'
+      const email = senderEmail.substring(startIndex + 1, endIndex);
+      Sender = `${email}`
+      //   senderEmail = Sender
 
-}
+    }
 
     // const id = uuidv4();
     const connection = getConnection();
-      const id = uuidv4();
-      const junkTicketRepository = connection.getRepository(JunkTicket);
-      const newJunkTicket = junkTicketRepository.create({
-        subject: messageData.headers.subject[0],
-        senderEmail: Sender,
-        body: messageData.body,
-        id: id,
-      });
-      try {
-        
-     const savedJunkTicket = await junkTicketRepository.save(newJunkTicket);
-     if(!savedJunkTicket){
-      console.log("Faild to create a junk ticket.");
-     }
-      await sendEmail(config.email.systemEmail , newJunkTicket.senderEmail , "Successfully created a ticket!" ,`<body style="font-family: Arial, sans-serif; background-color: #f5f5f5; margin: 0; padding: 0;">
+    const id = uuidv4();
+    const junkTicketRepository = connection.getRepository(JunkTicket);
+    const newJunkTicket = junkTicketRepository.create({
+      subject: messageData.headers.subject[0],
+      senderEmail: Sender,
+      body: messageData.body,
+      id: id,
+    });
+    try {
+
+      const savedJunkTicket = await junkTicketRepository.save(newJunkTicket);
+      if (!savedJunkTicket) {
+        console.log("Faild to create a junk ticket.");
+      }
+      await sendEmail(config.email.systemEmail, newJunkTicket.senderEmail, "Successfully created a ticket!", `<body style="font-family: Arial, sans-serif; background-color: #f5f5f5; margin: 0; padding: 0;">
 
       <div style="max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff; border-radius: 5px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
       
@@ -182,10 +182,10 @@ if (startIndex !== -1 && endIndex !== -1) {
       
           <a href="http://localhost:3001/localhost" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Click here to see detail</a>
       
-          <p>Thank you!</p>` , "cc" )
-      } catch (error) {
-        console.log("Error Saving THe Data to DB:",error);
-      }
+          <p>Thank you!</p>` , "cc")
+    } catch (error) {
+      console.log("Error Saving THe Data to DB:", error);
+    }
     // }
 
     // Mark the message as seen (read) to avoid processing it again in the future

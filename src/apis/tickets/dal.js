@@ -365,21 +365,32 @@ class TicketDAL {
     // create bridge
     const ticketRepository = connection.getRepository(Ticket);
 
-    const ticket = await ticketRepository.findOneBy({ id: id });
+    const ticket = await ticketRepository.findOne({ where: { id: id }, relations: ['ticket_status', 'ticket_type', 'ticket_priority', 'team'] },);
     if (!ticket) {
       throw new Error("Ticket is Not Found with the provided id");
     }
+    console.log("ticket", ticket)
 
     const status = await StatusDAL.getStatus(updatedFields.status_id);
 
     if (status.type == "Closed") {
-      await statusRepository.update(ticket, { ticket_status: status.id });
-      await statusRepository.update(ticket, { closed: true });
+      await ticketRepository.update(ticket.id, { closed: true });
+      await ticketRepository.update(ticket.id, {
+        ticket_priority: updatedFields.priority_id,
+        ticket_status: updatedFields.status_id,
+        ticket_type: updatedFields.type_id,
+        team: updatedFields.team_id
+      }
+      );
     }
-    const tickets = await ticketRepository.merge(ticket, updatedFields);
-    const result = await ticketRepository.save(tickets);
-    console.log("status", result);
-    return result;
+    await ticketRepository.update(ticket.id, {
+      ticket_priority: updatedFields.priority_id,
+      ticket_status: updatedFields.status_id,
+      ticket_type: updatedFields.type_id,
+      team: updatedFields.team_id
+    }
+    );
+    return ticket
   }
 
   static async deleteTicketById(id) {

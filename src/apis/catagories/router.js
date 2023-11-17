@@ -7,11 +7,11 @@ const permissionMiddleware = require("../../middlewares/permission.middleware");
 const authorize = require("../../middlewares/auth/authorization");
 
 router.route("/")
-    .get(authorize, permissionMiddleware(['view-categories']), catagoryController.getAllCatagories)
-    .post(authorize, permissionMiddleware(['create-category']), validate(catagoryvalidation), catagoryController.createCatagory);
+    .get(authorize, catagoryController.getAllCatagories)
+    .post(authorize, validate(catagoryvalidation), catagoryController.createCatagory);
 
 router.route("/:id")
-    .get(authorize, permissionMiddleware(['view-category']), uuidValidator, catagoryController.getCatagoryById)
+    .get(authorize, uuidValidator, catagoryController.getCatagoryById)
     .patch(authorize, permissionMiddleware(['update-category']), uuidValidator, catagoryController.updateCatagory)
     .delete(authorize, permissionMiddleware(['delete-category']), uuidValidator, catagoryController.deleteCatagory);
 

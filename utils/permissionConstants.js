@@ -153,8 +153,10 @@ module.exports = [
     //Client Permissions ????
     // { name: 'Create contact', slug: 'create-contact' },
     // { name: 'Delete client', slug: 'delete-client' },
+    { name: 'Delete client ticket', slug: 'delete-client-ticket' },
+
     // { name: 'View client', slug: 'view-client' },
-    { name: 'Update client ', slug: 'update-client ' },
+    // { name: 'Update client ', slug: 'update-client ' },
     // { name: 'Send contact activation ', slug: 'send-contact-activation' },
 
     //TicketUser Permissions ????

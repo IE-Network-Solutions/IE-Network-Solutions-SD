@@ -299,7 +299,7 @@ exports.updateTicket = async (req, res, next) => {
     const id = req.params.id;
     const updatedFields = req.body;
     const user = req.user;
-    // check if the user updating is the one who created or the admin
+
     if (!(user.role.roleName == "Admin")) {
       return next(new AppError("Unauthorized to update this ticket"));
     }
@@ -329,7 +329,6 @@ exports.updateTicket = async (req, res, next) => {
     }
 
     // check if status exist or not
-    console.log("status", updatedFields)
     if (updatedFields.status_id) {
       const status = await StatusDAL.getStatus(updatedFields.status_id);
       if (!status) {
@@ -339,21 +338,20 @@ exports.updateTicket = async (req, res, next) => {
     }
 
     // check if department exist or not
-    if (updatedFields.department_id) {
-      const department = await DepartmentDAL.getDepartment(
-        updatedFields.department_id
+    if (updatedFields.team_id) {
+      const team = await teamDAL.getTeam(
+        updatedFields.team_id
       );
-      if (!department) {
+      if (!team) {
         return next(new AppError("Department does not exist"));
       }
-      updatedFields.department = department;
+      updatedFields.team = team;
     }
 
     const ticket = await TicketDAL.updateTicket(id, updatedFields);
-    console.log("ticket", ticket, "updatedFields", updatedFields)
     res.status(200).json({
       status: `Ticket with id ${id} is Successfully updated`,
-      data: ticket,
+      data: await TicketDAL.getTicketById(id),
     });
   } catch (error) {
     throw error;
@@ -696,9 +694,28 @@ exports.getAllAgentStatus = async (req, res, next) => {
       return groupedTeam;
     }, []);
 
+    let returnedData = groupedTeam.map(team => {
+      let ticketcount = { total: team.tickets.length }
+
+      if (team.tickets.length) {
+        ticketcount["teamName"] = team.teamName
+        ticketcount["tickets"] = team.tickets
+        team.tickets.forEach((us) => {
+
+          if (Object.keys(ticketcount).includes(us.ticket_status?.type)) {
+            ticketcount[us.ticket_status?.type] += 1
+          }
+          else {
+            ticketcount[us.ticket_status?.type] = 1
+          }
+        })
+      }
+      return ticketcount
+    });
+
     res.status(200).json({
       status: "Success",
-      data: groupedTeam
+      data: returnedData
     });
   } catch (error) {
     console.error(error); // Log the error for debugging
@@ -768,7 +785,6 @@ exports.closeTicket = async (req, res) => {
       "Your Ticket is Successfully closed",
       "cc"
     )
-    console.log(user.client.email)
     res.status(200).json({
       status: "Success",
       data: ticket

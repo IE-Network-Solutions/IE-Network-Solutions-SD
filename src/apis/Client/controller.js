@@ -13,6 +13,7 @@ const { sendEmailNotification } = require("../../../utils/sendNotification");
 const NotificationDAL = require("../notifications/dal");
 const { generateVerificationCode } = require("../../../utils/generateVerificationCode");
 const sendEmail = require("../../../utils/sendEmail");
+const StatusDAL = require("../status/dal");
 
 exports.allClients = async (req, res, next) => {
   try {
@@ -197,6 +198,9 @@ exports.createNewTicket = async (req, res, next) => {
     }
 
     data.company = client.company;
+    const status = await StatusDAL.getStatusByType("Open");
+    data.status = status;
+    console.log("status", status)
 
     //   create new ticket
     const newTicket = await ClientDAL.createTicket(data);

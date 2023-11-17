@@ -192,7 +192,6 @@ exports.createEscalation = async (req, res, next) => {
     const emailTo = comment.emailTo;
     const emailCc = comment.emailCc;
     const from = config.company_email;
-    console.log("from email", from)
     // check if ticket exist or not
     const ticket = await TicketDAL.getTicketById(comment.ticket_id);
     if (!ticket) {
@@ -221,19 +220,13 @@ exports.createEscalation = async (req, res, next) => {
 
     // Create Comment
     const newComment = await CommentDAL.createEscalationComment(comment, ticket.id);
-    const sendmail = await sendEmail(
-      from,
-      emailTo,
-      newComment.title,
-      newComment.description,
-      emailCc
-    );
+    await sendEmail(from, emailTo, newComment.title, newComment.description, emailCc);
 
     await NotificationDAL.createNotification({
-      title: "Escalation",
+      title: newComment.title,
       from: from,
       to: emailTo,
-      message: "This is Notification is concerned with ticket escalation",
+      message: newComment.description,
       type: "",
       isRead: false,
       created_at: new Date(),

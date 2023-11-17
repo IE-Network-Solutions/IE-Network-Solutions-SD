@@ -403,6 +403,7 @@ exports.checkVerificationCode = async (req, res, next) => {
   }
 
   if (Date.now() > user.tokenExpirationTime) {
+    await UserDAL.sendChangePasswordAlertByEmail("client", user.email)
     await sendEmail(
       user.email,
       user?.created_by?.email,

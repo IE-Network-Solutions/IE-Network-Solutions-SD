@@ -48,7 +48,10 @@ class PriorityDAL {
       const priorityRepository = connection.getRepository(Priority);
 
       // Create Priority
-      const newPriority = await priorityRepository.create(priority);
+      const newPriority = priorityRepository.create({
+        type: priority?.type,
+        priority_color: priority?.priority_color
+      });
       await priorityRepository.save(newPriority);
       return newPriority;
     } catch (error) {

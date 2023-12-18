@@ -57,6 +57,10 @@ const Notification = new EntitySchema({
       type: "timestamp",
       default: () => "CURRENT_TIMESTAMP",
     },
+    ticket_id: {
+      type: "varchar",
+      nullable: true
+    }
   },
   relations: {
     created_by: {
@@ -74,6 +78,16 @@ const Notification = new EntitySchema({
       target: "User",
       joinColumn: {
         name: "user_id",
+        referencedColumnName: "id",
+      },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
+    },
+    ticket: {
+      type: "many-to-one",
+      target: "Ticket",
+      joinColumn: {
+        name: "ticket_id",
         referencedColumnName: "id",
       },
       onDelete: 'SET NULL',

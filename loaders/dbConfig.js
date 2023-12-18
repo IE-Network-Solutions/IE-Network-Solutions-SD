@@ -4,7 +4,12 @@ const configs = require("../utils/configs");
 module.exports = {
   type: "postgres",
   url: configs.url,
-  ssl: { rejectUnauthorized: false },
+  host: configs.db.postgres.host,
+  port: configs.db.postgres.port,
+  username: configs.db.postgres.userName,
+  password: configs.db.postgres.pswd,
+  database: configs.db.postgres.database,
+  // ssl: { rejectUnauthorized: true },
 
   // host: "dpg-ckimdr0lk5ic73cfbad0-a",
   // port: 5432,

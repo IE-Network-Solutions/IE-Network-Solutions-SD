@@ -27,7 +27,7 @@ clientRouter
   .post(
     authorize,
     permissionMiddleware(['create-contact']),
-    uploadOptions.single("user_profile"),
+    uploadOptions.single("profile_pic"),
     validate(createClientValidator),
     ClientController.createClient
   );
@@ -39,7 +39,7 @@ clientRouter
   .route("/:id")
   .patch(
     uuidValidator,
-    uploadOptions.single("user_profile"),
+    uploadOptions.single("profile_pic"),
     authorize,
     permissionMiddleware(['update-client']),
     ClientController.updateClient
@@ -55,7 +55,7 @@ clientRouter.route("/tickets/getClientTicketById/:id").
   get(authorize, ClientController.getClientTicketById);
 
 clientRouter.route("/tickets/assignClientTicketToTeamByAdmin/:id").
-  post(authorize, ClientController.assignClientTicketToTeamByAdmin);
+  patch(authorize, ClientController.assignClientTicketToTeamByAdmin);
 
 clientRouter.route("/tickets/:id").
   post(authorize, ClientController.assignClientTicketToTeamByAdmin);

@@ -11,8 +11,7 @@ class NotificationDAL {
             const notificationRepository = connection.getRepository(Notification);
 
             // Get Data
-            const notes = await notificationRepository.find({ relations: ["created_by"] });
-            console.log("user", notes)
+            const notes = await notificationRepository.find({ relations: ["created_by", "ticket"] });
             return notes;
         } catch (error) {
             throw error;
@@ -58,7 +57,7 @@ class NotificationDAL {
             const notificationRepository = connection.getRepository(Notification);
 
             // Get Data
-            const foundNotification = await notificationRepository.findOne({ where: { id: id } });
+            const foundNotification = await notificationRepository.findOne({ where: { id: id }, relations: ["created_by", "ticket"] });
             return foundNotification;
         } catch (error) {
             throw error;

@@ -45,6 +45,7 @@ class CompanyDAL {
           "tickets.created_at",
           "tickets.due_date",
           "tickets.closed",
+          "tickets.rate",
           "types.type",
           "types.id",
           "priority.id",
@@ -251,6 +252,12 @@ class CompanyDAL {
   //     throw error
   //   }
   // }
+
+  static async updateHealthScore(id, healthScore) {
+    const connection = getConnection();
+    const companyRepository = await connection.getRepository(Company);
+    return await companyRepository.update(id, { health_score: healthScore })
+  }
 }
 
 module.exports = CompanyDAL;

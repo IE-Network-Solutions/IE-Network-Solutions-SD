@@ -123,7 +123,6 @@ class teamDAL {
     }
   }
 
-
   static async deleteTeamById(id) {
     try {
       const connection = getConnection();

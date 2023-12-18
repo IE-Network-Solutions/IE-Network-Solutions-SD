@@ -23,6 +23,12 @@ const Ticket = new EntitySchema({
       type: "boolean",
       default: false,
     },
+
+    rate: {
+      type: "varchar",
+      default: 0,
+    },
+
     is_deleted: {
       type: "boolean",
       default: false,
@@ -61,7 +67,7 @@ const Ticket = new EntitySchema({
         name: "priority_id",
         referencedColumnName: "id",
       },
-      onDelete: 'CASCADE',
+      onDelete: 'SET NULL',
       onUpdate: 'CASCADE',
     },
     created_by: {
@@ -81,7 +87,7 @@ const Ticket = new EntitySchema({
         name: "status_id",
         referencedColumnName: "id",
       },
-      onDelete: 'CASCADE',
+      onDelete: 'SET NULL',
       onUpdate: 'CASCADE',
     },
     ticket_type: {
@@ -91,7 +97,7 @@ const Ticket = new EntitySchema({
         name: "type_id",
         referencedColumnName: "id",
       },
-      onDelete: 'CASCADE',
+      onDelete: 'SET NULL',
       onUpdate: 'CASCADE',
     },
     team: {

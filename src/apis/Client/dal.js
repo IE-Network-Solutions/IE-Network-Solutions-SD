@@ -9,6 +9,7 @@ const Team = require("../../models/Team");
 const TicketUser = require("../../models/TicketUser");
 const TicketDAL = require("../tickets/dal");
 const { forEach } = require("../../../utils/permissionConstants");
+const TeamUser = require("../../models/TeamUser");
 
 
 class ClientDAL {
@@ -27,6 +28,7 @@ class ClientDAL {
       const client = await clientRepository
         .createQueryBuilder("user")
         .leftJoin("user.client_tickets", "tickets")
+        .leftJoin("user.teams_access", "teams_access")
         .leftJoin("tickets.ticket_type", "types")
         .leftJoin("tickets.ticket_priority", "priority")
         .leftJoin("tickets.ticket_status", "status")
@@ -45,6 +47,10 @@ class ClientDAL {
           "user.last_name",
           "user.email",
           "user.profile_pic",
+          "user.phone_number",
+          "user.user_type",
+          "teams_access.id",
+          "teams_access.name",
           "company.id",
           "company.company_name",
           "company.description",
@@ -112,6 +118,7 @@ class ClientDAL {
       const client = await clientRepository
         .createQueryBuilder("user")
         .leftJoin("user.client_tickets", "tickets")
+        .leftJoin("user.teams_access", "teams_access")
         .leftJoin("tickets.ticket_type", "types")
         .leftJoin("tickets.ticket_priority", "priority")
         .leftJoin("tickets.ticket_status", "status")
@@ -129,7 +136,10 @@ class ClientDAL {
           "user.last_name",
           "user.email",
           "user.profile_pic",
+          "user.phone_number",
           "user.user_type",
+          "teams_access.id",
+          "teams_access.name",
           "company.id",
           "company.company_name",
           "company.description",
@@ -186,7 +196,7 @@ class ClientDAL {
         email,
         department,
         company_id,
-        user_profile,
+        profile_pic,
         phone_number,
         created_by
       } = data;
@@ -213,7 +223,7 @@ class ClientDAL {
         password,
         email,
         company: company,
-        profile_pic: user_profile,
+        profile_pic: profile_pic,
         phone_number,
         created_by: created_by
 
@@ -228,9 +238,6 @@ class ClientDAL {
 
   static async updateClient(id, updatedFields) {
     try {
-      if (!validateUuid(id)) throw "Invalid Id"
-      if (!validateUuid(updatedFields.company_id)) throw "Invalid Company Id"
-
       // create bridge
       const connection = getConnection();
       const clientRepository = connection.getRepository(User);
@@ -238,16 +245,27 @@ class ClientDAL {
       if (!client) {
         throw new Error("client not found!");
       }
-      clientRepository.merge(client, updatedFields);
+      await clientRepository.update(id, {
+        first_name: updatedFields?.first_name,
+        last_name: updatedFields?.last_name,
+        profile_pic: updatedFields?.profile_pic,
+        user_type: updatedFields?.user_type,
+        phone_number: updatedFields?.phone_number,
+      });
 
-      // update if company is changed
-      if (updatedFields.company) {
-        client.company = updatedFields.company;
+      const userTeamRepository = connection.getRepository(TeamUser);
+      await userTeamRepository.delete({ user_id: id });
+
+      if (updatedFields.team_id) {
+        const teams = updatedFields.team_id;
+        const teamEntities = teams.map((teamId) => ({
+          user_id: id,
+          team_id: teamId,
+        }));
+        await userTeamRepository.save(teamEntities);
+
+        return client;
       }
-
-      await clientRepository.save(client);
-
-      return client;
     } catch (error) {
       throw error;
     }
@@ -260,6 +278,8 @@ class ClientDAL {
       const client_tickets = await clientRepository
         .createQueryBuilder("ticket")
         .leftJoinAndSelect("ticket.ticket_status", "ticket_status")
+        .leftJoinAndSelect("ticket.company", "company")
+        .leftJoinAndSelect("ticket.assigned_users", "assigned_users")
         .leftJoinAndSelect("ticket.ticket_type", "ticket_type")
         .leftJoinAndSelect("ticket.ticket_priority", "ticket_priority")
         .leftJoinAndSelect("ticket.team", "team")
@@ -277,7 +297,7 @@ class ClientDAL {
   static async createTicket(data) {
     try {
       //Destructure user requests
-      const { description, priority, subject, type, client, company } = data;
+      const { description, subject, type, client, company } = data;
 
       const id = uuidv4();
 
@@ -291,7 +311,6 @@ class ClientDAL {
       const newTicket = await ticketRepository.create({
         description,
         subject,
-        ticket_priority: priority,
         ticket_type: type,
         client: client,
         company: company,
@@ -332,9 +351,10 @@ class ClientDAL {
       const connection = getConnection();
       const ticketRepository = await connection.getRepository(Ticket);
 
-      for (const teamId of teamsId) {
+      teamsId.map(async (teamId) => {
         await ticketRepository.update(ticketId, { team: teamId });
-      };
+      })
+
       return await this.getClientTicketById(ticketId);
     } catch (error) {
       throw error;

@@ -133,7 +133,7 @@ exports.createPrivateComment = async (req, res, next) => {
     assigned_users = ticket.assigned_users;
 
     // if user is client check there authority
-    if (user.user_type == "client") {
+    if (user.user_type != "client") {
       return next(
         new AppError(
           "unauthorized to comment private replay on the given ticket"
@@ -192,7 +192,6 @@ exports.createEscalation = async (req, res, next) => {
     const emailTo = comment.emailTo;
     const emailCc = comment.emailCc;
     const from = config.company_email;
-    console.log("from email", from)
     // check if ticket exist or not
     const ticket = await TicketDAL.getTicketById(comment.ticket_id);
     if (!ticket) {
@@ -221,19 +220,13 @@ exports.createEscalation = async (req, res, next) => {
 
     // Create Comment
     const newComment = await CommentDAL.createEscalationComment(comment, ticket.id);
-    const sendmail = await sendEmail(
-      from,
-      emailTo,
-      newComment.title,
-      newComment.description,
-      emailCc
-    );
+    await sendEmail(from, emailTo, newComment.title, newComment.description, emailCc);
 
     await NotificationDAL.createNotification({
-      title: "Escalation",
+      title: newComment.title,
       from: from,
       to: emailTo,
-      message: "This is Notification is concerned with ticket escalation",
+      message: newComment.description,
       type: "",
       isRead: false,
       created_at: new Date(),
@@ -336,6 +329,29 @@ exports.getCommentByTicket = async (req, res, next) => {
     res.status(200).json({
       status: "Success",
       data: comments,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.createReplayForSingleComment = async (req, res, next) => {
+  try {
+    const commentId = req.params.id;
+    let comments = [];
+    const comment = await CommentDAL.getOneComment(commentId);
+    if (!comment) {
+      return next(new AppError("Comment does Not exist", 404));
+    }
+
+    comment.replies = []
+    comment.replies.push(req.body)
+    console.log(comment, "comments")
+    const commentReplay = await CommentDAL.editComment(commentId, comment)
+
+    res.status(200).json({
+      status: "Success",
+      data: commentReplay,
     });
   } catch (error) {
     throw error;

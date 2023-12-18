@@ -28,10 +28,10 @@ router.route("/:id").get(uuidValidator, UserController.getOneUser);
 
 router
   .route("/")
-  .post(uploadOptions.single("user_profile"), UserController.createUser);
+  .post(uploadOptions.single("profile_pic"), UserController.createUser);
 
 router.route("/:id").patch(
-  authorize, uuidValidator, uploadOptions.single("user_profile"), UserController.editUser);
+  authorize, uuidValidator, uploadOptions.single("profile_pic"), UserController.editUser);
 router
   .route("/change-password/:id")
   .patch(authorize, permissionMiddleware(['change-user-password']), uuidValidator, validate(change_password), UserController.editPassword);
@@ -58,5 +58,6 @@ router.route("/team-access/:id").post(authorize, UserController.teamAccess);
 router.route("/sendChangePasswordAlertByEmail").post(authorize, UserController.sendChangePasswordAlertByEmail);
 router.route("/sendChangePasswordRequest/:id").patch(UserController.sendChangePasswordRequest);
 router.route("/checkVerificationCode/:id").post(UserController.checkVerificationCode);
+router.route("/get-all-agents/for-a-single-team/:id").get(UserController.getAllAgents);
 
 module.exports = router;

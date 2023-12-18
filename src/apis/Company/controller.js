@@ -1,4 +1,5 @@
 const AppError = require("../../../utils/apperror");
+const CompanyDAL = require("./dal");
 const companyDAL = require("./dal");
 
 exports.allCompanies = async (req, res, next) => {
@@ -98,3 +99,45 @@ exports.deleteCompany = async (req, res, next) => {
     return next(new AppError(`Error with internal server or ${error.message}`, 500))
   }
 };
+
+const perCompanySatisfaction = async (req, res, next) => {
+  const companies = await companyDAL.allCompanies();
+
+  if (!companies || companies.length === 0) {
+    return res.status(404).json({
+      status: "Error",
+      message: "No companies found",
+    });
+  }
+
+  const totalSatisfaction = companies.reduce((sum, company) => {
+    const healthScore = parseInt(company?.health_score) || 0;
+    return sum + healthScore;
+  }, 0);
+  return { totalSatisfaction };
+};
+
+exports.totalCompanySatisfaction = async (req, res, next) => {
+  let totalTickets = 0, positiveSatisfaction = 0, negativeSatisfaction = 0;
+  const clientCompanies = await CompanyDAL.allCompanies();
+  clientCompanies.forEach((company) => {
+    company.tickets.forEach((ticket) => {
+      if (ticket.rate != 0) {
+        totalTickets++;
+        if (ticket.rate >= 3) {
+          positiveSatisfaction++;
+        } else {
+          negativeSatisfaction++;
+        }
+      }
+    });
+  });
+
+  const positivePercentage = (positiveSatisfaction / totalTickets) * 100;
+  const negativePercentage = (negativeSatisfaction / totalTickets) * 100;
+  res.status(200).json({
+    status: "Success",
+    data: { positivePercentage, negativePercentage, per: await perCompanySatisfaction() }
+  })
+};
+

@@ -130,7 +130,7 @@ module.exports = [
     // { name: 'View tickets', slug: 'view-tickets' },
     // { name: 'View ticket for current loggedin user', slug: 'view-ticket-for-logged-in' },
     // { name: 'View grouped ticket by team', slug: 'view-grouped-ticket-by-team' },
-    // { name: 'View assign agents', slug: 'view-assign-agents' },
+    { name: 'View assign agents', slug: 'view-assign-agents' },
     // { name: 'View assign team', slug: 'view-assign-team' },
     // { name: 'View team ticket', slug: 'view-team-ticket' },
     // { name: 'View unassigned ticket', slug: 'view-unassigned-ticket' },
@@ -153,8 +153,10 @@ module.exports = [
     //Client Permissions ????
     // { name: 'Create contact', slug: 'create-contact' },
     // { name: 'Delete client', slug: 'delete-client' },
+    // { name: 'Delete client ticket', slug: 'delete-client-ticket' },
+
     // { name: 'View client', slug: 'view-client' },
-    { name: 'Update client ', slug: 'update-client ' },
+    // { name: 'Update client ', slug: 'update-client ' },
     // { name: 'Send contact activation ', slug: 'send-contact-activation' },
 
     //TicketUser Permissions ????
@@ -193,6 +195,7 @@ module.exports = [
 
     // //UserPermission Permissions
     // { name: 'Create user permission', slug: 'create-user-permission' },
+    { name: 'Create test', slug: 'create-test' },
     // { name: 'View user permission', slug: 'view-user-permission' },
     // { name: 'View user permissions', slug: 'view-user-permissions' },
     // { name: 'Delete user permission', slug: 'delete-user-permission' },

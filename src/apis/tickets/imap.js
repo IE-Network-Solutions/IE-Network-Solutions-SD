@@ -64,6 +64,7 @@ exports.imapFetch = async () => {
                   messageData.headers = Imap.parseHeader(buffer);
                 });
               });
+              console.log("messageData", messageData)
 
               // Extract attributes (flags) of the message
               msg.once('attributes', async function (attrs) {
@@ -118,6 +119,7 @@ exports.imapFetch = async () => {
   } catch (error) {
     console.log(error);
     console.log('An Error occurred because of the server error');
+    return;
   }
 };
 

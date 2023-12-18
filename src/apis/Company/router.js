@@ -41,4 +41,12 @@ companyRouter
     CompanyController.deleteCompany
   );
 
+companyRouter
+  .route("/company/statisifaction/by-percent")
+  .get(
+    authorize,
+    CompanyController.totalCompanySatisfaction
+  );
+
+
 module.exports = companyRouter;

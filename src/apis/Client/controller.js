@@ -14,6 +14,7 @@ const NotificationDAL = require("../notifications/dal");
 const { generateVerificationCode } = require("../../../utils/generateVerificationCode");
 const sendEmail = require("../../../utils/sendEmail");
 const StatusDAL = require("../status/dal");
+const TicketDAL = require("../tickets/dal");
 
 exports.allClients = async (req, res, next) => {
   try {
@@ -60,8 +61,8 @@ exports.singleClient = async (req, res, next) => {
 exports.createClient = async (req, res, next) => {
   try {
     const data = req.body;
-    const user_profile = req.file ? req.file.path : null;
-    data.user_profile = user_profile;
+    const profile_pic = req.file ? req.file.path : null;
+    data.profile_pic = profile_pic;
 
     data.password = hash(generateRandomPassword(8, true, true, true));
     data.created_by = req.user.id;
@@ -72,6 +73,7 @@ exports.createClient = async (req, res, next) => {
       data: client,
     });
   } catch (error) {
+    console.log(error)
     return res.status(500).json(next(new AppError(error, 500)))
   }
 };
@@ -80,30 +82,27 @@ exports.updateClient = async (req, res, next) => {
   try {
     const id = req.params.id;
     const updatedFields = req.body;
-    // check if client exist or not
-    const clientData = await ClientDAL.getClientById(id);
+    const client = await ClientDAL.getClientById(id);
 
-    if (!clientData)
+    if (!client)
       return next(new AppError("client with the given id not found"));
 
-    // check if profilr update
-    if (req.file) {
-      updatedFields.profile_pic = req.file.path;
-    }
+    const profile_pic = req.file && req.file.path ? req.file.path : null;
+    updatedFields.profile_pic = profile_pic;
+
     if (updatedFields.password) {
       updatedFields.password = hash(updatedFields.password);
       updatedFields.password_changed = true;
     }
     // check if company is on the update
-    if (updatedFields.company_id) {
-      const company = await CompanyDAL.getCompanyById(updatedFields.company_id);
+    if (updatedFields.companyId) {
+      const company = await CompanyDAL.getCompanyById(updatedFields.companyId);
       if (!company) {
         return next(new AppError("company with the given id not found"));
       }
-      updatedFields.company = company;
+      updatedFields.companyId = company;
     }
-    const client = await ClientDAL.updateClient(id, updatedFields);
-
+    await ClientDAL.updateClient(id, updatedFields);
     res.status(200).json({
       status: "Success",
       data: client,
@@ -136,18 +135,32 @@ exports.deleteClient = async (req, res, next) => {
 
 exports.clientTickets = async (req, res, next) => {
   try {
-
     const user = req.user;
-    if (user.user_type != "client") {
+    if (user.user_type !== "client") {
       return next(new AppError("Unauthorized user"));
     }
     const tickets = await ClientDAL.getClientTickets(user);
+    // Separate tickets based on status
+    const openTickets = tickets.filter(ticket => ticket?.ticket_status?.type === "Open");
+    const pendingTickets = tickets.filter(ticket => ticket?.ticket_status?.type === "Pending");
+    const closedTickets = tickets.filter(ticket => ticket?.ticket_status?.type === "Closed");
+    const escalateTickets = tickets.filter(ticket => ticket?.ticket_status?.type === "Escalet");
+    const assignedTickets = tickets.filter(ticket => ticket?.assigned_users?.length != 0);
+    const unAssignedTickets = tickets.filter(ticket => ticket?.assigned_users?.length === 0);
+
     res.status(200).json({
       status: "Success",
-      data: tickets,
+      data: {
+        openTickets,
+        pendingTickets,
+        closedTickets,
+        escalateTickets,
+        assignedTickets,
+        unAssignedTickets
+      },
     });
   } catch (error) {
-    return res.status(500).json(next(new AppError(error, 500)))
+    return res.status(500).json(next(new AppError(error, 500)));
   }
 };
 
@@ -172,12 +185,12 @@ exports.createNewTicket = async (req, res, next) => {
     data.type = type;
 
     // get priority
-    const priority = await PriorityDAL.getPriority(data.priority_id);
+    // const priority = await PriorityDAL.getPriority(data.priority_id);
 
-    if (!priority) {
-      return next(new AppError("such priority does not exist", 404));
-    }
-    data.priority = priority;
+    // if (!priority) {
+    //   return next(new AppError("such priority does not exist", 404));
+    // }
+    // data.priority = priority;
 
     // get client
     const client = await ClientDAL.getClientById(user.id);
@@ -200,11 +213,10 @@ exports.createNewTicket = async (req, res, next) => {
     data.company = client.company;
     const status = await StatusDAL.getStatusByType("Open");
     data.status = status;
-    console.log("status", status)
 
     //   create new ticket
     const newTicket = await ClientDAL.createTicket(data);
-
+    console.log("admin id : ", req.user.id)
     admins.map((admin) => (
       NotificationDAL.createNotification({
         title: "Creating ticket",
@@ -244,7 +256,6 @@ exports.createNewTicket = async (req, res, next) => {
     return res.status(500).json(next(new AppError(error, 500)))
   }
 };
-
 
 exports.getAllClientTicketsByAdmin = async (req, res, next) => {
   try {
@@ -302,7 +313,6 @@ exports.assignClientTicketToTeamByAdmin = async (req, res, next) => {
     })
     const result = await ClientDAL.assignClientTicketToTeamByAdmin(ticketId, teamsId)
     teamsId.map((team) => (
-
       NotificationDAL.createNotification({
         title: "Assign client to team",
         from: currentLoggedInUser.id,
@@ -350,3 +360,4 @@ exports.sendActivationCode = async (req, res, next) => {
     return res.status(500).json(next(new AppError(error, 500)))
   }
 };
+

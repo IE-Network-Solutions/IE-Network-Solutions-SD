@@ -29,17 +29,22 @@ class UserPermissonDAL {
     }
     static async deleteUserPermissionById(id) {
         try {
-            const conneciton = await getConnection();
-            const UserPermissionRepo = await conneciton.getRepository(UserPermissonDAL);
-            const permission = UserPermissionRepo.find({ where: { pemission_id: id } });
-            if (!permission) {
+            const connection = await getConnection();
+            const UserPermissionRepo = connection.getRepository(UserPermission);
+            const permissions = await UserPermissionRepo.find({ where: { user_id: id } });
+
+            if (!permissions.length) {
                 return;
             }
-            return await UserPermissionRepo.remove(permission);
-        } catch (error) {
 
+            await UserPermissionRepo.remove(permissions);
+
+        } catch (error) {
+            console.error(`Error deleting user permissions for user ${id}: ${error.message}`);
+            throw error;
         }
     }
+
 
     static async assignPermissionToUser(userId, permissionId) {
         try {
@@ -65,18 +70,36 @@ class UserPermissonDAL {
         }
     }
 
-    static async updateUserPermissionById(id, userpermission) {
+    static async updateUserRolePermissionByUserId(id, userRolepermission) {
         try {
-            const connection = await getConnection();
-            const PermissionRepo = await connection.getRepository(Permission);
-            const data = await PermissionRepo.findOne({ where: { id: id } });
-            const permission = await PermissionRepo.merge(data, userpermission)
-            return await PermissionRepo.save(permission);
-        }
-        catch (error) {
+            const { roleId, permissionsId } = userRolepermission;
+            const connections = getConnection();
+            const userRepo = connections.getRepository(User);
+            const userPermissionRepo = connections.getRepository(UserPermission);
 
+            await userRepo.update(id, { role: roleId });
+
+            const existingUserPermissions = await this.getUserPermissionById(id);
+
+            await Promise.all(existingUserPermissions.map(async (user) => {
+                await this.deleteUserPermissionById(user.user_id);
+            }));
+
+            const incommingUserPermissions = await permissionsId?.map(permissionId => {
+                return userPermissionRepo.create({
+                    user_id: id,
+                    permission_id: permissionId
+                });
+            });
+
+            return await userPermissionRepo.save(incommingUserPermissions);
+
+        } catch (error) {
+            console.error(`Error updating user role and permissions for user ${id}: ${error.message}`);
+            throw error;
         }
     }
+
 }
 
 module.exports = UserPermissonDAL;

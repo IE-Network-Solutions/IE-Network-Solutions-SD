@@ -41,4 +41,8 @@ router
   .route("/:id")
   .delete(authorize, permissionMiddleware(['delete-client-ticket']), uuidValidator, CommentController.deleteComment);
 
+router
+  .route("/comment-replay/by-comment-id/:id")
+  .patch(authorize, uuidValidator, CommentController.createReplayForSingleComment);
+
 module.exports = router;

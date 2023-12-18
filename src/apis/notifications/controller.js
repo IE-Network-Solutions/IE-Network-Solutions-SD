@@ -47,7 +47,6 @@ exports.getAllUserNotifications = async (req, res, next) => {
 }
 
 exports.getAllSystemNotifications = async (req, res, next) => {
-    console.log("SYSTEM");
     try {
         // Get All System Notifications
         let notifications = await NotificationDAL.getAllSystemNotifications();

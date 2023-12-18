@@ -13,6 +13,7 @@ const bcrypt = require("bcryptjs");
 const generateRandomPassword = require("../../../utils/generateRandomPassword");
 const config = require("../../../utils/configs");
 const { sendEmailNotification } = require("../../../utils/sendNotification");
+const teamDAL = require("../team/dal");
 
 class UserDAL {
   // Get All Users
@@ -25,7 +26,7 @@ class UserDAL {
       // Get Data
       const users = await userRepository.find({
         where: { user_type: "employee", is_deleted: false },
-        select: ["id", "first_name", "last_name", "email", "user_type"],
+        select: ["id", "first_name", "last_name", "email", "user_type", "profile_pic", "phone_number"],
         relations: [
           "team",
           "manager",
@@ -41,6 +42,11 @@ class UserDAL {
   }
 
   // Get One User
+  static async getUserTeam(id) {
+    const connecition = getConnection();
+    const teamUserRepository = await connecition.getRepository(TeamUser);
+    return await teamUserRepository.find({ where: { user_id: id }, relations: ['team'] })
+  }
   static async getOneUser(data) {
     const id = data;
     try {
@@ -61,9 +67,10 @@ class UserDAL {
           "verificationCode",
           "tokenExpirationTime",
           "profile_pic",
-          "created_by"
+          "created_by",
+          "phone_number"
         ],
-        relations: ["team", "manager", "role.permissions", "permissions", "created_by"],
+        relations: ["manager", "role.permissions", "permissions", "created_by", "teams_access"],
       });
       return foundUser;
     } catch (error) {
@@ -122,9 +129,10 @@ class UserDAL {
         email,
         password,
         role,
-        team,
-        manager_id,
+        teams,
+        phone_number,
         profile_pic,
+        manager_id,
       } = data;
       const user_type = "employee";
 
@@ -139,21 +147,22 @@ class UserDAL {
         email,
         password,
         user_type,
+        phone_number,
         manager_id: manager_id,
-        profile_pic,
+        profile_pic: profile_pic,
       });
 
       if (role) {
         newUser.role = role;
       }
 
-      if (team) {
-        newUser.team = team;
+      if (teams) {
+        newUser.teams = teams;
       }
       await userRepository.save(newUser);
 
-      if (team) {
-        await this.teamAccess(newUser.id, [team.id]);
+      if (teams) {
+        await this.teamAccess(newUser?.id, teams);
       }
 
       return newUser;
@@ -162,24 +171,36 @@ class UserDAL {
     }
   }
 
-  // Edit User
   static async editUser(id, data) {
     try {
-      // Create User Objects
       const idUser = id;
       const updatedFields = data;
-
-      // Form Connection
       const connection = getConnection();
       const userRepository = connection.getRepository(User);
-
       const user = await userRepository.findOne({ where: { id: idUser } });
-      // Update User
-      // Update only the specified fields in the updatedFields object
-      userRepository.merge(user, updatedFields);
+      if (!user) {
+        throw new Error('User not found');
+      }
+      await userRepository.update(id, {
+        first_name: updatedFields?.first_name,
+        last_name: updatedFields?.last_name,
+        phone_number: updatedFields?.phone_number,
+        user_type: updatedFields?.user_type,
+        profile_pic: updatedFields?.profile_pic,
+      });
+      console.log("user profile picture", updatedFields)
 
-      await userRepository.save(user);
+      const userTeamRepository = connection.getRepository(TeamUser);
+      await userTeamRepository.delete({ user_id: id });
 
+      if (updatedFields.team_id) {
+        const teams = updatedFields.team_id;
+        const teamEntities = teams.map((teamId) => ({
+          user_id: id,
+          team_id: teamId,
+        }));
+        await userTeamRepository.save(teamEntities);
+      }
       return user;
     } catch (error) {
       throw error;
@@ -222,7 +243,6 @@ class UserDAL {
       throw error;
     }
   }
-
   // get user by email
   static async getUserByEmail(email) {
     try {
@@ -233,7 +253,7 @@ class UserDAL {
       // get user by email
       const user = userRepository.findOne({
         where: { email: email },
-        relations: ["role", "permissions", "teams_access", "managed_teams"],
+        relations: ["role.permissions", "permissions", "teams_access", "managed_teams"],
       });
 
       // return user
@@ -281,6 +301,8 @@ class UserDAL {
   static async teamAccess(userId, teamIds) {
     // create connection
     const connection = getConnection();
+    console.log("list of teams", userId)
+
 
     // create bridge to user db
     const userRepository = connection.getRepository(User);
@@ -374,6 +396,12 @@ class UserDAL {
         password_changed: true
       }
     );
+  }
+
+  static async getAllAdminsByRole(roleName) {
+    const connection = getConnection();
+    const userRepository = await connection.getRepository(User);
+    return await userRepository.find({ where: { role: roleName } })
   }
 }
 

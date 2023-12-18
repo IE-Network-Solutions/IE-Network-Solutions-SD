@@ -7,12 +7,12 @@ const authorize = require("../../middlewares/auth/authorization");
 const permissionMiddleware = require("../../middlewares/permission.middleware");
 
 const router = require('express').Router();
-router.route("/").get(authorize, permissionMiddleware(['view-user-permissions']), UserPermissionController.getAllUserPermission);
-router.route("/:id").get(authorize, permissionMiddleware(['view-user-permission']), uuidValidator, UserPermissionController.getUserPermissionById);
+router.route("/").get(authorize, UserPermissionController.getAllUserPermission);
+router.route("/:id").get(authorize, uuidValidator, UserPermissionController.getUserPermissionById);
 router.route("/:id").post(authorize, validator(createUserPermissionValidator), UserPermissionController.assignPermissionToUser);
-router.route("/:id").delete(authorize, permissionMiddleware(['delete-user-permission']), UserPermissionController.deleteUserPermissionById);
-router.route("/:userId/:id").delete(authorize, permissionMiddleware(['delete-user-permission-by-user-id']), UserPermissionController.deleteSpecificUserPermissionById);
-router.route("/:id").patch(authorize, permissionMiddleware(['update-user-permission']), UserPermissionController.updateUserPermissionById);
+// router.route("/:id").delete(authorize, UserPermissionController.deleteUserPermissionById);
+router.route("/:id").delete(authorize, UserPermissionController.deleteUserPermissionById);
+router.route("/user-role-permission/:id").post(authorize, UserPermissionController.updateUserRolePermissionByUserId);
 
 
 module.exports = router;

@@ -21,7 +21,6 @@ exports.introduction = async (req, res, next) => {
     data: {},
   });
 };
-
 exports.getAllUsers = async (req, res, next) => {
   try {
     // Get All Users
@@ -36,7 +35,6 @@ exports.getAllUsers = async (req, res, next) => {
     throw error;
   }
 };
-
 exports.getOneUser = async (req, res, next) => {
   try {
     // Get ID
@@ -74,20 +72,15 @@ exports.getLoggedUserData = async (req, res, next) => {
     throw error;
   }
 };
-
 exports.createUser = async (req, res, next) => {
   try {
     // Get Req Body
-
     let user = req.body;
-    const user_profile = req.file ? req.file.path : null;
-    user.profile_pic = user_profile;
+
+    const profile_pic = req.file ? req.file.path : null;
+    user.profile_pic = profile_pic;
     user.password = hash(generateRandomPassword(8, true, true, true));
     user.user_id = req?.user?.id;
-    console.log("user id", user)
-    // user.password = hash("%TGBnhy6");
-
-    // check if email exsist or not
     const checkUser = await UserDAL.getUserByEmail(user.email);
     if (checkUser) {
       return next(new AppError("user with the given email already exist"));
@@ -95,22 +88,20 @@ exports.createUser = async (req, res, next) => {
 
     // check if role exist
     if (user.role_id) {
-      const role = await RoleDAL.findOneRoleById(user.role_id);
+      const role = await RoleDAL.getRoleById(user.role_id);
       if (!role) return next(new AppError("role does not exist"));
       user.role = role;
     }
 
-    // check if department exist
     if (user.team_id) {
       const team = await teamDAL.getTeam(user.team_id);
       if (!team) return next(new AppError("team does not exist"));
       user.team = team;
     }
 
-    // Create New User
     let newUser = await UserDAL.createUser(user);
     await UserDAL.sendChangePasswordAlertByEmail("employee", req.body.email);
-    // Respond
+
     res.status(200).json({
       status: "Success",
       data: newUser,
@@ -119,7 +110,6 @@ exports.createUser = async (req, res, next) => {
     return next(new AppError(error));
   }
 };
-
 exports.deleteUser = async (req, res, next) => {
   try {
     // Get Req Body
@@ -138,7 +128,6 @@ exports.deleteUser = async (req, res, next) => {
     return next(new AppError("Server Error", 500));
   }
 };
-
 exports.deleteAllUsers = async (req, res, next) => {
   try {
     // Delete All Users
@@ -153,14 +142,12 @@ exports.deleteAllUsers = async (req, res, next) => {
     throw error;
   }
 };
-
 exports.editUser = async (req, res, next) => {
   try {
     // Get Req Body
-    console.log("id");
     let id = req.params.id;
-    console.log("id");
     let user = req.body;
+
 
     //   check if user exist or not
     let chekUser = await UserDAL.getOneUser(id);
@@ -172,13 +159,10 @@ exports.editUser = async (req, res, next) => {
       const role = await RoleDAL.getRoleById(user.role_id);
       user.role = role;
     }
-
-    // check if profilr update
-    if (req.file) {
-      user.profile_pic = req.file.path;
-    }
-
+    const profile_pic = req.file && req.file.path ? req.file.path : null;
+    user.profile_pic = profile_pic;
     // Edit User
+
     let editedUser = await UserDAL.editUser(id, user);
 
     // Respond
@@ -194,14 +178,11 @@ exports.editUser = async (req, res, next) => {
 exports.editPassword = async (req, res, next) => {
   try {
     // Get Req Body
-    console.log("id");
     let id = req.params.id;
-    console.log("id");
     let user = req.body;
 
     //   check if user exist or not
     let chekUser = await UserDAL.getOneUser(id);
-    console.log(chekUser.password);
     if (!chekUser) {
       return next(new AppError("user does not exist", 404));
     }
@@ -230,7 +211,6 @@ exports.editPassword = async (req, res, next) => {
     throw error;
   }
 };
-
 exports.loginUser = async (req, res, next) => {
   // Get Req Body
   let { email, password } = req.body;
@@ -274,7 +254,6 @@ exports.loginUser = async (req, res, next) => {
     },
   });
 };
-
 exports.resetPassword = async (req, res, next) => {
   try {
     // Get Req Body
@@ -300,7 +279,6 @@ exports.resetPassword = async (req, res, next) => {
     throw error;
   }
 };
-
 exports.forgotPassword = async (req, res, next) => {
   try {
     // Get Req Body
@@ -335,11 +313,9 @@ exports.forgotPassword = async (req, res, next) => {
     throw error;
   }
 };
-
 exports.logout = async (req, res, next) => {
   const currentLoggedInUserToken = await UserDAL.logout(req.user.id);
   // const user = await UserDAL.getOneUser(currentLoggedInUserToken.userId)
-  console.log(currentLoggedInUserToken)
   if (!req.user.id) {
     return next(new AppError("There is Error", 400))
   }
@@ -350,40 +326,61 @@ exports.logout = async (req, res, next) => {
     // data: user
   });
 };
-
 exports.teamAccess = async (req, res, next) => {
   try {
     const userId = req.params.id;
     const teamIds = req.body.teams;
 
-    //   validate uuid
-    teamIds.map((uuid) => {
+    // Validate UUIDs
+    for (const uuid of teamIds) {
       if (!validateUuid(uuid)) {
         return next(new AppError("Invalid team Id", 500));
       }
-    });
+    }
 
-    // check teams
+    // Check teams
     const teams = await teamDAL.findMultipleTeams(teamIds);
-    if (!teams)
-      return next(new AppError("team from the input does not exist", 404));
+    if (!teams) {
+      return next(new AppError("Teams from the input do not exist", 404));
+    }
 
-    // check user
+    // Check user
     const user = await UserDAL.getOneUser(userId);
-    if (!user) return next("user does not exist", 404);
+    if (!user) {
+      return next(new AppError("User does not exist", 404));
+    }
 
-    // assign team for the user
-    const teamUser = await UserDAL.teamAccess(userId, teamIds);
+    // Assign teams for the user
+    await UserDAL.teamAccess(userId, teamIds);
 
+    // Get user teams
+    const teamUser = await UserDAL.getUserTeam(userId);
+    let teamArray = [];
+
+    // Get user information
+    const userInfo = await UserDAL.getOneUser(userId);
+    delete userInfo.role;
+    delete userInfo.permissions;
+
+    for (const user of teamUser) {
+      if (user.user_id === userId) {
+        const team = await teamDAL.getTeam(user.team_id);
+        delete team.tickets;
+        teamArray.push(team);
+      }
+    }
+    userInfo.teams_access = teamArray
+
+    // Respond with user information and teams
     res.status(200).json({
       status: "Success",
-      data: teamUser,
+      data: userInfo
     });
+
   } catch (error) {
-    throw error;
+    next(error);
   }
 };
-
 exports.sendChangePasswordAlertByEmail = async (req, res, next) => {
   const user = await UserDAL.sendChangePasswordAlertByEmail(req.user.email, req.user.email);
   if (!user) {
@@ -453,4 +450,37 @@ exports.sendChangePasswordRequest = async (req, res, next) => {
   }
 
 }
+
+exports.getAllAgents = async (req, res, next) => {
+  try {
+    const user = await UserDAL.getOneUser(req.params.id);
+    if (!user) {
+      return next(new AppError("User Not Found.", "404"));
+    }
+
+    if (user.teams_access.length == null) {
+      return next(new AppError("User team Not Found.", "404"));
+    }
+
+    const allUsers = await UserDAL.getAllUsers();
+    const filteredUsers = allUsers.filter(otherUser => {
+      return otherUser?.teams_access?.some(singleTeam =>
+        singleTeam?.name === user?.teams_access[0]?.name
+      );
+    });
+
+    res.status(200).json({
+      status: "Success",
+      data: filteredUsers,
+    });
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError && error.message === 'invalid signature') {
+      return res.status(401).json({ error: 'Invalid token signature' });
+    }
+
+    // Handle other errors here
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
 

@@ -22,10 +22,9 @@ class PermissionDAL {
     }
     static async createPermission(permissions) {
         try {
-            const { name } = permissions;
             const connection = await getConnection();
             const PermissionRepo = await connection.getRepository(Permission);
-            const permission = await PermissionRepo.create({ name });
+            const permission = await PermissionRepo.create({ name: permissions?.name, slug: permissions?.slug });
             return await PermissionRepo.save(permission);
         } catch (error) {
             throw error;

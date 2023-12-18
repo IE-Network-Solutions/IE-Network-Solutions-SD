@@ -158,6 +158,7 @@ class TicketDAL {
           "ticket.created_at",
           "ticket.due_date",
           "ticket.closed",
+          "ticket.rate",
           "types.type",
           "types.id",
           "priority.id",
@@ -296,8 +297,6 @@ class TicketDAL {
       throw error;
     }
   }
-
-
   static async deleteJunkTicket(id) {
     try {
       // get connection from the pool
@@ -318,9 +317,7 @@ class TicketDAL {
       const {
         status,
         description,
-        priority,
         subject,
-        team,
         type,
         client,
         company,
@@ -341,12 +338,9 @@ class TicketDAL {
         id,
         status,
         description,
-        priority,
         subject,
-        ticket_priority: priority,
         ticket_status: status,
         ticket_type: type,
-        team: team,
         client: client,
         company: company,
         created_by: created_by,
@@ -369,7 +363,6 @@ class TicketDAL {
     if (!ticket) {
       throw new Error("Ticket is Not Found with the provided id");
     }
-    console.log("ticket", ticket)
 
     const status = await StatusDAL.getStatus(updatedFields.status_id);
 
@@ -524,16 +517,37 @@ class TicketDAL {
     const ticketRepository = connection.getRepository(Ticket);
 
     // Fetch tickets with related data and group by status
+    // const ticketStatusCounts = await ticketRepository
+    //   .createQueryBuilder("ticket")
+    //   .leftJoin("ticket.ticket_status", "status")
+    //   .select([
+    //     "status.id AS statusId",
+    //     "status.type AS statusType",
+    //     "COUNT(ticket.id) AS ticketCount",
+    //   ])
+    //   .where("ticket.is_deleted = :is_deleted", { is_deleted })
+    //   .groupBy("status.id", "status.type")
+    //   .orderBy("status.id")
+    //   .getRawMany();
+
     const ticketStatusCounts = await ticketRepository
       .createQueryBuilder("ticket")
       .leftJoin("ticket.ticket_status", "status")
+      .leftJoin("ticket.team", "team")
       .select([
+        "ticket.id",
+        "ticket.subject",
+        "ticket.description",
+        "ticket.created_at",
+        "ticket.due_date",
+        "team.id",
+        "team.name",
         "status.id AS statusId",
         "status.type AS statusType",
         "COUNT(ticket.id) AS ticketCount",
       ])
       .where("ticket.is_deleted = :is_deleted", { is_deleted })
-      .groupBy("status.id", "status.type")
+      .groupBy(["status.id", "ticket.id", "status.type", "team.id"])
       .orderBy("status.id")
       .getRawMany();
 
@@ -697,6 +711,7 @@ class TicketDAL {
     });
     return ticketUser;
   }
+
   static async getTeamTicketByTeamId(teamId) {
     const connection = getConnection();
     const ticketRepository = connection.getRepository(Ticket);
@@ -725,20 +740,27 @@ class TicketDAL {
   static async closeTicket(ticketId, statusId) {
     try {
       const connection = getConnection();
-      const statusRepository = await connection.getRepository(Ticket);
-      const status = await StatusDAL.getStatus(statusId);
-      if (status.type == "Closed") {
-        await statusRepository.update(ticketId, { ticket_status: statusId });
-        return await statusRepository.update(ticketId, { closed: true });
-      }
-      return await statusRepository.update(ticketId, { ticket_status: statusId });
+      const ticketRepository = await connection.getRepository(Ticket);
+
+      await ticketRepository.update(ticketId, { ticket_status: statusId });
+      return await ticketRepository.update(ticketId, { closed: true });
 
     } catch (error) {
       throw error
     }
   }
+
+  static async createRate(id, rate) {
+    const connection = getConnection();
+    const rateRepository = connection.getRepository(Ticket);
+    return await rateRepository.update(id, { rate: rate })
+  }
+
+  static async updateTicketPriority(id, body) {
+    const connection = getConnection();
+    const ticketRepository = connection.getRepository(Ticket);
+    return await ticketRepository.update(id, { ticket_priority: body })
+  }
 }
-
-
 
 module.exports = TicketDAL;

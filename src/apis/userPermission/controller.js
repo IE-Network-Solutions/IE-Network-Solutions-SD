@@ -81,28 +81,9 @@ const groupPermissionsByUserID = (data) => {
 
 exports.deleteUserPermissionById = async (req, res, next) => {
   try {
-    const id = req.params.id;
-    const permission = await UserPermissionDAL.deleteUserPermissionById(id);
+    const permission = await UserPermissionDAL.deleteUserPermissionById(req.params.id);
     if (!permission) {
       return next(new AppError("User Permission is Not Found"));
-    }
-    res.status(200).json({
-      status: "Success",
-      message: "User and permission is Deleted successfully",
-    });
-  } catch (error) {
-    console.log(error);
-    return next(new AppError(error, 500));
-  }
-};
-
-exports.deleteSpecificUserPermissionById = async (req, res, next) => {
-  try {
-    const { userId, id } = req.params;
-    console.log(userId, id);
-    const user = await UserDAL.deleteSpecificUserPermissionById(userId, id);
-    if (!user) {
-      return next(new AppError("User permission not found"));
     }
     res.status(200).json({
       status: "Success",
@@ -151,30 +132,36 @@ exports.assignPermissionToUser = async (req, res, next) => {
     return next(new AppError("Server Error", 500));
   }
 };
-exports.updateUserPermissionById = async (req, res, next) => {
+
+exports.updateUserRolePermissionByUserId = async (req, res, next) => {
   try {
-    const id = req.params.id;
-    const data = req.body;
-    const isExist = await UserPermissionDAL.getUserPermissionById(id);
-    if (isExist.length === 0) {
-      return next(new AppError("User Permission id is Not Found"));
+    const { roleId, permissionsId } = req.body;
+
+    const user = await UserDAL.getOneUser(req.params.id);
+    if (!user) {
+      return next(new AppError("User Not Found", 404));
     }
-    // if(isExist.name)
-    const userPermission = await UserPermissionDAL.updateUserPermissionById(
-      id,
-      data
-    );
-    if (!userPermission) {
-      return next(new AppError("User Permission not found"));
-    } else {
-      res.status(200).json({
-        status: "Success",
-        message: "User permission is update successfully",
-        data: userPermission,
-        statusCode: 201,
-      });
+
+    const role = await RoleDAL.getRoleById(roleId);
+    if (!role) {
+      return next(new AppError("Role Not Found", 404));
     }
+
+    permissionsId?.map(async (permissionId) => {
+      const permission = await PermissionDAL.getPermissionById(permissionId);
+      if (!permission) {
+        return next(new AppError("Permission Not Found", 404));
+      }
+    })
+
+    await UserPermissionDAL.updateUserRolePermissionByUserId(req.params.id, req.body);
+
+    res.status(200).json({
+      status: "Success",
+      data: await UserDAL.getOneUser(req.params.id)
+    });
   } catch (error) {
+    console.log(error)
     return next(new AppError("Server error", 500));
   }
 };

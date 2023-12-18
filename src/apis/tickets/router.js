@@ -29,7 +29,7 @@ router
 
 router
   .route("/user-assigned-ticket")
-  .get(authorize, permissionMiddleware(["view-assign-agents"]), TicketController.getAssignedTicketsForLoggedinUser)
+  .get(authorize, TicketController.getAssignedTicketsForLoggedinUser)
 router.route("/tickt-status").get(authorize, TicketController.getTicketsByStatus);
 router.route("/tickt-team-count").get(authorize, permissionMiddleware(["view-assign-agents"]), TicketController.getTicketsCountByTeam);
 router.route("/").get(authorize, permissionMiddleware(["view-tickets"]), TicketController.getAllTickets);
@@ -69,7 +69,7 @@ router
 
 router.route("/getAllTickets/ForCurrentLoggedInUser").get(
   authorize,
-  permissionMiddleware(["view-ticket-for-logged-in"]),
+  permissionMiddleware(["view-ticket-for-logged-in-user"]),
   TicketController.getAllTicketsForCurrentLoggedInUser
 );
 
@@ -121,6 +121,12 @@ router
     authorize,
     TicketController.closeTicket
   );
+
+router.route("/tickets/client-rating/rate/:id").
+  patch(authorize, TicketController.clientRating);
+
+router.route("/tickets/update-priority/:id").
+  patch(authorize, TicketController.updateTicketPriority);
 
 
 

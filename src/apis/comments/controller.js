@@ -133,7 +133,7 @@ exports.createPrivateComment = async (req, res, next) => {
     assigned_users = ticket.assigned_users;
 
     // if user is client check there authority
-    if (user.user_type == "client") {
+    if (user.user_type != "client") {
       return next(
         new AppError(
           "unauthorized to comment private replay on the given ticket"
@@ -329,6 +329,29 @@ exports.getCommentByTicket = async (req, res, next) => {
     res.status(200).json({
       status: "Success",
       data: comments,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.createReplayForSingleComment = async (req, res, next) => {
+  try {
+    const commentId = req.params.id;
+    let comments = [];
+    const comment = await CommentDAL.getOneComment(commentId);
+    if (!comment) {
+      return next(new AppError("Comment does Not exist", 404));
+    }
+
+    comment.replies = []
+    comment.replies.push(req.body)
+    console.log(comment, "comments")
+    const commentReplay = await CommentDAL.editComment(commentId, comment)
+
+    res.status(200).json({
+      status: "Success",
+      data: commentReplay,
     });
   } catch (error) {
     throw error;

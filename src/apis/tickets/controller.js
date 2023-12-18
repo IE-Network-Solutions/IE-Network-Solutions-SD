@@ -14,6 +14,7 @@ const { sendEmailNotification } = require("../../../utils/sendNotification");
 const NotificationDAL = require("../notifications/dal");
 const TeamUser = require("../../models/TeamUser");
 const { forEach } = require("../../../utils/permissionConstants");
+const CompanyDAL = require("../Company/dal");
 
 /**
  *
@@ -71,6 +72,7 @@ exports.getAllJunkTickets = async (req, res, next) => {
     throw error;
   }
 };
+
 exports.getJunkTicket = async (req, res, next) => {
   try {
     //   get all tickets
@@ -91,6 +93,7 @@ exports.getJunkTicket = async (req, res, next) => {
     throw error;
   }
 };
+
 exports.getAllUnTransferedJunkTickets = async (req, res, next) => {
   try {
     //   get all tickets
@@ -140,7 +143,6 @@ exports.transferJunkTicketToTicket = async (req, res, next) => {
 
   }
 }
-
 
 exports.deleteJunkTicket = async (req, res, next) => {
   try {
@@ -202,20 +204,9 @@ exports.createNewTicket = async (req, res, next) => {
     }
     data.type = type;
 
-    // get department
-    const team = await teamDAL.getTeam(data.team_id);
-    if (!team) {
-      throw next(new Error("team does not exist", 404));
+    if (req?.user?.role === "Admin") {
+      const admin = await teamDAL.getAllTeams();
     }
-    data.team = team;
-
-    // get priority
-    const priority = await PriorityDAL.getPriority(data.priority_id);
-
-    if (!priority) {
-      return next(new AppError("such priority does not exist", 404));
-    }
-    data.priority = priority;
     if (data.client_id) {
       // get client
       const client = await ClientDAL.getClientById(data.client_id);
@@ -224,8 +215,6 @@ exports.createNewTicket = async (req, res, next) => {
         return next(new AppError("such client does not exist", 404));
       }
 
-      if (client.user_type == "client") {
-      }
       if (client.user_type !== "client") {
         return next(new AppError("client should be type client", 500));
       }
@@ -273,16 +262,10 @@ exports.createNewTicket = async (req, res, next) => {
       Thank you!`,
       "Change password"
     );
+
     // when new ticket is created email will be send to the admins
     let subject = "New Ticket created";
     let body = `Please follow the ticket progress through the following link`;
-    // const sendmail = await sendEmail(
-    //   from,
-    //   to,
-    //   subject,
-    //   newTicket.description,
-    //   to
-    // );
 
     res.status(201).json({
       status: "new Ticket is created Successfully",
@@ -292,7 +275,6 @@ exports.createNewTicket = async (req, res, next) => {
     throw error;
   }
 };
-
 //This method implements to update ticket
 exports.updateTicket = async (req, res, next) => {
   try {
@@ -300,9 +282,9 @@ exports.updateTicket = async (req, res, next) => {
     const updatedFields = req.body;
     const user = req.user;
 
-    if (!(user.role.roleName == "Admin")) {
-      return next(new AppError("Unauthorized to update this ticket"));
-    }
+    // if (!(user.role.roleName == "Admin")) {
+    //   return next(new AppError("Unauthorized to update this ticket"));
+    // }
 
     // check if ticket exist or not
     const ticketData = await TicketDAL.getTicketById(id);
@@ -347,8 +329,7 @@ exports.updateTicket = async (req, res, next) => {
       }
       updatedFields.team = team;
     }
-
-    const ticket = await TicketDAL.updateTicket(id, updatedFields);
+    await TicketDAL.updateTicket(id, updatedFields);
     res.status(200).json({
       status: `Ticket with id ${id} is Successfully updated`,
       data: await TicketDAL.getTicketById(id),
@@ -386,13 +367,13 @@ exports.assignUserToTicket = async (req, res, next) => {
 
     const ticketData = await TicketDAL.getTicketById(ticketId);
 
-    if (!ticketData || !ticketData.team) {
-      return next(new AppError("Invalid Id", 500));
-    }
-    const teamLeadId = ticketData.team.team_lead.id;
+    // if (!ticketData || !ticketData.team) {
+    //   return next(new AppError("Invalid Id", 500));
+    // }
+    const teamLeadId = ticketData?.team?.team_lead?.id;
 
     // if (userId != teamLeadId) {
-    //   return next(new AppError("you don't have access assigne users for this ticket", 500));
+    //   return next(new AppError("You don't have access assigne agents for this ticket", 500));
     // }
     //   validate uuid
     userIds.map((uuid) => {
@@ -545,8 +526,19 @@ exports.getAllTicketsForCurrentLoggedInUser = async (req, res, next) => {
     }, []);
 
     const ticketsForCurrentLoggedInUser = allTickets.filter(ticket => ticket?.created_by?.id === currentLoggedInUser.id);
-    const unAssignedTickets = allTickets.filter(ticket => ticket.assigned_users.length === 0 && ticket.created_by === null);
 
+    let unAssignedTickets;
+    if (currentLoggedInUser.role.roleName === "Admin"
+      || currentLoggedInUser.role.roleName === "Manager"
+      || currentLoggedInUser.role.roleName === "Director"
+      || currentLoggedInUser.role.roleName === "CEO"
+    ) {
+      unAssignedTickets = allTickets.filter(ticket => ticket?.team === null);
+    }
+
+    if (currentLoggedInUser.role.roleName === "team-lead") {
+      unAssignedTickets = allTickets.filter(ticket => ticket.assigned_users.length === 0);
+    }
     res.status(200).json({
       status: 'Success',
       userTicket: ticketsForCurrentLoggedInUser,
@@ -773,21 +765,22 @@ exports.viewTicketdetailByAdminById = async (req, res) => {
   }
 };
 
-exports.closeTicket = async (req, res) => {
+exports.closeTicket = async (req, res, next) => {
   try {
     const status = await StatusDAL.getStatusByType("Closed");
-    const ticket = await TicketDAL.closeTicket(req.params.id, status.id);
+    await TicketDAL.closeTicket(req.params.id, status.id);
     const user = await TicketDAL.getTicketById(req.params.id);
+
     await sendEmail(
       req.user.email,
       user.client.email,
       "Ticket Notification",
-      "Your Ticket is Successfully closed",
+      "Dear client, Your ticket is closed successfully",
       "cc"
     )
     res.status(200).json({
       status: "Success",
-      data: ticket
+      data: user
     });
   } catch (error) {
     res.status(500).json({
@@ -797,4 +790,77 @@ exports.closeTicket = async (req, res) => {
   }
 };
 
+exports.clientRating = async (req, res, next) => {
+  const healthScore = req.body.healthScore;
+  const ticket = await TicketDAL.getTicketById(req.params.id);
+  if (!ticket) {
+    return next(new AppError("Ticket Not Found", 404))
+  }
+  let rating = 0;
+  if (healthScore == 5) {
+    rating = 5;
+  }
+  if (healthScore == 4) {
+    rating = 4;
+  }
+  if (healthScore == 3) {
+    rating = 3;
+  }
+  if (healthScore == 2) {
+    rating = 2;
+  }
+  if (healthScore == 1) {
+    rating = 1
+  }
+  await TicketDAL.createRate(req.params.id, parseInt(rating));
+  const admins = await UserDAL.getAllAdmins();
+  console.log("who is this :", req.user.first_name);
+  admins?.map(async (admin) => {
+    const singleAdmin = await UserDAL.getOneUser(admin?.id);
+    admins?.map(async (admin) => {
+      const singleAdmin = await UserDAL.getOneUser(admin.id);
+      await NotificationDAL.createNotification({
+        title: "Close ticket Request",
+        from: req.user.id,
+        to: singleAdmin?.email,
+        message: `Dear, Please close my ticket}`,
+        type: "user",
+        isRead: false,
+        created_at: new Date(),
+        created_by: req.user.id
+      })
+    })
 
+    await sendEmail(
+      req?.user?.email,
+      singleAdmin?.email,
+      "Ticket Notification",
+      "Dear, Please close my ticket",
+      "cc"
+    )
+  })
+
+  res.status(200).json({
+    status: "success",
+    data: await TicketDAL.getTicketById(req.params.id),
+  })
+}
+
+exports.updateTicketPriority = async (req, res, next) => {
+  const ticket = await TicketDAL.getTicketById(req.params.id);
+
+  if (!ticket) {
+    return next(new AppError("Ticket with given id does NOT exist", 404));
+  }
+
+  const priority = await PriorityDAL.getPriority(req.body?.priority_id);
+  if (!priority) {
+    return next(new AppError("Priority does not exist"));
+  }
+
+  await TicketDAL.updateTicketPriority(ticket.id, priority);
+  res.status(200).json({
+    status: "Success",
+    data: await TicketDAL.getTicketById(ticket.id)
+  })
+}

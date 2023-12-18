@@ -9,7 +9,6 @@ const sendEmail = async (from, to, subject, body, cc) => {
     html: body,
     cc: cc,
   };
-  console.log("mail options", mailOptions)
 
   var transporter = nodemailer.createTransport({
     host: configs.email.hostURL,
@@ -32,7 +31,7 @@ const sendEmail = async (from, to, subject, body, cc) => {
       console.log(error);
       return false;
     } else {
-      console.log("Email sent: " + info.response);
+      console.log("Email is sent successfully", info.response);
       return true;
     }
   });

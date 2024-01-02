@@ -41,6 +41,10 @@ const Ticket = new EntitySchema({
       type: "timestamp",
       default: () => "CURRENT_TIMESTAMP",
     },
+    isRequested: {
+      type: "boolean",
+      default: false,
+    }
   },
   relations: {
     assigned_users: {

@@ -275,6 +275,8 @@ exports.createNewTicket = async (req, res, next) => {
     throw error;
   }
 };
+
+
 //This method implements to update ticket
 exports.updateTicket = async (req, res, next) => {
   try {
@@ -790,31 +792,15 @@ exports.closeTicket = async (req, res, next) => {
   }
 };
 
-exports.clientRating = async (req, res, next) => {
-  const healthScore = req.body.healthScore;
+exports.closeTicketRequest = async (req, res, next) => {
+  const admins = await UserDAL.getAllAdmins();
   const ticket = await TicketDAL.getTicketById(req.params.id);
+  console.log(ticket)
   if (!ticket) {
     return next(new AppError("Ticket Not Found", 404))
   }
-  let rating = 0;
-  if (healthScore == 5) {
-    rating = 5;
-  }
-  if (healthScore == 4) {
-    rating = 4;
-  }
-  if (healthScore == 3) {
-    rating = 3;
-  }
-  if (healthScore == 2) {
-    rating = 2;
-  }
-  if (healthScore == 1) {
-    rating = 1
-  }
-  await TicketDAL.createRate(req.params.id, parseInt(rating));
-  const admins = await UserDAL.getAllAdmins();
-  console.log("who is this :", req.user.first_name);
+
+  await TicketDAL.updateIsCloseTicketRequested(req.params.id,true )
   admins?.map(async (admin) => {
     const singleAdmin = await UserDAL.getOneUser(admin?.id);
     admins?.map(async (admin) => {
@@ -839,6 +825,35 @@ exports.clientRating = async (req, res, next) => {
       "cc"
     )
   })
+
+  res.status(200).json({
+    status: "success",
+    data: await TicketDAL.getTicketById(req.params.id),
+  })
+}
+exports.clientRating = async (req, res, next) => {
+  const healthScore = req.body.healthScore;
+  const ticket = await TicketDAL.getTicketById(req.params.id);
+  if (!ticket) {
+    return next(new AppError("Ticket Not Found", 404))
+  }
+  let rating = 0;
+  if (healthScore == 5) {
+    rating = 5;
+  }
+  if (healthScore == 4) {
+    rating = 4;
+  }
+  if (healthScore == 3) {
+    rating = 3;
+  }
+  if (healthScore == 2) {
+    rating = 2;
+  }
+  if (healthScore == 1) {
+    rating = 1
+  }
+  await TicketDAL.createRate(req.params.id, parseInt(rating));
 
   res.status(200).json({
     status: "success",

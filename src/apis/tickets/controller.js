@@ -276,8 +276,6 @@ exports.createNewTicket = async (req, res, next) => {
   }
 };
 
-
-//This method implements to update ticket
 exports.updateTicket = async (req, res, next) => {
   try {
     const id = req.params.id;

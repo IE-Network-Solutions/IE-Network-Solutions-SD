@@ -306,11 +306,11 @@ class ClientDAL {
 
       // create bridge
       const ticketRepository = connection.getRepository(Ticket);
-
+      const sub = await this.generateTicketNumber(data?.subject);
       // create ticket
       const newTicket = await ticketRepository.create({
         description,
-        subject,
+        subject : sub,
         ticket_type: type,
         client: client,
         company: company,
@@ -320,6 +320,24 @@ class ClientDAL {
       return newTicket;
     } catch (error) {
       throw error
+    }
+  }
+
+  static async generateTicketNumber(ticketName) {
+    try {
+      const connection = getConnection();
+      const ticketRepository = connection.getRepository(Ticket);
+
+      const ticket = await ticketRepository.find();
+
+      // Generate the padded ticket number
+      const fullTicketNumber = ticket.length + 1;
+      const formattedNumber = String(fullTicketNumber).padStart(6, '0');
+      return `${formattedNumber}/${new Date().toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' })}/EXTERNAL/${ticketName}`;
+
+    } catch (error) {
+      console.error('Error in generateTicketNumber:', error);
+      throw error; // Rethrow the error to indicate the issue
     }
   }
 

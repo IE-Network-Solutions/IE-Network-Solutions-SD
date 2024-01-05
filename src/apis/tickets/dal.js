@@ -159,6 +159,7 @@ class TicketDAL {
           "ticket.due_date",
           "ticket.closed",
           "ticket.rate",
+          "ticket.isRequested",
           "types.type",
           "types.id",
           "priority.id",
@@ -286,8 +287,8 @@ class TicketDAL {
           created_by: user,
           client: client
         }
-
-        const transfer = await this.createNewTicket(newT)
+        const isJenkTicket = true;
+        const transfer = await this.createNewTicket(newT,isJenkTicket)
 
         return { updateTicket: updatedTicket, transfer: transfer };
       } else {
@@ -311,7 +312,7 @@ class TicketDAL {
     }
   }
   //This method implements to create new ticket
-  static async createNewTicket(data) {
+  static async createNewTicket(data, isJenkTicket) {
     try {
       //Destructure user requests
       const {
@@ -333,12 +334,13 @@ class TicketDAL {
       // create bridge
       const ticketRepository = connection.getRepository(Ticket);
 
-      // create ticket
+      const sub = await this.generateTicketNumber(data?.subject, isJenkTicket);
+
       const newTicket = ticketRepository.create({
         id,
         status,
         description,
-        subject,
+        subject : sub,
         ticket_status: status,
         ticket_type: type,
         client: client,
@@ -349,6 +351,27 @@ class TicketDAL {
 
     } catch (error) {
       throw error;
+    }
+  }
+
+  static async generateTicketNumber(ticketName, isJenkTicket) {
+    try {
+      const connection = getConnection();
+      const ticketRepository = connection.getRepository(Ticket);
+
+      const ticket = await ticketRepository.find();
+
+      // Generate the padded ticket number
+      const fullTicketNumber = ticket.length+1;
+      const formattedNumber = String(fullTicketNumber).padStart(6, '0');
+
+      console.log(formattedNumber)
+      const check = isJenkTicket ? "EXTERNAL" : "INTERNAL" ;
+      return `${formattedNumber}/${new Date().toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' })}/${check}/${ticketName}`;
+
+    } catch (error) {
+      console.error('Error in generateTicketNumber:', error);
+      throw error; // Rethrow the error to indicate the issue
     }
   }
 
@@ -463,7 +486,6 @@ class TicketDAL {
       throw error;
     }
   }
-
   // filter by any query
   static async filterTicket(data) {
     const { ticket_priority, ticket_status, ticket_type, department } = data;
@@ -662,7 +684,6 @@ class TicketDAL {
 
     return data;
   }
-
   // assigned tickets for logged in user status not closed 
   static async getAssignedTickets(userId) {
 
@@ -760,6 +781,12 @@ class TicketDAL {
     const connection = getConnection();
     const ticketRepository = connection.getRepository(Ticket);
     return await ticketRepository.update(id, { ticket_priority: body })
+  }
+
+  static async updateIsCloseTicketRequested(id, status) {
+    const connection = getConnection();
+    const ticketRepository = connection.getRepository(Ticket);
+    return await ticketRepository.update(id, { isRequested: status })
   }
 }
 

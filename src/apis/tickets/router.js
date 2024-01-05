@@ -120,7 +120,10 @@ router
   .patch(
     authorize,
     TicketController.closeTicket
-  );
+);
+  
+router.route("/close-ticket-request/by-ticket-id/:id")
+.patch(authorize, TicketController.closeTicketRequest)
 
 router.route("/tickets/client-rating/rate/:id").
   patch(authorize, TicketController.clientRating);

@@ -10,19 +10,19 @@
 // const vapidPrivateKey = "vfNstzu7uUFRlHuVg2cgW8sdHrC76QB4aCey7ezvFcw";
 // // console.log("Vapid keys",vapidPublicKey,vapidPrivateKey); // if you want to depub
 
-const notification=require('../../../utils/notification')
+const notification = require('../../../utils/notification')
 let tokenlist = [];
 
 exports.newBrowser = async (req, res, next) => {
     try {
         // Get Req Body
-        const {token , isSafari , auth , endpoint} = req.body
-        tokenlist.push({token:token,auth:auth,isSafari:isSafari,endpoint:endpoint});
+        const { token, isSafari, auth, endpoint } = req.body
+        tokenlist.push({ token: token, auth: auth, isSafari: isSafari, endpoint: endpoint });
 
-    
+
         // Respond
         res.status(200).json({
-          status: "Success",
+            status: "Success",
         });
     } catch (error) {
         throw error;
@@ -32,12 +32,12 @@ exports.newBrowser = async (req, res, next) => {
 exports.notify = async (req, res, next) => {
     try {
         const payload = JSON.stringify({ title: "FloridaJS Notifications are amazing", body: "And this event was well worth the money I spent on donations!" });
-   // Hit each browser that registered with us.
-   notification.webpush.sendNotification(req.body.subscription,payload); 
+        // Hit each browser that registered with us.
+        notification.webpush.sendNotification(req.body.subscription, payload);
         // Respond
         res.status(200).json({
-          status: "Success",
-          notifications:tokenlist.length +2  + " notification sent"
+            status: "Success",
+            notifications: tokenlist.length + 2 + " notification sent"
         });
     } catch (error) {
         throw error;
